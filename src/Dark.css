@@ -1,0 +1,257 @@
+#root {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem;
+    text-align: center;
+}
+
+.app {
+    min-height: 100vh;
+}
+
+body {
+    font-family: "Noto Sans", sans-serif;
+    font-size: small;
+    background-color: #213547;
+}
+
+.table, .table th, .table td {
+    border: 1px solid aqua;
+    border-collapse: collapse;
+    margin: 5px;
+    padding: 5px;
+    font-family: "Noto Sans", sans-serif;
+}
+
+h2 {
+    margin: 1rem 0;
+    font-family: "Noto Sans", sans-serif;
+    color: darkslategray;
+}
+
+.table {
+    margin: 0 auto;
+    width: 600px;
+}
+
+.table-header {
+    background-color: cadetblue;
+    color: #213547;
+}
+
+.table-column-header {
+    background-color: #213547;
+    color: darkseagreen;
+}
+
+.table-data {
+    background-color: #213547;
+    color: darkcyan;
+}
+
+.table-data-new {
+    background-color: #213547;
+    color: darkcyan;
+}
+
+.link-pointer {
+    cursor: pointer;
+    color: darkcyan;
+}
+
+input, textarea, select, option, button {
+    margin: 5px;
+    padding: 5px;
+    font-family: "Noto Sans", sans-serif;
+    background-color: #213547;
+    color: darkcyan;
+    font-size: small;
+}
+
+.small-text-hint {
+    font-size: x-small;
+    color: darkcyan;
+}
+
+.edit-td-header {
+    background-color: #213547;
+    color: darkcyan;
+    text-align: right;
+    width: 150px;
+    text-wrap: nowrap;
+}
+
+.edit-td-data {
+    background-color: #213547;
+    color: darkcyan;
+    text-align: left;
+}
+
+.user-profile-widget {
+    margin: 0 auto;
+    padding: 1rem;
+    background-color: #213547;
+    color: darkcyan;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.profile-container {
+    position: relative;
+}
+
+.profile-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: #213547;
+    border: 1px solid aqua;
+    border-radius: 4px;
+    padding: 0.5rem 0;
+    min-width: 150px;
+    z-index: 1000;
+}
+
+.profile-container:hover .profile-menu {
+    display: block;
+}
+
+.menu-item {
+    display: block;
+    padding: 0.5rem 1rem;
+    color: darkcyan;
+    cursor: pointer;
+    text-align: left;
+}
+
+.menu-item:hover {
+    background-color: #2c4257;
+}
+
+.user-profile {
+    cursor: pointer;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: #213547;
+    padding: 2rem;
+    border-radius: 8px;
+    border: 1px solid aqua;
+    max-width: 600px;
+    width: 100%;
+    position: relative;
+}
+
+.modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    cursor: pointer;
+    color: darkcyan;
+    border: none;
+    background: none;
+    font-size: 1.5rem;
+}
+
+.deck-name {
+    width: 100px;
+    text-wrap: nowrap;
+}
+
+.deck-description {
+    width: 200px;
+    text-wrap: nowrap;
+}
+
+.home-button {
+    margin: 1rem;
+    padding: 0.5rem 1rem;
+    background-color: #213547;
+    color: darkcyan;
+    border: 1px solid aqua;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: small;
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+}
+
+.tag-widget {
+    position: relative;
+    width: 100%;
+}
+
+.tag-input-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border: 1px solid aqua;
+    border-radius: 4px;
+    background-color: #213547;
+}
+
+.tag-input {
+    border: none;
+    outline: none;
+    flex: 1;
+    min-width: 120px;
+    background-color: transparent;
+}
+
+.tag-label {
+    display: inline-flex;
+    align-items: center;
+    background-color: #2c4257;
+    color: darkcyan;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: small;
+}
+
+.tag-remove {
+    background: none;
+    border: none;
+    margin-left: 0.5rem;
+    cursor: pointer;
+    padding: 0 4px;
+    color: darkcyan;
+}
+
+.tag-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: #213547;
+    border: 1px solid aqua;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    z-index: 1000;
+}
+
+.tag-suggestion {
+    padding: 0.5rem;
+    cursor: pointer;
+    color: darkcyan;
+}
+
+.tag-suggestion:hover {
+    background-color: #2c4257;
+}

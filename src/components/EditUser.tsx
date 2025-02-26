@@ -1,7 +1,8 @@
 import {useLocation, useNavigate} from 'react-router-dom';
-import '../Admin.css';
+import '../Dark.css';
+import UserProfileWidget from "./UserProfileWidget.tsx";
 
-function editPasswordRows() {
+const editPasswordRows = () => {
     return (
         <>
             <tr>
@@ -17,7 +18,7 @@ function editPasswordRows() {
     );
 }
 
-function addPasswordRows() {
+const addPasswordRows = () => {
     return (
         <>
             <tr>
@@ -32,14 +33,14 @@ function addPasswordRows() {
     );
 }
 
-function deleteButton() {
+const deleteButton = () => {
     return (
         <button>Delete User</button>
     );
 }
 
 
-function EditUser() {
+const EditUser = () => {
     const location = useLocation();
     const {user} = location.state || {};
     const navigate = useNavigate();
@@ -51,29 +52,30 @@ function EditUser() {
     return (
         <>
             <div>
-                <h2>Ai Forgot These Cards - {user.id > 0 ? "Edit" : "Add"} User</h2>
+                <UserProfileWidget />
+                <h2>Ai Forgot These Cards - {user !== null ? "Edit" : "Add"} User</h2>
                 <table className={'table'}>
                     <thead>
                     <tr className={'table-header'}>
-                        <th colSpan={2}>{user.id > 0 ? "Editing" : "Adding new"} user{user.id > 0 ? ": " + user.id : ""}</th>
+                        <th colSpan={2}>{user !== null ? "Editing" : "Adding new"} user{user !== null ? ": " + user.id : ""}</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr>
                         <td className={"edit-td-header"}>Name:</td>
                         <td className={"edit-td-data"}><input name={"name"}
-                                                              defaultValue={user.id > 0 ? user.name : ""}/></td>
+                                                              defaultValue={user !== null ? user.name : ""}/></td>
                     </tr>
                     <tr>
                         <td className={"edit-td-header"}>Username:</td>
                         <td className={"edit-td-data"}><input name={"username"}
-                                                              defaultValue={user.id > 0 ? user.username : ""}/></td>
+                                                              defaultValue={user !== null ? user.username : ""}/></td>
                     </tr>
-                    {user.id > 0 ? editPasswordRows() : addPasswordRows()}
+                    {user != null ? editPasswordRows() : addPasswordRows()}
                     <tr>
                         <td className={"edit-td-header"}>Role:</td>
                         <td className={"edit-td-data"}>
-                            <select name={"role"} defaultValue={user.id > 0 ? user.role : "user"}>
+                            <select name={"role"} defaultValue={user !== null ? user.role : "user"}>
                                 <option value={"user"}>User</option>
                                 <option value={"admin"}>Admin</option>
                             </select>
@@ -82,7 +84,7 @@ function EditUser() {
                     <tr>
                         <td className={"edit-td-header"}>Active:</td>
                         <td className={"edit-td-data"}>
-                            <select name={"active"} defaultValue={user.id > 0 ? user.active : "true"}>
+                            <select name={"active"} defaultValue={user !== null ? user.active : "true"}>
                                 <option value={"true"}>True</option>
                                 <option value={"false"}>False</option>
                             </select>
@@ -90,9 +92,9 @@ function EditUser() {
                     </tr>
                     <tr>
                         <td colSpan={2}>
-                            {user.id > 0 ? deleteButton() : ""}
+                            {user !== null ? deleteButton() : ""}
                             <button onClick={cancelRoute}>Cancel</button>
-                            <button>{user.id > 0 ? "Save" : "Add"}</button>
+                            <button>{user !== null ? "Save" : "Add"}</button>
                         </td>
                     </tr>
                     </tbody>

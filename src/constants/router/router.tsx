@@ -6,11 +6,13 @@ import {
 import Admin from "../../components/Admin";
 import EditUser from "../../components/EditUser.tsx";
 import AddModel from "../../components/AddModel.tsx";
+import Home from "../../components/Home.tsx";
+import EditDeck from "../../components/EditDeck.tsx";
 
 const ROUTES = [
     {
       path: "/",
-      element: <meta httpEquiv="refresh" content="0;url=/admin" />
+      element: <meta httpEquiv="refresh" content="0;url=/home" />
     },
     {
         path: "/admin",
@@ -23,6 +25,18 @@ const ROUTES = [
     {
         path: "/admin/add-model",
         element: <AddModel/>
+    },
+    {
+        path: "/home",
+        element: <Home/>
+    },
+    {
+        path: "/deck/edit",
+        element: <EditDeck/>
+    },
+    {
+        path: "/deck/edit",
+        element: <EditDeck/>
     }
 ];
 

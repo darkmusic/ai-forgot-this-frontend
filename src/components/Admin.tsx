@@ -1,52 +1,54 @@
-import {Link, useNavigate } from 'react-router-dom';
-import '../Admin.css';
+import {Link, useNavigate} from 'react-router-dom';
+import '../Dark.css';
 import { USERS, AI_MODELS, User, AiModel } from "../constants/data/data.ts";
+import UserProfileWidget from "./UserProfileWidget.tsx";
+import HomeWidget from "./HomeWidget.tsx";
 
-const UserRow = ({ user }: { user: User }) => {
+const UserRow = ({ user }: { user: User | null }) => {
     const navigate = useNavigate();
     return (
         <tr>
             <td className={'table-data'}>
                 <a className={"link-pointer"} onClick={() => navigate('/admin/edit-user', { state: { user: user } })}>
-                    {user.username}
+                    {user === null ? "<new>" : user.username}
                 </a>
             </td>
             <td className={'table-data'}>
                 <a className={"link-pointer"} onClick={() => navigate('/admin/edit-user', { state: { user: user } })}>
-                    {user.username}
+                    {user === null ? "<new>" : user.username}
                 </a>
             </td>
         </tr>
     );
 };
 
-const AiModelRow = ({ aiModel }: { aiModel: AiModel }) => {
+const AiModelRow = ({ aiModel }: { aiModel: AiModel | null}) => {
     return (
         <tr>
-            <td className={'table-data'}>{aiModel.name}</td>
-            <td className={'table-data'}>{aiModel.model}</td>
+            <td className={'table-data'}>{aiModel === null ? "<new>" : aiModel.name}</td>
+            <td className={'table-data'}>{aiModel === null ? "<new>" : aiModel.model}</td>
         </tr>
     );
 };
 
-const AiModelNewRow = ({ aiModel }: { aiModel: AiModel }) => {
+const AiModelNewRow = () => {
     return (
         <tr>
             <td className={'table-data'}>
                 <Link to="/admin/add-model" className={"link-pointer"}>
-                    {aiModel.name}
+                    {"<new>"}
                 </Link>
             </td>
             <td className={'table-data'}>
                 <Link to="/admin/add-model" className={"link-pointer"}>
-                    {aiModel.name}
+                    {"<new>"}
                 </Link>
             </td>
         </tr>
     );
 };
 
-function Users() {
+const Users = () => {
     return (
         <table className={'table'}>
             <thead>
@@ -62,12 +64,13 @@ function Users() {
             {USERS.map((user) => {
                 return <UserRow key={user.username} user={user} />;
             })}
+            <UserRow key={"<new>"} user={null} />
             </tbody>
         </table>
     );
 }
 
-function AiModels() {
+const AiModels = () => {
     return (
         <table className={'table'}>
             <thead>
@@ -81,20 +84,20 @@ function AiModels() {
             </thead>
             <tbody>
             {AI_MODELS.map((aiModel) => {
-                if (aiModel.id === 0) {
-                    return <AiModelNewRow key={aiModel.model} aiModel={aiModel} />;
-                }
                 return <AiModelRow key={aiModel.model} aiModel={aiModel} />;
             })}
+            <AiModelNewRow/>
             </tbody>
         </table>
     );
 }
 
-function Admin() {
+const Admin = () => {
     return (
         <>
             <div>
+                <HomeWidget/>
+                <UserProfileWidget />
                 <h2>Ai Forgot These Cards - Admin</h2>
                 <Users />
                 <br />

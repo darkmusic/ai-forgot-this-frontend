@@ -1,7 +1,8 @@
-import '../Admin.css'
+import '../Dark.css'
 import {useNavigate} from "react-router-dom";
+import UserProfileWidget from "./UserProfileWidget.tsx";
 
-function AddModel() {
+const AddModel = () => {
     const navigate = useNavigate();
     const cancelRoute = () => {
         const path = '/admin';
@@ -10,6 +11,7 @@ function AddModel() {
 
     return (
         <>
+            <UserProfileWidget />
             <div>
                 <h2>Ai Forgot These Cards - Add Model</h2>
                 <p>Adding model</p>
@@ -22,17 +24,17 @@ function AddModel() {
                 </thead>
                 <tbody>
                 <tr>
-                    <td>Model:</td>
+                    <td className={"edit-td-header"}>Model:</td>
                     <td><input name={"model"} size={60} /></td>
                 </tr>
                 <tr>
-                    <td>Ollama Log</td>
+                    <td className={"edit-td-header"}>Ollama Log</td>
                     <td><textarea name={"ollamaLog"} rows={10} cols={60}/></td>
                 </tr>
                 <tr>
-                    <td colSpan={2}>
+                    <td className={"table-data"} colSpan={2}>
                         <button onClick={cancelRoute}>Cancel</button>
-                        <button>Add</button>
+                        <button>Pull / Add</button>
                     </td>
                 </tr>
                 </tbody>
