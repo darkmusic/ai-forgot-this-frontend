@@ -1,9 +1,9 @@
-import '../Dark.css';
-import {useAuth} from "./Authentication.ts";
+import '../../Dark.css';
+import {useAuth} from "../Shared/Authentication.ts";
 import {useState} from 'react';
-import UserSettingsForm from './UserSettings';
+import UserSettingsForm from './UserSettings.tsx';
 import * as React from "react";
-import {User} from "../constants/data/data.ts";
+import {User} from "../../constants/data/data.ts";
 import {useNavigate} from "react-router-dom";
 
 const UserProfile = (props: { user: User }) => {

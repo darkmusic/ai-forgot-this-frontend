@@ -1,4 +1,4 @@
-import '../Dark.css'
+import '../../Dark.css'
 
 const UserSettingsForm = ({onClose}: { onClose: () => void }) => {
     const handleSubmit = (e: { preventDefault: () => void; }) => {

@@ -1,6 +1,6 @@
 import {useLocation, useNavigate} from 'react-router-dom';
-import '../Dark.css';
-import UserProfileWidget from "./UserProfileWidget.tsx";
+import '../../Dark.css';
+import UserProfileWidget from "../Main/UserProfileWidget.tsx";
 
 const editPasswordRows = () => {
     return (

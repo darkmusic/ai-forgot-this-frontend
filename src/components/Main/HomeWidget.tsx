@@ -1,4 +1,4 @@
-import '../Dark.css'
+import '../../Dark.css'
 import {useNavigate} from "react-router-dom";
 
 const HomeWidget = () => {

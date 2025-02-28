@@ -1,8 +1,8 @@
 import {Link, useNavigate} from 'react-router-dom';
-import '../Dark.css';
-import { USERS, AI_MODELS, User, AiModel } from "../constants/data/data.ts";
-import UserProfileWidget from "./UserProfileWidget.tsx";
-import HomeWidget from "./HomeWidget.tsx";
+import '../../Dark.css';
+import { USERS, AI_MODELS, User, AiModel } from "../../constants/data/data.ts";
+import UserProfileWidget from "../Main/UserProfileWidget.tsx";
+import HomeWidget from "../Main/HomeWidget.tsx";
 
 const UserRow = ({ user }: { user: User | null }) => {
     const navigate = useNavigate();
@@ -83,10 +83,10 @@ const AiModels = () => {
             </tr>
             </thead>
             <tbody>
+            <AiModelNewRow/>
             {AI_MODELS.map((aiModel) => {
                 return <AiModelRow key={aiModel.model} aiModel={aiModel} />;
             })}
-            <AiModelNewRow/>
             </tbody>
         </table>
     );

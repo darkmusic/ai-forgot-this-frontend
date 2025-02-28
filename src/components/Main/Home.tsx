@@ -1,10 +1,10 @@
-import '../Dark.css'
+import '../../Dark.css'
 import {useState} from "react";
-import {DECKS, Tag} from "../constants/data/data.ts";
+import {DECKS, Tag} from "../../constants/data/data.ts";
 import UserProfileWidget from "./UserProfileWidget.tsx";
 import SearchAndFilterWidget from "./SearchAndFilterWidget.tsx";
 import DeckInfoTable from "./DeckInfoTable.tsx";
-import {FilterDecks} from "../constants/data/DeckConstants.ts";
+import {FilterDecks} from "../../constants/data/DeckConstants.ts";
 
 const Home = () => {
     const [selectedTags, setSelectedTags] = useState<Tag[]>([]);

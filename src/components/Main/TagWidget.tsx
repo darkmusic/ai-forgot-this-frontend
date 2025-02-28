@@ -1,13 +1,14 @@
 import {useState, useRef, KeyboardEvent, ChangeEvent, Dispatch, SetStateAction} from 'react';
-import {TAGS, Tag} from "../constants/data/data.ts";
+import {TAGS, Tag} from "../../constants/data/data.ts";
 import * as React from "react";
 
 interface TagWidgetProps {
     onTagsChange?: Dispatch<SetStateAction<Tag[]>>
+    initialTags?: Tag[]
 }
 
-const TagWidget = ({onTagsChange}: TagWidgetProps) => {
-    const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
+const TagWidget = ({onTagsChange, initialTags}: TagWidgetProps) => {
+    const [selectedTags, setSelectedTags] = useState<Tag[]>(initialTags || []);
     const [input, setInput] = useState('');
     const [suggestions, setSuggestions] = useState<Tag[]>([]);
     const inputRef = useRef<HTMLInputElement>(null);

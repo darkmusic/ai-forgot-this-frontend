@@ -1,11 +1,11 @@
 import UserProfileWidget from "./UserProfileWidget.tsx";
 import SearchAndFilterWidget from "./SearchAndFilterWidget.tsx";
-import {Card, Deck, Tag} from "../constants/data/data.ts";
+import {Card, Deck, Tag} from "../../constants/data/data.ts";
 import {useState} from "react";
 import {useLocation, useNavigate} from "react-router-dom";
 import HomeWidget from "./HomeWidget.tsx";
-import DeckInfoTable from "./DeckInfoTable.tsx";
-import {FilterCards} from "../constants/data/CardConstants.ts";
+import {FilterCards} from "../../constants/data/CardConstants.ts";
+import TagWidget from "./TagWidget.tsx";
 
 const CardRow = ({card}: { card: Card | null }) => {
     const navigate = useNavigate();
@@ -25,8 +25,9 @@ const CardRow = ({card}: { card: Card | null }) => {
     else {
         return (
             <tr>
-                <td className={"edit-td-data"}><input type={"text"} name={"deckName"}/></td>
-                <td className={"edit-td-data"}><input type={"text"} name={"deckDescription"}/></td>
+                <td className={"edit-td-data"}><a className={"link-pointer"} onClick={() => navigate("/card/edit", {state: {card}})}>{"<new>"}</a></td>
+                <td className={"edit-td-data"}><a className={"link-pointer"} onClick={() => navigate("/card/edit", {state: {card}})}>{"<new>"}</a></td>
+                <td className={"edit-td-data"}><a className={"link-pointer"} onClick={() => navigate("/card/edit", {state: {card}})}>Create</a></td>
             </tr>
         );
     }
@@ -43,30 +44,33 @@ const CardTable = ({cards}: { cards: Card[] }) => {
             </tr>
             </thead>
             <tbody>
+            <CardRow key={"<new>"} card={null}/>
             {cards?.map((card: Card) => (
                 <CardRow key={card.front} card={card}/>
             ))}
-            <CardRow key={"<new>"} card={null}/>
             </tbody>
         </table>
     );
 }
 
 const EditDeck = () => {
-    const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
+    const [selectedCardTags, setSelectedCardTags] = useState<Tag[]>([]);
+    const [, setSelectedDeckTags] = useState<Tag[]>([]);
     const [searchText, setSearchText] = useState('');
     const { state } = useLocation();
+    const navigate = useNavigate();
+
     let deck = state?.deck as Deck;
-    const filteredCards = FilterCards(deck?.cards, selectedTags, searchText);
+    const filteredCards = FilterCards(deck?.cards, selectedCardTags, searchText);
     if (deck === null) {
         deck = {
             id: 0,
             name: 'New Deck',
             description: '',
-            cards: []
+            cards: [],
+            tags: []
         }
     }
-    const filteredDecks = [deck];
 
     return (
         <div>
@@ -77,14 +81,34 @@ const EditDeck = () => {
             <br/>
             {deck.id === 0 ? <h3>Create Deck</h3> : <h3>Deck: {deck?.cards[0].deck?.name}</h3>}
             <br/>
-            {deck.id > 0 && <SearchAndFilterWidget searchText={searchText} setSearchText={setSearchText} selectedTags={selectedTags} setSelectedTags={setSelectedTags}/>}
+            <table className={"table"}>
+                <tbody>
+                <tr>
+                    <td className={"edit-td-header"}>Deck Name:</td>
+                    <td className={"edit-td-data"}><input name={"deckName"} defaultValue={deck.name}/></td>
+                </tr>
+                <tr>
+                    <td className={"edit-td-header"}>Deck Description:</td>
+                    <td className={"edit-td-data"}><input name={"deckDescription"} defaultValue={deck.description}/></td>
+                </tr>
+                <tr>
+                    <td className={"edit-td-header"}>Deck Tags:</td>
+                    <td className={"edit-td-data"}>
+                        <TagWidget onTagsChange={setSelectedDeckTags} initialTags={deck.tags}/>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <button onClick={() => navigate('/home')}>Cancel</button>
+            <button onClick={() => navigate('/home')}>Save</button>
+
             <br/>
-            <DeckInfoTable decks={filteredDecks}/>
+            <br/>
+            {deck.id > 0 && <h3>Cards</h3>}
+            {deck.id > 0 && <SearchAndFilterWidget searchText={searchText} setSearchText={setSearchText} selectedTags={selectedCardTags} setSelectedTags={setSelectedCardTags}/>}
             <br/>
 
             {deck.id > 0 && <CardTable cards={filteredCards}/>}
-            <button onClick={() => console.log("Cancel")}>Cancel</button>
-            <button onClick={() => console.log("Save")}>Save</button>
         </div>
     );
 }

@@ -1,4 +1,4 @@
-import {Deck} from "../constants/data/data.ts";
+import {Deck} from "../../constants/data/data.ts";
 import {useNavigate} from "react-router-dom";
 
 const DeckRow = ({deck}: { deck: Deck | null }) => {
@@ -27,10 +27,10 @@ const DeckInfoTable = ({decks}: { decks: Deck[] }) => {
             </tr>
             </thead>
             <tbody>
+            <DeckRow key={"<new>"} deck={null}/>
             {decks.map((deck) => (
                 <DeckRow key={deck.name} deck={deck}/>
             ))}
-            <DeckRow key={"<new>"} deck={null}/>
             </tbody>
         </table>
     );

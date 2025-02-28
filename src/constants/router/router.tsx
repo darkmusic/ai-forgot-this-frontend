@@ -3,11 +3,11 @@ import {
     createRoutesFromElements,
     Route,
 } from "react-router-dom";
-import Admin from "../../components/Admin";
-import EditUser from "../../components/EditUser.tsx";
-import AddModel from "../../components/AddModel.tsx";
-import Home from "../../components/Home.tsx";
-import EditDeck from "../../components/EditDeck.tsx";
+import Admin from "../../components/Admin/Admin.tsx";
+import EditUser from "../../components/Admin/EditUser.tsx";
+import AddModel from "../../components/Admin/AddModel.tsx";
+import Home from "../../components/Main/Home.tsx";
+import EditDeck from "../../components/Main/EditDeck.tsx";
 
 const ROUTES = [
     {

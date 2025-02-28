@@ -1,6 +1,6 @@
 import TagWidget from "./TagWidget.tsx";
 import {Dispatch, SetStateAction} from "react";
-import {Tag} from "../constants/data/data.ts";
+import {Tag} from "../../constants/data/data.ts";
 
 export interface SearchAndFilterProps {
     searchText: string;
@@ -29,7 +29,7 @@ const SearchAndFilterWidget = (props: SearchAndFilterProps) => {
                     />
                 </td>
                 <td>
-                    <TagWidget onTagsChange={setSelectedTags}/>
+                    <TagWidget onTagsChange={setSelectedTags} initialTags={[]}/>
                 </td>
             </tr>
             </tbody>
