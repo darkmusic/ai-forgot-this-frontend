@@ -178,7 +178,7 @@ input, textarea, select, option, button {
     text-wrap: nowrap;
 }
 
-.home-button {
+.nav-button {
     margin: 1rem;
     padding: 0.5rem 1rem;
     background-color: #213547;
@@ -254,4 +254,35 @@ input, textarea, select, option, button {
 
 .tag-suggestion:hover {
     background-color: #2c4257;
+}
+
+.quiz-header {
+    background-color: #213547;
+    color: darkcyan;
+    font-size: medium;
+}
+
+.quiz-card {
+    background-color: #213547;
+    color: darkcyan;
+    border: 1px solid aqua;
+    border-radius: 4px;
+    padding: 1rem;
+    margin: 1rem;
+}
+
+.quiz-card:hover {
+    background-color: #2c4257;
+    cursor: pointer;
+}
+
+.quiz-button {
+    margin: 1rem;
+    padding: 0.5rem 1rem;
+    background-color: #213547;
+    color: darkcyan;
+    border: 1px solid aqua;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: small;
 }

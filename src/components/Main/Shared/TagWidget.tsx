@@ -1,5 +1,5 @@
 import {useState, useRef, KeyboardEvent, ChangeEvent, Dispatch, SetStateAction} from 'react';
-import {TAGS, Tag} from "../../constants/data/data.ts";
+import {TAGS, Tag} from "../../../constants/data/data.ts";
 import * as React from "react";
 
 interface TagWidgetProps {

@@ -1,4 +1,4 @@
-import '../../Dark.css'
+import '../../../Dark.css'
 import {useNavigate} from "react-router-dom";
 
 const HomeWidget = () => {
@@ -10,7 +10,7 @@ const HomeWidget = () => {
 
   return (
     <div>
-        <button className={"home-button"} onClick={homeRoute}>Home</button>
+        <button className={"nav-button"} onClick={homeRoute}>Home</button>
     </div>
   );
 }

@@ -1,8 +1,8 @@
 import {Link, useNavigate} from 'react-router-dom';
 import '../../Dark.css';
 import { USERS, AI_MODELS, User, AiModel } from "../../constants/data/data.ts";
-import UserProfileWidget from "../Main/UserProfileWidget.tsx";
-import HomeWidget from "../Main/HomeWidget.tsx";
+import UserProfileWidget from "../Main/Shared/UserProfileWidget.tsx";
+import HomeWidget from "../Main/Shared/HomeWidget.tsx";
 
 const UserRow = ({ user }: { user: User | null }) => {
     const navigate = useNavigate();

@@ -1,11 +1,11 @@
-import UserProfileWidget from "./UserProfileWidget.tsx";
-import SearchAndFilterWidget from "./SearchAndFilterWidget.tsx";
-import {Card, Deck, Tag} from "../../constants/data/data.ts";
+import UserProfileWidget from "../Shared/UserProfileWidget.tsx";
+import SearchAndFilterWidget from "../Shared/SearchAndFilterWidget.tsx";
+import {Card, Deck, Tag} from "../../../constants/data/data.ts";
 import {useState} from "react";
 import {useLocation, useNavigate} from "react-router-dom";
-import HomeWidget from "./HomeWidget.tsx";
-import {FilterCards} from "../../constants/data/CardConstants.ts";
-import TagWidget from "./TagWidget.tsx";
+import HomeWidget from "../Shared/HomeWidget.tsx";
+import {FilterCards} from "../../../constants/data/CardConstants.ts";
+import TagWidget from "../Shared/TagWidget.tsx";
 
 const CardRow = ({card}: { card: Card | null }) => {
     const navigate = useNavigate();

@@ -1,6 +1,6 @@
 import '../../Dark.css'
 import {useNavigate} from "react-router-dom";
-import UserProfileWidget from "../Main/UserProfileWidget.tsx";
+import UserProfileWidget from "../Main/Shared/UserProfileWidget.tsx";
 
 const AddModel = () => {
     const navigate = useNavigate();

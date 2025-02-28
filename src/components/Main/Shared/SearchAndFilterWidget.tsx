@@ -1,6 +1,6 @@
 import TagWidget from "./TagWidget.tsx";
 import {Dispatch, SetStateAction} from "react";
-import {Tag} from "../../constants/data/data.ts";
+import {Tag} from "../../../constants/data/data.ts";
 
 export interface SearchAndFilterProps {
     searchText: string;

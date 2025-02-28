@@ -6,8 +6,11 @@ import {
 import Admin from "../../components/Admin/Admin.tsx";
 import EditUser from "../../components/Admin/EditUser.tsx";
 import AddModel from "../../components/Admin/AddModel.tsx";
-import Home from "../../components/Main/Home.tsx";
-import EditDeck from "../../components/Main/EditDeck.tsx";
+import Home from "../../components/Main/Home/Home.tsx";
+import EditDeck from "../../components/Main/Deck/EditDeck.tsx";
+import Quiz from "../../components/Main/Card/Quiz.tsx";
+import ViewCard from "../../components/Main/Card/ViewCard.tsx";
+import EditCard from "../../components/Main/Card/EditCard.tsx";
 
 const ROUTES = [
     {
@@ -37,6 +40,18 @@ const ROUTES = [
     {
         path: "/deck/edit",
         element: <EditDeck/>
+    },
+    {
+        path: "/quiz",
+        element: <Quiz/>
+    },
+    {
+        path: "/card/view",
+        element: <ViewCard/>
+    },
+    {
+        path: "/card/edit",
+        element: <EditCard/>
     }
 ];
 
