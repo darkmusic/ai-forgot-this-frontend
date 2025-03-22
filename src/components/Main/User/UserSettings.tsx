@@ -1,4 +1,5 @@
 import '../../../Dark.css'
+import {useCurrentUser} from "../../Shared/Authentication.ts";
 
 const UserSettingsForm = ({onClose}: { onClose: () => void }) => {
     const handleSubmit = (e: { preventDefault: () => void; }) => {
@@ -6,6 +7,7 @@ const UserSettingsForm = ({onClose}: { onClose: () => void }) => {
         // Handle form submission
         onClose(); // Close modal window
     };
+    const user = useCurrentUser();
 
     return (
         <div>
@@ -15,11 +17,11 @@ const UserSettingsForm = ({onClose}: { onClose: () => void }) => {
                     <tbody>
                     <tr>
                         <td className={"edit-td-header"}>Name:</td>
-                        <td className={"edit-td-data"}><input name={"name"}/></td>
+                        <td className={"edit-td-data"}><input name={"name"} value={user?.name}/></td>
                     </tr>
                     <tr>
                         <td className={"edit-td-header"}>Username:</td>
-                        <td className={"edit-td-data"}><input name={"username"}/></td>
+                        <td className={"edit-td-data"}><input name={"username"} value={user?.username}/></td>
                     </tr>
                     <tr>
                         <td className={"edit-td-header"}>Password</td>

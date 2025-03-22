@@ -23,6 +23,14 @@ body {
     font-family: "Noto Sans", sans-serif;
 }
 
+.ai-table, .ai-table th, .ai-table td {
+    border: 1px solid lightgreen;
+    border-collapse: collapse;
+    margin: 5px;
+    padding: 5px;
+    font-family: "Noto Sans", sans-serif;
+}
+
 h2 {
     margin: 1rem 0;
     font-family: "Noto Sans", sans-serif;
@@ -68,6 +76,16 @@ input, textarea, select, option, button {
     font-size: small;
 }
 
+.ai-input, .ai-textarea, .ai-select, .ai-option, .ai-button {
+    margin: 5px;
+    padding: 5px;
+    font-family: "Noto Sans", sans-serif;
+    background-color: #213547;
+    color: lightgreen;
+    font-size: small;
+}
+
+
 .small-text-hint {
     font-size: x-small;
     color: darkcyan;
@@ -84,6 +102,20 @@ input, textarea, select, option, button {
 .edit-td-data {
     background-color: #213547;
     color: darkcyan;
+    text-align: left;
+}
+
+.edit-td-header-ai {
+    background-color: #213547;
+    color: lightgreen;
+    text-align: right;
+    width: 150px;
+    text-wrap: nowrap;
+}
+
+.edit-td-data-ai {
+    background-color: #213547;
+    color: lightgreen;
     text-align: left;
 }
 
@@ -285,4 +317,47 @@ input, textarea, select, option, button {
     border-radius: 4px;
     cursor: pointer;
     font-size: small;
+}
+
+.card {
+    background-color: #213547;
+    color: darkcyan;
+    border: 1px solid aqua;
+    border-radius: 4px;
+    padding: 1rem;
+    margin: 1rem;
+}
+
+.ai-ask-button {
+    margin: 1rem;
+    padding: 0.5rem 1rem;
+    background-color: #213547;
+    color: lightgreen;
+    border: 1px solid lightgreen;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: small;
+    text-align: center;
+}
+
+.center {
+    text-align: center;
+}
+
+.edit-td-header-top {
+    background-color: #213547;
+    color: darkcyan;
+    text-align: right;
+    width: 150px;
+    text-wrap: nowrap;
+    vertical-align: top;
+}
+
+.edit-td-header-top-ai {
+    background-color: #213547;
+    color: lightgreen;
+    text-align: right;
+    width: 150px;
+    text-wrap: nowrap;
+    vertical-align: top;
 }

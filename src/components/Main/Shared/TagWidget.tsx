@@ -1,27 +1,51 @@
-import {useState, useRef, KeyboardEvent, ChangeEvent, Dispatch, SetStateAction} from 'react';
-import {TAGS, Tag} from "../../../constants/data/data.ts";
+import { useState, useRef, useEffect, KeyboardEvent, ChangeEvent, Dispatch, SetStateAction } from 'react';
+import { Tag } from "../../../constants/data/data.ts";
 import * as React from "react";
 
 interface TagWidgetProps {
-    onTagsChange?: Dispatch<SetStateAction<Tag[]>>
-    initialTags?: Tag[]
+    onTagsChange?: Dispatch<SetStateAction<Tag[]>>;
+    initialTags?: Tag[]; // Tags already associated with the item
 }
 
-const TagWidget = ({onTagsChange, initialTags}: TagWidgetProps) => {
+const TagWidget = ({ onTagsChange, initialTags }: TagWidgetProps) => {
     const [selectedTags, setSelectedTags] = useState<Tag[]>(initialTags || []);
     const [input, setInput] = useState('');
     const [suggestions, setSuggestions] = useState<Tag[]>([]);
+    const [fetchedTags, setFetchedTags] = useState<Tag[]>([]);
     const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        const fetchTags = async () => {
+            try {
+                const response = await fetch('/api/tag/all');
+                if (response.ok) {
+                    const data = await response.json();
+                    setFetchedTags(data);
+                } else {
+                    console.error('Failed to fetch tags');
+                }
+            } catch (error) {
+                console.error('Error fetching tags:', error);
+            }
+        };
+
+        fetchTags().then((value) => {
+            setFetchedTags(value as unknown as Tag[]);
+        });
+    }, []);
+
     const handleSuggestionClick = (tag: Tag, e: React.MouseEvent) => {
         e.stopPropagation(); // Prevent event from reaching the document click handler
         addTag(tag);
     };
+
     const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setInput(value);
 
-        if (value.trim()) {
-            const filtered = TAGS.filter(tag =>
+        if (value.trim() && fetchedTags !== undefined) {
+            const filtered = fetchedTags.filter(tag =>
+                tag !== undefined &&
                 tag.name.toLowerCase().includes(value.toLowerCase()) &&
                 !selectedTags.some(selected => selected.id === tag.id) &&
                 tag.id !== 0
@@ -43,16 +67,22 @@ const TagWidget = ({onTagsChange, initialTags}: TagWidgetProps) => {
         }
     };
 
-    const removeTag = (tagId: number) => {
-        const newTags = selectedTags.filter(tag => tag.id !== tagId);
+    const removeTag = (tagId: number | null) => {
+        if (!tagId || selectedTags == undefined) return;
+        const newTags = selectedTags.filter(tag => tag !== undefined && tag.id !== tagId);
         setSelectedTags(newTags);
         onTagsChange?.(newTags);
     };
 
     const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter' && suggestions.length > 0) {
+        if (e.key === 'Enter') {
+            // Always prevent default form submission behavior
             e.preventDefault();
-            addTag(suggestions[0]);
+
+            // Only add tag if we have suggestions
+            if (suggestions.length > 0) {
+                addTag(suggestions[0]);
+            }
         }
     };
 
@@ -80,7 +110,7 @@ const TagWidget = ({onTagsChange, initialTags}: TagWidgetProps) => {
                     className="tag-input"
                 />
             </div>
-            {suggestions.length > 0 && (
+            {suggestions !== null && suggestions.length > 0 && (
                 <div className="tag-suggestions">
                     {suggestions.map(tag => (
                         <div

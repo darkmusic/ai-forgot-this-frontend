@@ -1,5 +1,4 @@
 import '../../../Dark.css';
-import {useAuth} from "../../Shared/Authentication.ts";
 import {useState} from 'react';
 import UserSettingsForm from '../User/UserSettings.tsx';
 import * as React from "react";
@@ -9,8 +8,8 @@ import {useNavigate} from "react-router-dom";
 const UserProfile = (props: { user: User }) => {
     return (
         <div className="user-profile">
-            <img src={props.user.avatar} alt={props.user.name}/>
-            <h2>{props.user.name}</h2>
+            <img src={props.user?.profile_pic_url} alt={props.user?.name}/>
+            <h2>{props.user?.name}</h2>
         </div>
     );
 }
@@ -38,22 +37,21 @@ const UserProfileMenu = ({onSettingsClick, user}: { onSettingsClick: () => void,
     return (
         <div className="profile-menu">
             <a className="menu-item" onClick={onSettingsClick}>Settings...</a>
-            {user.isAdmin && <a className="menu-item" onClick={adminRoute}>Admin</a>}
+            {user?.admin && <a className="menu-item" onClick={adminRoute}>Admin</a>}
             <a className="menu-item">Log out</a>
         </div>
     );
 }
 
-const UserProfileWidget = () => {
-    const user = useAuth();
+const UserProfileWidget = (props: {user : User}) => {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
     return (
         <>
             <div className="user-profile-widget">
                 <div className="profile-container">
-                    <UserProfile user={user}/>
-                    <UserProfileMenu onSettingsClick={() => setIsSettingsOpen(true)} user={user}/>
+                    <UserProfile user={props.user}/>
+                    <UserProfileMenu onSettingsClick={() => setIsSettingsOpen(true)} user={props.user}/>
                 </div>
             </div>
             <Modal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)}>

@@ -4,6 +4,7 @@ import UserProfileWidget from "../Shared/UserProfileWidget.tsx";
 import {useLocation} from "react-router-dom";
 import {Deck} from "../../../constants/data/data.ts";
 import {useState} from "react";
+import {useCurrentUser} from "../../Shared/Authentication.ts";
 
 const GetPreviousCardIndex = (deck: Deck, currentCard: number) => {
     if (currentCard === 0) {
@@ -25,11 +26,16 @@ const Quiz = () => {
     const [currentCard, setCurrentCard] = useState(0);
     const [flipped, setFlipped] = useState(false);
     const card = deck.cards[currentCard];
+    const user = useCurrentUser();
+
+    if (!user) {
+        return <div>Loading user profile...</div>
+    }
 
     return (
         <div>
             <HomeWidget/>
-            <UserProfileWidget />
+            <UserProfileWidget user={user} />
             <div className={"quiz-header"}>Deck: {deck.name}</div>
             <br/>
             <br/>

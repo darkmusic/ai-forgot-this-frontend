@@ -1,19 +1,25 @@
 import '../../../Dark.css'
 import {useState} from "react";
-import {DECKS, Tag} from "../../../constants/data/data.ts";
+import {Tag} from "../../../constants/data/data.ts";
 import UserProfileWidget from "../Shared/UserProfileWidget.tsx";
 import SearchAndFilterWidget from "../Shared/SearchAndFilterWidget.tsx";
 import DeckInfoTable from "../Shared/DeckInfoTable.tsx";
-import {FilterDecks} from "../../../constants/data/DeckConstants.ts";
+import {FilterDecks} from "../../Shared/DeckUtility.ts";
+import {useCurrentUser} from "../../Shared/Authentication.ts";
 
 const Home = () => {
     const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
     const [searchText, setSearchText] = useState('');
-    const filteredDecks = FilterDecks(DECKS, selectedTags, searchText);
+    const user = useCurrentUser();
+
+    if (!user) {
+        return <div>Loading user profile...</div>
+    }
+    const filteredDecks = FilterDecks(user.decks || [], selectedTags, searchText);
 
     return (
         <div>
-            <UserProfileWidget />
+            <UserProfileWidget user={user} />
             <h2>Ai Forgot These Cards!</h2>
             <br/>
             <br/>
