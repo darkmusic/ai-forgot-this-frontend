@@ -8,6 +8,13 @@ const UserSettingsForm = ({onClose}: { onClose: () => void }) => {
         onClose(); // Close modal window
     };
     const user = useCurrentUser();
+    if (!user || !user.profile_pic_url || user.profile_pic_url.length === 0) {
+        return <div>Loading user profile...</div>
+    }
+
+    const DARK_THEME = 1;
+    const LIGHT_THEME = 2;
+    const theme = user.theme || DARK_THEME; // Default to dark if theme is not set
 
     return (
         <div>
@@ -17,11 +24,11 @@ const UserSettingsForm = ({onClose}: { onClose: () => void }) => {
                     <tbody>
                     <tr>
                         <td className={"edit-td-header"}>Name:</td>
-                        <td className={"edit-td-data"}><input name={"name"} value={user?.name}/></td>
+                        <td className={"edit-td-data"}><input name={"name"} value={user.name}/></td>
                     </tr>
                     <tr>
                         <td className={"edit-td-header"}>Username:</td>
-                        <td className={"edit-td-data"}><input name={"username"} value={user?.username}/></td>
+                        <td className={"edit-td-data"}><input name={"username"} value={user.username}/></td>
                     </tr>
                     <tr>
                         <td className={"edit-td-header"}>Password</td>
@@ -34,15 +41,15 @@ const UserSettingsForm = ({onClose}: { onClose: () => void }) => {
                     <tr>
                         <td className={"edit-td-header"}>Theme:</td>
                         <td className={"edit-td-data"}>
-                            <select name={"theme"}>
-                                <option value="dark">Dark</option>
-                                <option value="light">Light</option>
+                            <select name={"theme"} value={theme}>
+                                <option value={DARK_THEME}>Dark</option>
+                                <option value={LIGHT_THEME}>Light</option>
                             </select>
                         </td>
                     </tr>
                     <tr>
                         <td className={"edit-td-header"}>Avatar URL:</td>
-                        <td className={"edit-td-data"}><input name={"avatar"}/></td>
+                        <td className={"edit-td-data"}><input name={"avatar"} value={user.profile_pic_url}/></td>
                     </tr>
                     <tr>
                         <td colSpan={2}>

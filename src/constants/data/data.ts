@@ -7,6 +7,7 @@ export interface User {
     active?: boolean;
     profile_pic_url?: string;
     decks?: Deck[];
+    theme?: number | null;
 }
 
 export interface AiModel {
