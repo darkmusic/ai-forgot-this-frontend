@@ -103,10 +103,6 @@ const AiModels = () => {
             .then(() => setFetchedAiModels(true));
     }
 
-    if (aiModels === null || aiModels.length === 0) {
-        return <div>Loading models...</div>
-    }
-
     return (
         <table className={'table'}>
             <thead>

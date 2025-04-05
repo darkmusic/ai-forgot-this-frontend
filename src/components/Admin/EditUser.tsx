@@ -147,7 +147,7 @@ const EditUser = () => {
 
         // Send the user object to the server
         fetch(userBeingEditedObj.id === null ? "/api/user" : `/api/user/${userBeingEditedObj.id}`, {
-            method: userBeingEditedObj.id === 0 ? "POST" : "PUT",
+            method: userBeingEditedObj.id === null ? "POST" : "PUT",
             headers: {
                 "Authorization": getAuthHeader(loggedInUser),
                 "Content-Type": "application/json"
