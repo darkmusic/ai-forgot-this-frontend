@@ -212,7 +212,7 @@ const EditDeck = () => {
                 <tr>
                     <td className={"edit-td-header"}>Deck Tags:</td>
                     <td className={"edit-td-data"}>
-                        <TagWidget onTagsChange={setSelectedDeckTags} initialTags={formData.deckTags}/>
+                        <TagWidget onTagsChange={setSelectedDeckTags} initialTags={formData.deckTags} allowCreation={true}/>
                     </td>
                 </tr>
                 </tbody>

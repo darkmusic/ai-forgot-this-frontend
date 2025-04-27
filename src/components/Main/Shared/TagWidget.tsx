@@ -5,13 +5,15 @@ import * as React from "react";
 interface TagWidgetProps {
     onTagsChange?: Dispatch<SetStateAction<Tag[]>>;
     initialTags?: Tag[]; // Tags already associated with the item
+    allowCreation?: boolean; // Flag to enable tag creation
 }
 
-const TagWidget = ({ onTagsChange, initialTags }: TagWidgetProps) => {
+const TagWidget = ({ onTagsChange, initialTags, allowCreation = true }: TagWidgetProps) => {
     const [selectedTags, setSelectedTags] = useState<Tag[]>(initialTags || []);
     const [input, setInput] = useState('');
     const [suggestions, setSuggestions] = useState<Tag[]>([]);
     const [fetchedTags, setFetchedTags] = useState<Tag[]>([]);
+    const [isCreatingTag, setIsCreatingTag] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -29,10 +31,34 @@ const TagWidget = ({ onTagsChange, initialTags }: TagWidgetProps) => {
             }
         };
 
-        fetchTags().then((value) => {
-            setFetchedTags(value as unknown as Tag[]);
-        });
+        fetchTags().then(_ => {});
     }, []);
+
+    const createNewTag = async (tagName: string) => {
+        try {
+            const tag : Tag = {
+                id: null,
+                name: tagName,
+            };
+            const response = await fetch('/api/tag', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(tag),
+            });
+
+            if (response.ok) {
+                const newTag = await response.json();
+                setFetchedTags([...fetchedTags, newTag]);
+                addTag(newTag);
+            } else {
+                console.error('Failed to create tag');
+            }
+        } catch (error) {
+            console.error('Error creating tag:', error);
+        }
+    };
 
     const handleSuggestionClick = (tag: Tag, e: React.MouseEvent) => {
         e.stopPropagation(); // Prevent event from reaching the document click handler
@@ -43,16 +69,22 @@ const TagWidget = ({ onTagsChange, initialTags }: TagWidgetProps) => {
         const value = e.target.value;
         setInput(value);
 
-        if (value.trim() && fetchedTags !== undefined) {
+        if (value.trim()) {
+            // Check if this would be a new tag
+            const exactMatch = fetchedTags.find(
+                tag => tag.name.toLowerCase() === value.toLowerCase()
+            );
+            setIsCreatingTag(allowCreation && !exactMatch && value.trim().length > 0);
+
+            // Filter for suggestions
             const filtered = fetchedTags.filter(tag =>
-                tag !== undefined &&
                 tag.name.toLowerCase().includes(value.toLowerCase()) &&
-                !selectedTags.some(selected => selected.id === tag.id) &&
-                tag.id !== 0
+                !selectedTags.some(selected => selected.id === tag.id)
             );
             setSuggestions(filtered);
         } else {
             setSuggestions([]);
+            setIsCreatingTag(false);
         }
     };
 
@@ -62,25 +94,26 @@ const TagWidget = ({ onTagsChange, initialTags }: TagWidgetProps) => {
             setSelectedTags(newTags);
             onTagsChange?.(newTags);
             setInput('');
-            setSuggestions([]); // Clear suggestions immediately
+            setSuggestions([]);
+            setIsCreatingTag(false);
             inputRef.current?.focus();
         }
     };
 
     const removeTag = (tagId: number | null) => {
-        if (!tagId || selectedTags == undefined) return;
-        const newTags = selectedTags.filter(tag => tag !== undefined && tag.id !== tagId);
+        if (!tagId) return;
+        const newTags = selectedTags.filter(tag => tag.id !== tagId);
         setSelectedTags(newTags);
         onTagsChange?.(newTags);
     };
 
     const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
-            // Always prevent default form submission behavior
             e.preventDefault();
 
-            // Only add tag if we have suggestions
-            if (suggestions.length > 0) {
+            if (isCreatingTag && input.trim()) {
+                createNewTag(input.trim()).then(_ => {});
+            } else if (suggestions.length > 0) {
                 addTag(suggestions[0]);
             }
         }
@@ -106,12 +139,17 @@ const TagWidget = ({ onTagsChange, initialTags }: TagWidgetProps) => {
                     value={input}
                     onChange={handleInputChange}
                     onKeyDown={handleKeyDown}
-                    placeholder="Type to add tags..."
+                    placeholder="Type to add or create tags..."
                     className="tag-input"
                 />
             </div>
-            {suggestions !== null && suggestions.length > 0 && (
+            {(suggestions.length > 0 || isCreatingTag) && (
                 <div className="tag-suggestions">
+                    {isCreatingTag && (
+                        <div className="tag-suggestion create-new">
+                            Create new tag: <strong>#{input}</strong>
+                        </div>
+                    )}
                     {suggestions.map(tag => (
                         <div
                             key={tag.id}
