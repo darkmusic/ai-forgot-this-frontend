@@ -38,9 +38,14 @@ const UserProfileMenu = ({onSettingsClick, user}: { onSettingsClick: () => void,
         <div className="profile-menu">
             <a className="menu-item" onClick={onSettingsClick}>Settings...</a>
             {user?.admin && <a className="menu-item" onClick={adminRoute}>Admin</a>}
-            <a className="menu-item">Log out</a>
+            <a className="menu-item" onClick={onLogoutClick}>Log out</a>
         </div>
     );
+}
+
+const onLogoutClick = () => {
+    const path = '/logout';
+    window.location.href = path;
 }
 
 const UserProfileWidget = (props: {user : User}) => {
