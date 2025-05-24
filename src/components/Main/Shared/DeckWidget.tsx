@@ -1,4 +1,4 @@
-import '../../../Dark.css'
+import '../../../css/themes.css'
 import {useLocation, useNavigate} from "react-router-dom";
 import {Deck} from "../../../constants/data/data.ts";
 

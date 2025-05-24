@@ -1,4 +1,4 @@
-import '../../Dark.css'
+import '../../css/themes.css'
 import {useNavigate} from "react-router-dom";
 import UserProfileWidget from "../Main/Shared/UserProfileWidget.tsx";
 import {useState} from "react";

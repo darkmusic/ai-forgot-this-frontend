@@ -1,9 +1,8 @@
 import {useLocation, useNavigate} from 'react-router-dom';
-import '../../Dark.css';
+import '../../css/themes.css';
 import UserProfileWidget from "../Main/Shared/UserProfileWidget.tsx";
 import {ChangeEvent, ChangeEventHandler, FormEvent, useState} from "react";
-import {getAuthHeader, useCurrentUser} from "../Shared/Authentication.ts";
-import {hash} from "bcryptjs";
+import {getAuthHeader, hashPassword, useCurrentUser} from "../Shared/Authentication.ts";
 import {User} from "../../constants/data/data.ts";
 
 const editPasswordRows = (handleChange: ChangeEventHandler<HTMLInputElement> | undefined) => {
@@ -98,11 +97,6 @@ const EditUser = () => {
                 alert("Failed to delete user");
             }
         });
-    }
-
-    async function hashPassword(password: string): Promise<string> {
-        const saltRounds = 10;
-        return await hash(password, saltRounds);
     }
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {

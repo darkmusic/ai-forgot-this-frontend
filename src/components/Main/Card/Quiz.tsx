@@ -1,4 +1,4 @@
-import '../../../Dark.css'
+import '../../../css/themes.css'
 import HomeWidget from "../Shared/HomeWidget.tsx";
 import UserProfileWidget from "../Shared/UserProfileWidget.tsx";
 import {useLocation} from "react-router-dom";

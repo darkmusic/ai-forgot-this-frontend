@@ -1,5 +1,6 @@
 import {User, UserAuthResponse} from "../../constants/data/data.ts";
 import {useEffect, useState} from "react";
+import {hash} from "bcryptjs";
 
 // Create a proper React custom hook
 export const useCurrentUser = (): User | null => {
@@ -25,3 +26,8 @@ export const useCurrentUser = (): User | null => {
 export const getAuthHeader = (user: User) => {
     return "Basic " + btoa(user.username + ":" + user.password_hash);
 };
+
+export async function hashPassword(password: string): Promise<string> {
+    const saltRounds = 10;
+    return await hash(password, saltRounds);
+}

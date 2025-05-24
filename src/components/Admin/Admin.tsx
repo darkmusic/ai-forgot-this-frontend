@@ -1,5 +1,5 @@
 import {Link, useNavigate} from 'react-router-dom';
-import '../../Dark.css';
+import '../../css/themes.css';
 import {AiModel, User} from "../../constants/data/data.ts";
 import UserProfileWidget from "../Main/Shared/UserProfileWidget.tsx";
 import HomeWidget from "../Main/Shared/HomeWidget.tsx";

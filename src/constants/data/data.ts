@@ -7,7 +7,7 @@ export interface User {
     active?: boolean;
     profile_pic_url?: string;
     decks?: Deck[];
-    theme?: number | null;
+    themeId?: number | null;
 }
 
 export interface AiModel {
@@ -42,4 +42,12 @@ export interface UserAuthResponse {
     authenticated: boolean;
     roles: string[];
     username: string;
+}
+
+export interface Theme {
+    id: number;
+    name: string;
+    description: string;
+    cssUrl: string;
+    active: boolean;
 }

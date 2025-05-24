@@ -15,8 +15,8 @@ const SearchAndFilterWidget = (props: SearchAndFilterProps) => {
         <table className={"table"}>
             <thead>
             <tr>
-                <td>Search</td>
-                <td>Filter by tag(s)</td>
+                <td className="table-header">Search</td>
+                <td className="table-header">Filter by tag(s)</td>
             </tr>
             </thead>
             <tbody>

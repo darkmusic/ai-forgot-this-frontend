@@ -21,9 +21,9 @@ const DeckInfoTable = ({decks}: { decks: Deck[] }) => {
         <table className="table">
             <thead>
             <tr>
-                <td>Deck Name</td>
-                <td>Description</td>
-                <td>Actions</td>
+                <td className="table-header">Deck Name</td>
+                <td className="table-header">Description</td>
+                <td className="table-header">Actions</td>
             </tr>
             </thead>
             <tbody>

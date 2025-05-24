@@ -1,23 +1,14 @@
-const ThemeUtility = {
-    getTheme: () => {
-        const theme = localStorage.getItem('theme');
-        if (theme) {
-            return theme;
-        } else {
-            // Default to light theme
-            return 'light';
-        }
-    },
-    setTheme: (theme: string) => {
-        localStorage.setItem('theme', theme);
-        document.documentElement.className = theme;
-    },
-    toggleTheme: () => {
-        const currentTheme = ThemeUtility.getTheme();
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        ThemeUtility.setTheme(newTheme);
-    }
+import {Theme} from "../../constants/data/data.ts";
+
+export const fetchThemes = async () : Promise<Theme[]> => {
+    const response = await fetch('/api/themes');
+    return await response.json();
 }
 
-export default ThemeUtility;
-
+export const switchTheme = (props: { themeId: number }) => {
+  if (props.themeId === 1) {
+    document.documentElement.setAttribute("data-theme", "dark");
+  } else if (props.themeId === 2) {
+    document.documentElement.setAttribute("data-theme", "light");
+  }
+}
