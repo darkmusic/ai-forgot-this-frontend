@@ -201,7 +201,7 @@ const EditCard = () => {
                             <table className={"table"}>
                                 <tbody>
                                 <tr>
-                                    <td className={"edit-td-header-top"}>Card Front:</td>
+                                    <td className={"edit-td-header-top"}>Card Front (Markdown supported):</td>
                                     <td className={"edit-td-data"}><textarea name={"front"}
                                                                              onChange={handleChange}
                                                                              className={"card"}
@@ -209,7 +209,7 @@ const EditCard = () => {
                                                                              cols={50}/></td>
                                 </tr>
                                 <tr>
-                                    <td className={"edit-td-header-top"}>Card Back:</td>
+                                    <td className={"edit-td-header-top"}>Card Back (Markdown supported):</td>
                                     <td className={"edit-td-data"}><textarea name={"back"}
                                                                              onChange={handleChange}
                                                                              className={"card"}

@@ -203,11 +203,11 @@ const EditDeck = () => {
                 <tbody>
                 <tr>
                     <td className={"edit-td-header"}>Deck Name:</td>
-                    <td className={"edit-td-data"}><input name={"deckName"} onChange={handleChange} value={formData.deckName}/></td>
+                    <td className={"edit-td-data"}><input name={"deckName"} onChange={handleChange} value={formData.deckName} size={50}/></td>
                 </tr>
                 <tr>
                     <td className={"edit-td-header"}>Deck Description:</td>
-                    <td className={"edit-td-data"}><input name={"deckDescription"} onChange={handleChange} value={formData.deckDescription}/></td>
+                    <td className={"edit-td-data"}><input name={"deckDescription"} onChange={handleChange} value={formData.deckDescription} size={50}/></td>
                 </tr>
                 <tr>
                     <td className={"edit-td-header"}>Deck Tags:</td>

@@ -4,6 +4,7 @@ import {useLocation} from "react-router-dom";
 import {Card} from "../../../constants/data/data.ts";
 import DeckWidget from "../Shared/DeckWidget.tsx";
 import {useCurrentUser} from "../../Shared/Authentication.ts";
+import Markdown from "react-markdown";
 
 const ViewCard = () => {
     const { state } = useLocation();
@@ -19,9 +20,9 @@ const ViewCard = () => {
             <DeckWidget/>
             <UserProfileWidget user={user}/>
             <h2>View Card</h2>
-            <div className={"quiz-card"}>{card.front}</div>
+            <div className={"quiz-card"}><Markdown>{card.front}</Markdown></div>
             <br/>
-            <div className={"quiz-card"}>{card.back}</div>
+            <div className={"quiz-card"}><Markdown>{card.back}</Markdown></div>
         </div>
     )
 }
