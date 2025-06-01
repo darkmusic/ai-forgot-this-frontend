@@ -23,6 +23,8 @@ export interface Deck {
     cards: Card[];
     tags?: Tag[];
     user?: User;
+    templateFront: string;
+    templateBack: string;
 }
 
 export interface Card {

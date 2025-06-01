@@ -2,9 +2,10 @@ import '../../../css/themes.css'
 import HomeWidget from "../Shared/HomeWidget.tsx";
 import UserProfileWidget from "../Shared/UserProfileWidget.tsx";
 import {useLocation} from "react-router-dom";
-import {Deck} from "../../../constants/data/data.ts";
+import {Card, Deck} from "../../../constants/data/data.ts";
 import {useState} from "react";
 import {useCurrentUser} from "../../Shared/Authentication.ts";
+import Markdown from "react-markdown";
 
 const GetPreviousCardIndex = (deck: Deck, currentCard: number) => {
     if (currentCard === 0) {
@@ -25,7 +26,7 @@ const Quiz = () => {
     const deck = state?.deck as Deck;
     const [currentCard, setCurrentCard] = useState(0);
     const [flipped, setFlipped] = useState(false);
-    const card = deck.cards[currentCard];
+    const card = deck.cards[currentCard] as Card;
     const user = useCurrentUser();
 
     if (!user) {
@@ -39,7 +40,7 @@ const Quiz = () => {
             <div className={"quiz-header"}>Deck: {deck.name}</div>
             <br/>
             <br/>
-            <div className={"quiz-card"} onClick={() => {setFlipped(!flipped)}}>{flipped ? card.back : card.front}</div>
+            <div className={"quiz-card"} onClick={() => {setFlipped(!flipped)}}><Markdown>{flipped ? deck.templateBack.concat(card.back) : deck.templateFront.concat(card.front)}</Markdown></div>
             <br/>
             <button className={"quiz-button"} onClick={() => {setFlipped(false); setCurrentCard(GetPreviousCardIndex(deck, currentCard))}}>{"<--Previous"}</button>
             <button className={"quiz-button"} onClick={() => {setFlipped(false); setCurrentCard(GetNextCardIndex(deck, currentCard))}}>{"Next-->"}</button>

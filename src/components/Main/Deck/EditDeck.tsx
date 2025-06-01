@@ -72,6 +72,8 @@ const EditDeck = () => {
         deckName: '',
         deckDescription: '',
         deckTags: [] as Tag[],
+        templateFront: '',
+        templateBack: ''
     });
 
     // Get deck from state or create a new one if null
@@ -94,6 +96,8 @@ const EditDeck = () => {
                 deckName: deck.name || '',
                 deckDescription: deck.description || '',
                 deckTags: deck.tags || [],
+                templateFront: deck.templateFront || '',
+                templateBack: deck.templateBack || ''
             });
             setSelectedDeckTags(deck.tags || []);
         }
@@ -168,7 +172,9 @@ const EditDeck = () => {
             description: formData.deckDescription,
             tags: selectedDeckTags,
             cards: deck?.cards || [],
-            user: user
+            user: user,
+            templateFront: formData.templateFront || '',
+            templateBack: formData.templateBack || ''
         };
 
         // Send the deck object to the server
@@ -208,6 +214,30 @@ const EditDeck = () => {
                 <tr>
                     <td className={"edit-td-header"}>Deck Description:</td>
                     <td className={"edit-td-data"}><input name={"deckDescription"} onChange={handleChange} value={formData.deckDescription} size={50}/></td>
+                </tr>
+                <tr>
+                    <td className={"edit-td-header"}>Template Front:</td>
+                    <td className={"edit-td-data"}>
+                        <textarea
+                            name="templateFront"
+                            onChange={handleChange}
+                            value={formData.templateFront || ""}
+                            rows={3}
+                            cols={50}
+                        />
+                    </td>
+                </tr>
+                <tr>
+                    <td className={"edit-td-header"}>Template Back:</td>
+                    <td className={"edit-td-data"}>
+                        <textarea
+                            name="templateBack"
+                            onChange={handleChange}
+                            value={formData.templateBack || ""}
+                            rows={3}
+                            cols={50}
+                        />
+                    </td>
                 </tr>
                 <tr>
                     <td className={"edit-td-header"}>Deck Tags:</td>
