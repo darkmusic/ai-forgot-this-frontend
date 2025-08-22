@@ -1,6 +1,9 @@
 set shell := ["pwsh", "-c"]
 
-deploy:
+compile-scss:
+    @& sass src/scss:src/css
+
+deploy: compile-scss
     @"Deploying..."
     @New-Item -Path "..\..\src\main\resources\static" -ItemType Directory -Force
     @New-Item -Path "..\..\src\main\resources\static\assets" -ItemType Directory -Force
