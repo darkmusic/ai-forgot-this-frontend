@@ -6,6 +6,7 @@ import HomeWidget from "../Main/Shared/HomeWidget.tsx";
 import {useState} from "react";
 import {useCurrentUser} from "../Shared/Authentication.ts";
 import {fetchModels} from "../Shared/AiUtility.ts";
+import {TOMCAT_SERVER_URL} from '../../constants/router/router.tsx';
 
 const UserRow = ({ user }: { user: User | null }) => {
     const navigate = useNavigate();
@@ -56,7 +57,7 @@ const AiModelNewRow = () => {
 };
 
 const fetchUsers = async () : Promise<User[]> => {
-    const response = await fetch('/api/user/all');
+    const response = await fetch(TOMCAT_SERVER_URL + '/api/user/all');
     return await response.json();
 }
 

@@ -2,8 +2,9 @@ import {useLocation, useNavigate} from 'react-router-dom';
 import '../../css/themes.css';
 import UserProfileWidget from "../Main/Shared/UserProfileWidget.tsx";
 import {ChangeEvent, ChangeEventHandler, FormEvent, useState} from "react";
-import {getAuthHeader, hashPassword, useCurrentUser} from "../Shared/Authentication.ts";
+import {hashPassword, useCurrentUser} from "../Shared/Authentication.ts";
 import {User} from "../../constants/data/data.ts";
+import {TOMCAT_SERVER_URL} from '../../constants/router/router.tsx';
 
 const editPasswordRows = (handleChange: ChangeEventHandler<HTMLInputElement> | undefined) => {
     return (
@@ -82,11 +83,8 @@ const EditUser = () => {
             return;
         }
 
-        fetch(`/api/user/${userBeingEdited.id}`, {
-            method: "DELETE",
-            headers: {
-                "Authorization": getAuthHeader(loggedInUser)
-            }
+        fetch(TOMCAT_SERVER_URL + `/api/user/${userBeingEdited.id}`, {
+            method: "DELETE"
         }).then((response) => {
             if (response.ok) {
                 setDeleting(false);
@@ -140,10 +138,9 @@ const EditUser = () => {
         };
 
         // Send the user object to the server
-        fetch(userBeingEditedObj.id === null ? "/api/user" : `/api/user/${userBeingEditedObj.id}`, {
+        fetch(userBeingEditedObj.id === null ? TOMCAT_SERVER_URL + "/api/user" : TOMCAT_SERVER_URL + `/api/user/${userBeingEditedObj.id}`, {
             method: userBeingEditedObj.id === null ? "POST" : "PUT",
             headers: {
-                "Authorization": getAuthHeader(loggedInUser),
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(userBeingEditedObj)

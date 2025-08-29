@@ -3,8 +3,8 @@ import { useState } from "react";
 import UserSettingsForm from "../User/UserSettings.tsx";
 import * as React from "react";
 import { User } from "../../../constants/data/data.ts";
-import { useNavigate } from "react-router-dom";
 import { switchTheme } from "../../Shared/ThemeUtility.ts";
+import { Link } from "react-router-dom";
 
 const UserProfile = (props: { user: User }) => {
   const [themeChanged, setThemeChanged] = useState(false);
@@ -54,32 +54,21 @@ const UserProfileMenu = ({
   onSettingsClick: () => void;
   user: User;
 }) => {
-  const navigate = useNavigate();
-  const adminRoute = () => {
-    const path = "/admin";
-    navigate(path);
-  };
-
   return (
     <div className="profile-menu">
       <a className="menu-item" onClick={onSettingsClick}>
         Settings...
       </a>
       {user?.admin && (
-        <a className="menu-item" onClick={adminRoute}>
+        <Link className="menu-item" to="/admin" >
           Admin
-        </a>
+        </Link>
       )}
-      <a className="menu-item" onClick={onLogoutClick}>
+      <Link className="menu-item" to="/logout" >
         Log out
-      </a>
+      </Link>
     </div>
   );
-};
-
-const onLogoutClick = () => {
-  const path = "/logout";
-  window.location.href = path;
 };
 
 const UserProfileWidget = (props: { user: User }) => {

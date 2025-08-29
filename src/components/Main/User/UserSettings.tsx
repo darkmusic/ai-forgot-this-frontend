@@ -1,9 +1,10 @@
 import { Theme, User } from '../../../constants/data/data.ts';
 import '../../../css/themes.css'
-import {getAuthHeader, useCurrentUser} from "../../Shared/Authentication.ts";
+import {useCurrentUser} from "../../Shared/Authentication.ts";
 import { fetchThemes } from '../../Shared/ThemeUtility.ts';
 import { useState, useMemo, useEffect, ChangeEvent } from "react";
 import { hashPassword } from '../../Shared/Authentication.ts';
+import {TOMCAT_SERVER_URL} from '../../../constants/router/router.tsx';
 
 const UserSettingsForm = ({onClose}: { onClose: () => void }) => {
     const [themes, setThemes] = useState([] as Theme[]);
@@ -130,10 +131,9 @@ const UserSettingsForm = ({onClose}: { onClose: () => void }) => {
         };
 
         // Send updated user data to the server
-        fetch(`/api/user/${user.id}`, {
+        fetch(TOMCAT_SERVER_URL + `/api/user/${user.id}`, {
             method: 'PUT',
             headers: {
-                "Authorization": getAuthHeader(user),
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(updatedUser)

@@ -5,8 +5,9 @@ import {AiModel, Card, Deck, Tag} from "../../../constants/data/data.ts";
 import TagWidget from "../Shared/TagWidget.tsx";
 import {ChangeEvent, FormEvent, useEffect, useMemo, useState} from "react";
 import DeckWidget from "../Shared/DeckWidget.tsx";
-import {getAuthHeader, useCurrentUser} from "../../Shared/Authentication.ts";
+import {useCurrentUser} from "../../Shared/Authentication.ts";
 import {fetchModels} from "../../Shared/AiUtility.ts";
+import {TOMCAT_SERVER_URL} from '../../../constants/router/router.tsx';
 
 const EditCard = () => {
     const {state} = useLocation();
@@ -93,11 +94,8 @@ const EditCard = () => {
             return;
         }
 
-        fetch(`/api/card/${card.id}`, {
-            method: "DELETE",
-            headers: {
-                "Authorization": getAuthHeader(user)
-            }
+        fetch(TOMCAT_SERVER_URL + `/api/card/${card.id}`, {
+            method: "DELETE"
         }).then((response) => {
             if (response.ok) {
                 setDeleting(false);
@@ -135,10 +133,9 @@ const EditCard = () => {
         }
 
         // Send the card object to the server
-        fetch(card.id === 0 ? "/api/card" : `/api/card/${card.id}`, {
+        fetch(card.id === 0 ? TOMCAT_SERVER_URL + "/api/card" : TOMCAT_SERVER_URL + `/api/card/${card.id}`, {
             method: card.id === 0 ? "POST" : "PUT",
             headers: {
-                "Authorization": getAuthHeader(user),
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(cardData)
@@ -162,10 +159,9 @@ const EditCard = () => {
         }
 
         // Send the AI question to the server
-        fetch(`/api/ai/ask`, {
+        fetch(TOMCAT_SERVER_URL + `/api/ai/ask`, {
             method: "POST",
             headers: {
-                "Authorization": getAuthHeader(user),
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({

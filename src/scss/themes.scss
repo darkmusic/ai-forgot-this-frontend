@@ -349,6 +349,13 @@ input, textarea, select, option, button {
   left: 1rem;
 }
 
+.login-field {
+  padding: 0.5rem;
+  border: 1px solid $tag-border-color;
+  border-radius: 4px;
+  background-color: $tag-container-bg;
+}
+
 .tag-widget {
   position: relative;
   width: 100%;

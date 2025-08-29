@@ -6,7 +6,8 @@ import {useLocation, useNavigate} from "react-router-dom";
 import HomeWidget from "../Shared/HomeWidget.tsx";
 import {FilterCards} from "../../Shared/CardUtility.ts";
 import TagWidget from "../Shared/TagWidget.tsx";
-import {getAuthHeader, useCurrentUser} from "../../Shared/Authentication.ts";
+import {useCurrentUser} from "../../Shared/Authentication.ts";
+import {TOMCAT_SERVER_URL} from "../../../constants/router/router.tsx";
 
 const CardRow = ({props}: {props: { card: Card | null, deck: Deck}}) => {
     const navigate = useNavigate();
@@ -133,11 +134,8 @@ const EditDeck = () => {
             return;
         }
 
-        fetch(`/api/deck/${deck.id}`, {
-            method: "DELETE",
-            headers: {
-                "Authorization": getAuthHeader(user)
-            }
+        fetch(TOMCAT_SERVER_URL + `/api/deck/${deck.id}`, {
+            method: "DELETE"
         }).then((response) => {
             if (response.ok) {
                 setDeleting(false);
@@ -178,10 +176,9 @@ const EditDeck = () => {
         };
 
         // Send the deck object to the server
-        fetch(deck.id === 0 ? "/api/deck" : `/api/deck/${deck.id}`, {
+        fetch(deck.id === 0 ? TOMCAT_SERVER_URL + "/api/deck" : TOMCAT_SERVER_URL + `/api/deck/${deck.id}`, {
             method: deck.id === 0 ? "POST" : "PUT",
             headers: {
-                "Authorization": getAuthHeader(user),
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(deckData)

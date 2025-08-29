@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, KeyboardEvent, ChangeEvent, Dispatch, SetStateAction } from 'react';
 import { Tag } from "../../../constants/data/data.ts";
 import * as React from "react";
+import {TOMCAT_SERVER_URL} from '../../../constants/router/router.tsx';
 
 interface TagWidgetProps {
     onTagsChange?: Dispatch<SetStateAction<Tag[]>>;
@@ -19,7 +20,7 @@ const TagWidget = ({ onTagsChange, initialTags, allowCreation = true }: TagWidge
     useEffect(() => {
         const fetchTags = async () => {
             try {
-                const response = await fetch('/api/tag/all');
+                const response = await fetch(TOMCAT_SERVER_URL + '/api/tag/all');
                 if (response.ok) {
                     const data = await response.json();
                     setFetchedTags(data);
@@ -40,7 +41,7 @@ const TagWidget = ({ onTagsChange, initialTags, allowCreation = true }: TagWidge
                 id: null,
                 name: tagName,
             };
-            const response = await fetch('/api/tag', {
+            const response = await fetch(TOMCAT_SERVER_URL + '/api/tag', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
