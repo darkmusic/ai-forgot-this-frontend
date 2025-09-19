@@ -1,9 +1,8 @@
 import {Theme} from "../../constants/data/data.ts";
-import {TOMCAT_SERVER_URL} from "../../constants/router/router.tsx";
+import { getJson } from "../../lib/api";
 
 export const fetchThemes = async () : Promise<Theme[]> => {
-    const response = await fetch(TOMCAT_SERVER_URL + '/api/themes');
-    return await response.json();
+  return await getJson<Theme[]>(`/api/themes`);
 }
 
 export const switchTheme = (props: { themeId: number }) => {

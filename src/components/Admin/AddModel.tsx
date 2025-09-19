@@ -4,13 +4,13 @@ import UserProfileWidget from "../Main/Shared/UserProfileWidget.tsx";
 import {useState} from "react";
 import * as React from "react";
 import {useCurrentUser} from "../Shared/Authentication.ts";
-import {TOMCAT_SERVER_URL} from "../../constants/router/router.tsx";
+import { apiFetch } from "../../lib/api";
 
 const pullModel = async (modelName : string) => {
     const ollamaLog = document.getElementById("ollamaLog");
     ollamaLog!.innerText += "Pulling model, please wait. This may take a while!\n";
 
-    const response = await fetch(TOMCAT_SERVER_URL + `/api/ai/model/pull?modelName=${modelName}`);
+    const response = await apiFetch(`/api/ai/model/pull?modelName=${modelName}`);
     if (!response.body) {
         throw new Error('ReadableStream not yet supported in this browser.');
     }
@@ -57,7 +57,7 @@ const AddModel = () => {
     }
 
     const syncModels = () => {
-        fetch(`/api/ai/models/sync`)
+        apiFetch(`/api/ai/models/sync`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');

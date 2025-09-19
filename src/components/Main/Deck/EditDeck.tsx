@@ -7,48 +7,36 @@ import HomeWidget from "../Shared/HomeWidget.tsx";
 import {FilterCards} from "../../Shared/CardUtility.ts";
 import TagWidget from "../Shared/TagWidget.tsx";
 import {useCurrentUser} from "../../Shared/Authentication.ts";
-import {TOMCAT_SERVER_URL} from "../../../constants/router/router.tsx";
+import { deleteOk, postJson, putJson } from "../../../lib/api";
 
-const CardRow = ({props}: {props: { card: Card | null, deck: Deck}}) => {
+const CardTable = (p: { cards: Card[], deck: Deck }) => {
+    const { cards, deck } = p;
     const navigate = useNavigate();
-    if (props.card !== null) {
-        return (
-            <tr>
-                <td className={"edit-td-data"}>{props.card.front}</td>
-                <td className={"edit-td-data"}>{props.card.back}</td>
-                <td className={"edit-td-data"}>
-                    <a className={"link-pointer"} onClick={() => navigate("/card/view", {state: {deck: props.deck, card: props.card}})}>View</a> |
-                    <a className={"link-pointer"} onClick={() => navigate("/card/edit", {state: {deck: props.deck, card: props.card}})}>Edit</a> |
-                    <a className={"link-pointer"} onClick={() => navigate("/card/delete", {state: {deck: props.deck, card: props.card}})}>Delete</a>
-                </td>
-            </tr>
-        );
-    }
-    else {
-        return (
-            <tr>
-                <td className={"edit-td-data"}><a className={"link-pointer"} onClick={() => navigate("/card/edit", {state: {deck: props.deck, card: null}})}>{"<new>"}</a></td>
-                <td className={"edit-td-data"}><a className={"link-pointer"} onClick={() => navigate("/card/edit", {state: {deck: props.deck, card: null}})}>{"<new>"}</a></td>
-                <td className={"edit-td-data"}><a className={"link-pointer"} onClick={() => navigate("/card/edit", {state: {deck: props.deck, card: null}})}>Create</a></td>
-            </tr>
-        );
-    }
-}
-
-const CardTable = ({props}: { props: {cards: Card[], deck: Deck }}) => {
     return (
         <table className="table">
             <thead>
             <tr>
                 <td className={"table-column-header"}>Front</td>
                 <td className={"table-column-header"}>Back</td>
-                {props.cards !== null && <td className={"table-column-header"}>Actions</td>}
+                {cards !== null && <td className={"table-column-header"}>Actions</td>}
             </tr>
             </thead>
             <tbody>
-            <CardRow key={"<new>"} props={{card:null, deck:props.deck}}/>
-            {props.cards?.map((card: Card) => (
-                <CardRow key={card.front} props={{card:card, deck:props.deck as Deck}}/>
+            <tr key={"<new>"}>
+                <td className={"edit-td-data"}><a className={"link-pointer"} onClick={() => navigate("/card/edit", {state: {deck, card: null}})}>{"<new>"}</a></td>
+                <td className={"edit-td-data"}><a className={"link-pointer"} onClick={() => navigate("/card/edit", {state: {deck, card: null}})}>{"<new>"}</a></td>
+                <td className={"edit-td-data"}><a className={"link-pointer"} onClick={() => navigate("/card/edit", {state: {deck, card: null}})}>Create</a></td>
+            </tr>
+            {cards?.map((c: Card) => (
+                <tr key={c.front}>
+                    <td className={"edit-td-data"}>{c.front}</td>
+                    <td className={"edit-td-data"}>{c.back}</td>
+                    <td className={"edit-td-data"}>
+                        <a className={"link-pointer"} onClick={() => navigate("/card/view", {state: {deck, card: c}})}>View</a> |
+                        <a className={"link-pointer"} onClick={() => navigate("/card/edit", {state: {deck, card: c}})}>Edit</a> |
+                        <a className={"link-pointer"} onClick={() => navigate("/card/delete", {state: {deck, card: c}})}>Delete</a>
+                    </td>
+                </tr>
             ))}
             </tbody>
         </table>
@@ -134,17 +122,16 @@ const EditDeck = () => {
             return;
         }
 
-        fetch(TOMCAT_SERVER_URL + `/api/deck/${deck.id}`, {
-            method: "DELETE"
-        }).then((response) => {
-            if (response.ok) {
-                setDeleting(false);
-                navigate("/home");
-            } else {
-                setDeleting(false);
-                alert("Failed to delete deck");
-            }
-        });
+        deleteOk(`/api/deck/${deck.id}`)
+            .then((ok) => {
+                if (ok) {
+                    setDeleting(false);
+                    navigate("/home");
+                } else {
+                    setDeleting(false);
+                    alert("Failed to delete deck");
+                }
+            });
     }
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -176,19 +163,12 @@ const EditDeck = () => {
         };
 
         // Send the deck object to the server
-        fetch(deck.id === 0 ? TOMCAT_SERVER_URL + "/api/deck" : TOMCAT_SERVER_URL + `/api/deck/${deck.id}`, {
-            method: deck.id === 0 ? "POST" : "PUT",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(deckData)
-        }).then((response) => {
-            if (response.ok) {
-                navigate("/home");
-            } else {
-                alert("Failed to save deck");
-            }
-        });
+        const save = deck.id === 0
+            ? postJson<Deck>(`/api/deck`, deckData)
+            : putJson<Deck>(`/api/deck/${deck.id}`, deckData);
+        save
+            .then(() => navigate("/home"))
+            .catch(() => alert("Failed to save deck"));
     }
 
 
@@ -254,7 +234,7 @@ const EditDeck = () => {
             {deck.id !== null && deck.id > 0 && <SearchAndFilterWidget searchText={searchText} setSearchText={setSearchText} selectedTags={selectedCardTags} setSelectedTags={setSelectedCardTags}/>}
             <br/>
 
-            {deck.id !== null && deck.id > 0 && <CardTable props={{cards:filteredCards, deck:deck}}/>}
+            {deck.id !== null && deck.id > 0 && <CardTable cards={filteredCards} deck={deck}/>}
         </div>
     );
 }

@@ -7,7 +7,7 @@ import {ChangeEvent, FormEvent, useEffect, useMemo, useState} from "react";
 import DeckWidget from "../Shared/DeckWidget.tsx";
 import {useCurrentUser} from "../../Shared/Authentication.ts";
 import {fetchModels} from "../../Shared/AiUtility.ts";
-import {TOMCAT_SERVER_URL} from '../../../constants/router/router.tsx';
+import { deleteOk, postJson, putJson, apiFetch } from "../../../lib/api";
 
 const EditCard = () => {
     const {state} = useLocation();
@@ -94,17 +94,16 @@ const EditCard = () => {
             return;
         }
 
-        fetch(TOMCAT_SERVER_URL + `/api/card/${card.id}`, {
-            method: "DELETE"
-        }).then((response) => {
-            if (response.ok) {
-                setDeleting(false);
-                navigate("/deck/edit", {state: {deck: deck}});
-            } else {
-                setDeleting(false);
-                alert("Failed to delete user");
-            }
-        });
+        deleteOk(`/api/card/${card.id}`)
+            .then((ok) => {
+                if (ok) {
+                    setDeleting(false);
+                    navigate("/deck/edit", {state: {deck: deck}});
+                } else {
+                    setDeleting(false);
+                    alert("Failed to delete user");
+                }
+            });
     }
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -133,20 +132,15 @@ const EditCard = () => {
         }
 
         // Send the card object to the server
-        fetch(card.id === 0 ? TOMCAT_SERVER_URL + "/api/card" : TOMCAT_SERVER_URL + `/api/card/${card.id}`, {
-            method: card.id === 0 ? "POST" : "PUT",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(cardData)
-        }).then((response) => {
-            if (response.ok) {
+        const save = card.id === 0
+            ? postJson<Card>(`/api/card`, cardData)
+            : putJson<Card>(`/api/card/${card.id}`, cardData);
+        save
+            .then(() => {
                 alert("Successfully updated card");
                 navigate("/deck/edit", {state: {deck: deck}});
-            } else {
-                alert("Failed to save card");
-            }
-        });
+            })
+            .catch(() => alert("Failed to save card"));
     }
 
     const handleAiQuestionAsk = () => {
@@ -158,27 +152,23 @@ const EditCard = () => {
             return;
         }
 
-        // Send the AI question to the server
-        fetch(TOMCAT_SERVER_URL + `/api/ai/ask`, {
+        // Send the AI question to the server (streaming supported)
+        apiFetch(`/api/ai/ask`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                model: aiModel,
-                question: aiQuestion,
-                userId: user.id
-            })
-        }).then((response) => {
-            if (response.ok) {
-                response.json().then((data) => {
-                    setFormData({
-                        ...formData,
-                        ai_answer: data.answer
-                    });
-                });
-            } else {
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ model: aiModel, question: aiQuestion, userId: user.id })
+        }).then(async (response) => {
+            if (!response.ok) {
                 alert("Failed to get AI answer");
+                return;
+            }
+            try {
+                const data = await response.json();
+                setFormData({ ...formData, ai_answer: data.answer });
+            } catch {
+                // If backend streams line-delimited JSON or text, fallback to text
+                const text = await response.text();
+                setFormData({ ...formData, ai_answer: text });
             }
         });
     }

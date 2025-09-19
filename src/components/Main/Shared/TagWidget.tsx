@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, KeyboardEvent, ChangeEvent, Dispatch, SetStateAction } from 'react';
 import { Tag } from "../../../constants/data/data.ts";
 import * as React from "react";
-import {TOMCAT_SERVER_URL} from '../../../constants/router/router.tsx';
+import { getJson, postJson } from '../../../lib/api';
 
 interface TagWidgetProps {
     onTagsChange?: Dispatch<SetStateAction<Tag[]>>;
@@ -20,13 +20,8 @@ const TagWidget = ({ onTagsChange, initialTags, allowCreation = true }: TagWidge
     useEffect(() => {
         const fetchTags = async () => {
             try {
-                const response = await fetch(TOMCAT_SERVER_URL + '/api/tag/all');
-                if (response.ok) {
-                    const data = await response.json();
-                    setFetchedTags(data);
-                } else {
-                    console.error('Failed to fetch tags');
-                }
+                const data = await getJson<Tag[]>(`/api/tag/all`);
+                setFetchedTags(data);
             } catch (error) {
                 console.error('Error fetching tags:', error);
             }
@@ -41,20 +36,12 @@ const TagWidget = ({ onTagsChange, initialTags, allowCreation = true }: TagWidge
                 id: null,
                 name: tagName,
             };
-            const response = await fetch(TOMCAT_SERVER_URL + '/api/tag', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(tag),
-            });
-
-            if (response.ok) {
-                const newTag = await response.json();
+            try {
+                const newTag = await postJson<Tag>(`/api/tag`, tag);
                 setFetchedTags([...fetchedTags, newTag]);
                 addTag(newTag);
-            } else {
-                console.error('Failed to create tag');
+            } catch (error) {
+                console.error('Failed to create tag', error);
             }
         } catch (error) {
             console.error('Error creating tag:', error);

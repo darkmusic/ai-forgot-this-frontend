@@ -17,8 +17,6 @@ import LoginPage from "../../components/Main/Shared/LoginPage.tsx";
 import LogoutPage from "../../components/Main/Shared/LogoutPage.tsx";
 import NotFoundPage from "../../components/Main/Shared/404Page.tsx";
 
-export const TOMCAT_SERVER_URL = import.meta.env.VITE_TOMCAT_SERVER_URL;
-
 // Runs once per app load / navigation to root—good place to prime CSRF
 export async function rootLoader() {
     await primeCsrf();

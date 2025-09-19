@@ -1,5 +1,19 @@
 let csrfToken: string | null = null;
 let csrfHeaderName: string | null = null;
+const BASE_URL: string | undefined = (import.meta as any).env?.VITE_TOMCAT_SERVER_URL;
+
+function resolveUrl(input: string): string {
+  // If an absolute URL is provided, use it. Otherwise, prefix with BASE_URL when set.
+  try {
+    // new URL throws if relative and no base provided
+    // eslint-disable-next-line no-new
+    new URL(input);
+    return input; // already absolute
+  } catch {
+    if (BASE_URL && input.startsWith('/')) return BASE_URL.replace(/\/$/, '') + input;
+    return input;
+  }
+}
 
 const isSafeMethod = (m?: string) => {
   const method = (m ?? "GET").toUpperCase();
@@ -38,8 +52,11 @@ export async function apiFetch(input: string, init: RequestInit = {}): Promise<R
     };
   }
 
-  // Same-origin; cookies are sent automatically. If you moved to another origin, add: credentials: "include"
-  let res = await fetch(input, init);
+  // Always include credentials so session cookies flow in both same-origin and cross-origin dev.
+  if (!init.credentials) init.credentials = 'include';
+
+  const url = resolveUrl(input);
+  let res = await fetch(url, init);
 
   // If CSRF was invalid/rotated, refetch token and retry once
   if (res.status === 403 && !isSafeMethod(method)) {
@@ -50,7 +67,8 @@ export async function apiFetch(input: string, init: RequestInit = {}): Promise<R
       ...(init.headers || {}),
       [csrfHeaderName ?? "X-XSRF-TOKEN"]: csrfToken ?? "",
     };
-    res = await fetch(input, init);
+    const retryUrl = resolveUrl(input);
+    res = await fetch(retryUrl, init);
   }
   return res;
 }
@@ -102,4 +120,19 @@ export async function postJson<T>(url: string, payload: unknown): Promise<T> {
   });
   if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
   return r.json();
+}
+
+export async function putJson<T>(url: string, payload: unknown): Promise<T> {
+  const r = await apiFetch(url, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+  return r.json();
+}
+
+export async function deleteOk(url: string): Promise<boolean> {
+  const r = await apiFetch(url, { method: 'DELETE' });
+  return r.ok;
 }

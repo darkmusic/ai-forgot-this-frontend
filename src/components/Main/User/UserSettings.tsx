@@ -4,7 +4,7 @@ import {useCurrentUser} from "../../Shared/Authentication.ts";
 import { fetchThemes } from '../../Shared/ThemeUtility.ts';
 import { useState, useMemo, useEffect, ChangeEvent } from "react";
 import { hashPassword } from '../../Shared/Authentication.ts';
-import {TOMCAT_SERVER_URL} from '../../../constants/router/router.tsx';
+import { putJson } from '../../../lib/api';
 
 const UserSettingsForm = ({onClose}: { onClose: () => void }) => {
     const [themes, setThemes] = useState([] as Theme[]);
@@ -131,24 +131,12 @@ const UserSettingsForm = ({onClose}: { onClose: () => void }) => {
         };
 
         // Send updated user data to the server
-        fetch(TOMCAT_SERVER_URL + `/api/user/${user.id}`, {
-            method: 'PUT',
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(updatedUser)
-        }).then((response) => {
-            if (response.ok) {
-              onClose(); // Close modal window
-            }
-            else {
-                alert("Failed to update user settings");
-            }
-        }
-        ).catch((error) => {
-            console.error("Error updating user settings:", error);
-            alert("An error occurred while updating user settings");
-        });
+        putJson<User>(`/api/user/${user.id}`, updatedUser)
+            .then(() => { onClose(); })
+            .catch((error) => {
+                console.error("Error updating user settings:", error);
+                alert("An error occurred while updating user settings");
+            });
     };
 
     // Early return after all hooks are called

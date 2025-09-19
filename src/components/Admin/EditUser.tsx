@@ -4,7 +4,7 @@ import UserProfileWidget from "../Main/Shared/UserProfileWidget.tsx";
 import {ChangeEvent, ChangeEventHandler, FormEvent, useState} from "react";
 import {hashPassword, useCurrentUser} from "../Shared/Authentication.ts";
 import {User} from "../../constants/data/data.ts";
-import {TOMCAT_SERVER_URL} from '../../constants/router/router.tsx';
+import { deleteOk, postJson, putJson } from '../../lib/api';
 
 const editPasswordRows = (handleChange: ChangeEventHandler<HTMLInputElement> | undefined) => {
     return (
@@ -83,10 +83,8 @@ const EditUser = () => {
             return;
         }
 
-        fetch(TOMCAT_SERVER_URL + `/api/user/${userBeingEdited.id}`, {
-            method: "DELETE"
-        }).then((response) => {
-            if (response.ok) {
+        deleteOk(`/api/user/${userBeingEdited.id}`).then((ok) => {
+            if (ok) {
                 setDeleting(false);
                 navigate("/admin");
             }
@@ -138,20 +136,12 @@ const EditUser = () => {
         };
 
         // Send the user object to the server
-        fetch(userBeingEditedObj.id === null ? TOMCAT_SERVER_URL + "/api/user" : TOMCAT_SERVER_URL + `/api/user/${userBeingEditedObj.id}`, {
-            method: userBeingEditedObj.id === null ? "POST" : "PUT",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(userBeingEditedObj)
-        }).then((response) => {
-            if (response.ok) {
-                navigate("/admin");
-            }
-            else {
-                alert("Failed to save user");
-            }
-        });
+        const save = userBeingEditedObj.id === null
+            ? postJson<User>(`/api/user`, userBeingEditedObj)
+            : putJson<User>(`/api/user/${userBeingEditedObj.id}`, userBeingEditedObj);
+        save
+            .then(() => navigate("/admin"))
+            .catch(() => alert("Failed to save user"));
     }
 
     return (
