@@ -36,6 +36,7 @@ const EditCard = () => {
     // Modal fallback for manual copy
     const [showCopyModal, setShowCopyModal] = useState(false);
     const copyTextRef = useRef<HTMLTextAreaElement | null>(null);
+    const COPY_FEEDBACK_DURATION = 1200; // milliseconds
 
     // Get card from state or create a new one if null
     const card : Card = useMemo(
@@ -162,7 +163,21 @@ const EditCard = () => {
             body: JSON.stringify({ question: aiQuestion, userId: user.id })
         }).then(async (response) => {
             if (!response.ok) {
-                alert("Failed to get AI answer");
+                let detail = "";
+                try {
+                    const ct = response.headers.get("content-type") || "";
+                    if (ct.includes("application/json")) {
+                        const errJson = await response.json().catch(() => null);
+                        const msg = errJson?.error || errJson?.message || errJson?.detail;
+                        if (msg) detail = ` - ${String(msg).slice(0, 500)}`;
+                    } else {
+                        const txt = await response.text().catch(() => "");
+                        if (txt) detail = ` - ${txt.slice(0, 500)}`;
+                    }
+                } catch {
+                    // ignore parsing errors
+                }
+                alert(`AI request failed: HTTP ${response.status} ${response.statusText}${detail}`);
                 return;
             }
             try {
@@ -173,8 +188,20 @@ const EditCard = () => {
                 const text = await response.text();
                 setFormData({ ...formData, ai_answer: text });
             }
-        }).catch(() => {
-            alert("Failed to get AI answer");
+        }).catch((err: unknown) => {
+            let msg = "Unknown error";
+            const offline = typeof navigator !== "undefined" && navigator && "onLine" in navigator && !navigator.onLine;
+            if (offline) {
+                msg = "You appear to be offline. Check your internet connection.";
+            } else if (err instanceof DOMException && err.name === "AbortError") {
+                msg = "The request was cancelled.";
+            } else if (err instanceof TypeError) {
+                // Fetch typically throws TypeError on network/CORS issues
+                msg = "Network error or CORS issue prevented the request.";
+            } else if (err && typeof err === "object" && "message" in err) {
+                msg = String((err as any).message);
+            }
+            alert(`Failed to get AI answer: ${msg}`);
         }).finally(() => {
             setAiLoading(false);
         });
@@ -189,7 +216,7 @@ const EditCard = () => {
             // Fallback: open modal with selectable text for manual copy
             setShowCopyModal(true);
         }
-        setTimeout(() => setCopied(false), 1200);
+        setTimeout(() => setCopied(false), COPY_FEEDBACK_DURATION);
     };
 
     const handleSelectAllCopyModal = () => {
@@ -281,29 +308,8 @@ const EditCard = () => {
                                         </div>
                                         {/* Manual copy modal fallback */}
                                         {showCopyModal ? (
-                                            <div
-                                              className="ai-copy-modal-overlay"
-                                              style={{
-                                                position: 'fixed',
-                                                inset: 0,
-                                                background: 'rgba(0,0,0,0.4)',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                zIndex: 1000
-                                              }}
-                                            >
-                                              <div
-                                                className="ai-copy-modal"
-                                                style={{
-                                                  background: 'var(--background, #fff)',
-                                                  color: 'inherit',
-                                                  padding: '1rem',
-                                                  borderRadius: '6px',
-                                                  width: 'min(720px, 90vw)',
-                                                  boxShadow: '0 8px 24px rgba(0,0,0,0.2)'
-                                                }}
-                                              >
+                                            <div className="ai-copy-modal-overlay">
+                                              <div className="ai-copy-modal">
                                                 <h4 style={{ marginTop: 0, marginBottom: '0.5rem' }}>Copy Markdown</h4>
                                                 <p style={{ marginTop: 0, marginBottom: '0.5rem' }}>
                                                   Press Ctrl/Cmd+C to copy the selected text.
