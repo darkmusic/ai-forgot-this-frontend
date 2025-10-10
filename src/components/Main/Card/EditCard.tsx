@@ -169,7 +169,7 @@ const EditCard = () => {
 
         setAiLoading(true);
         // Send the AI question to the server (streaming supported)
-        apiFetch(`/api/ai/chat`, {
+        apiFetch('/api/ai/chat', {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ question: aiQuestion, userId: user.id })
