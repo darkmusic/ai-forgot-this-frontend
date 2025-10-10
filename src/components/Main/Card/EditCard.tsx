@@ -1,13 +1,13 @@
 import '../../../css/themes.css'
 import UserProfileWidget from "../Shared/UserProfileWidget.tsx";
 import {useLocation, useNavigate} from "react-router-dom";
-import {AiModel, Card, Deck, Tag} from "../../../constants/data/data.ts";
+import {Card, Deck, Tag} from "../../../constants/data/data.ts";
 import TagWidget from "../Shared/TagWidget.tsx";
-import {ChangeEvent, FormEvent, useEffect, useMemo, useState} from "react";
+import {ChangeEvent, FormEvent, useEffect, useMemo, useState, useRef} from "react";
 import DeckWidget from "../Shared/DeckWidget.tsx";
 import {useCurrentUser} from "../../Shared/Authentication.ts";
-import {fetchModels} from "../../Shared/AiUtility.ts";
 import { deleteOk, postJson, putJson, apiFetch } from "../../../lib/api";
+import Markdown from "react-markdown";
 
 const EditCard = () => {
     const {state} = useLocation();
@@ -22,16 +22,23 @@ const EditCard = () => {
     };
     const [deleting, setDeleting] = useState(false);
     const user = useCurrentUser();
-    const [aiModels, setAiModels] = useState([] as AiModel[]);
-    const [fetchedAiModels, setFetchedAiModels] = useState(false);
     const [formData, setFormData] = useState({
         front: '',
         back: '',
         tags: [] as Tag[],
         ai_question: '',
         ai_answer: '',
-        ai_model: '',
     });
+    // Add copied indicator for clipboard action
+    const [copied, setCopied] = useState(false);
+    // Add loading indicator state for AI request
+    const [aiLoading, setAiLoading] = useState(false);
+    // Modal fallback for manual copy
+    const [showCopyModal, setShowCopyModal] = useState(false);
+    const copyTextRef = useRef<HTMLTextAreaElement | null>(null);
+    const COPY_FEEDBACK_DURATION = 1200; // milliseconds
+    // Track copied feedback timeout to avoid leaks
+    const copyTimeoutRef = useRef<number | null>(null);
 
     // Get card from state or create a new one if null
     const card : Card = useMemo(
@@ -54,21 +61,30 @@ const EditCard = () => {
                 tags: card.tags || [] as Tag[],
                 ai_question: '',
                 ai_answer: '',
-                ai_model: '',
             });
             setSelectedCardTags(card.tags || []);
         }
     }, [card]);
 
+    useEffect(() => {
+        if (showCopyModal && copyTextRef.current) {
+            copyTextRef.current.focus();
+            copyTextRef.current.select();
+        }
+    }, [showCopyModal]);
+
+    // Clear any pending copy feedback timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (copyTimeoutRef.current !== null) {
+                clearTimeout(copyTimeoutRef.current);
+                copyTimeoutRef.current = null;
+            }
+        };
+    }, []);
+
     if (!user) {
         return <div>Loading user profile...</div>
-    }
-    if (!fetchedAiModels) {
-        fetchModels().then((models) => setAiModels(models))
-            .then(() => setFetchedAiModels(true));
-    }
-    if (aiModels === null || aiModels.length === 0) {
-        return <div>Loading models...</div>
     }
     if (deck === null || deck.id === 0) {
         return <div>Loading deck...</div>
@@ -144,22 +160,36 @@ const EditCard = () => {
     }
 
     const handleAiQuestionAsk = () => {
-        const aiModel = formData.ai_model;
         const aiQuestion = formData.ai_question;
 
-        if (!aiModel || !aiQuestion) {
-            alert("Please select an AI model and enter a question.");
+        if (!aiQuestion) {
+            alert("Please enter a question.");
             return;
         }
 
+        setAiLoading(true);
         // Send the AI question to the server (streaming supported)
-        apiFetch(`/api/ai/ask`, {
+        apiFetch('/api/ai/chat', {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ model: aiModel, question: aiQuestion, userId: user.id })
+            body: JSON.stringify({ question: aiQuestion, userId: user.id })
         }).then(async (response) => {
             if (!response.ok) {
-                alert("Failed to get AI answer");
+                let detail = "";
+                try {
+                    const ct = response.headers.get("content-type") || "";
+                    if (ct.includes("application/json")) {
+                        const errJson = await response.json().catch(() => null);
+                        const msg = errJson?.error || errJson?.message || errJson?.detail;
+                        if (msg) detail = ` - ${String(msg).slice(0, 500)}`;
+                    } else {
+                        const txt = await response.text().catch(() => "");
+                        if (txt) detail = ` - ${txt.slice(0, 500)}`;
+                    }
+                } catch {
+                    // ignore parsing errors
+                }
+                alert(`AI request failed: HTTP ${response.status} ${response.statusText}${detail}`);
                 return;
             }
             try {
@@ -170,8 +200,51 @@ const EditCard = () => {
                 const text = await response.text();
                 setFormData({ ...formData, ai_answer: text });
             }
+        }).catch((err: unknown) => {
+            let msg = "Unknown error";
+            const offline = typeof navigator !== "undefined" && navigator && "onLine" in navigator && !navigator.onLine;
+            if (offline) {
+                msg = "You appear to be offline. Check your internet connection.";
+            } else if (err instanceof DOMException && err.name === "AbortError") {
+                msg = "The request was cancelled.";
+            } else if (err instanceof TypeError) {
+                // Fetch typically throws TypeError on network/CORS issues
+                msg = "Network error or CORS issue prevented the request.";
+            } else if (err && typeof err === "object" && "message" in err) {
+                msg = String((err as any).message);
+            }
+            alert(`Failed to get AI answer: ${msg}`);
+        }).finally(() => {
+            setAiLoading(false);
         });
     }
+    // Copy raw markdown to clipboard (with fallback)
+    const handleCopyAiAnswer = async () => {
+        const text = formData.ai_answer || "";
+        try {
+            await navigator.clipboard.writeText(text);
+            setCopied(true);
+        } catch {
+            // Fallback: open modal with selectable text for manual copy
+            setShowCopyModal(true);
+        }
+        // Reset copied flag after a delay; clear any prior timer first
+        if (copyTimeoutRef.current !== null) {
+            clearTimeout(copyTimeoutRef.current);
+            copyTimeoutRef.current = null;
+        }
+        copyTimeoutRef.current = window.setTimeout(() => {
+            setCopied(false);
+            copyTimeoutRef.current = null;
+        }, COPY_FEEDBACK_DURATION);
+    };
+
+    const handleSelectAllCopyModal = () => {
+        if (copyTextRef.current) {
+            copyTextRef.current.focus();
+            copyTextRef.current.select();
+        }
+    };
 
     return (
         <div>
@@ -221,17 +294,6 @@ const EditCard = () => {
                                 </thead>
                                 <tbody>
                                 <tr>
-                                    <td className={"edit-td-header-ai"}>Model:</td>
-                                    <td className={"edit-td-data-ai"}>
-                                        <select name={"ai_model"} className={"ai-select"} onChange={handleChange} value={formData.ai_model}>
-                                            {aiModels.map((model) => (
-                                                <option value={model.model}
-                                                        className={"ai-option"}>{model.name}</option>
-                                            ))}
-                                        </select>
-                                    </td>
-                                </tr>
-                                <tr>
                                     <td className={"edit-td-header-top-ai"}>Question:</td>
                                     <td className={"edit-td-data-ai"}><textarea name={"ai_question"} rows={6}
                                                                                 cols={50}
@@ -241,17 +303,51 @@ const EditCard = () => {
                                 </tr>
                                 <tr>
                                     <td className={"center"} colSpan={2}>
-                                        <button type={"button"} onClick={handleAiQuestionAsk} className={"ai-ask-button"}>Ask</button>
+                                        <button
+                                            type={"button"}
+                                            onClick={handleAiQuestionAsk}
+                                            className={"ai-ask-button"}
+                                            disabled={aiLoading}
+                                        >
+                                            {aiLoading ? "Asking..." : "Ask"}
+                                        </button>
+                                        {aiLoading ? <span className="ai-thinking">Thinking...</span> : null}
                                     </td>
                                 </tr>
                                 <tr>
                                     <td className={"edit-td-header-top-ai"}>Answer:</td>
-                                    <td className={"edit-td-data-ai"}><textarea name={"ai_answer"} rows={15}
-                                                                                cols={50}
-                                                                                className={"ai-textarea"}
-                                                                                readOnly={true}
-                                                                                onChange={handleChange}
-                                                                                value={formData.ai_answer}/></td>
+                                    <td className={"edit-td-data-ai"}>
+                                        {/* Copy button and status */}
+                                        <div className="ai-answer-actions" style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.5rem' }}>
+                                            <button type="button" onClick={handleCopyAiAnswer}>Copy</button>
+                                            {copied ? <span>Copied!</span> : null}
+                                        </div>
+                                        {/* Render AI answer with Markdown formatting */}
+                                        <div className="ai-answer-markdown">
+                                            <Markdown>{formData.ai_answer || ""}</Markdown>
+                                        </div>
+                                        {/* Manual copy modal fallback */}
+                                        {showCopyModal ? (
+                                            <div className="ai-copy-modal-overlay">
+                                              <div className="ai-copy-modal">
+                                                <h4 style={{ marginTop: 0, marginBottom: '0.5rem' }}>Copy Markdown</h4>
+                                                <p style={{ marginTop: 0, marginBottom: '0.5rem' }}>
+                                                  Press Ctrl/Cmd+C to copy the selected text.
+                                                </p>
+                                                <textarea
+                                                  ref={copyTextRef}
+                                                  readOnly
+                                                  value={formData.ai_answer}
+                                                  style={{ width: '100%', height: '240px', fontFamily: 'monospace' }}
+                                                />
+                                                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+                                                  <button type="button" onClick={handleSelectAllCopyModal}>Select All</button>
+                                                  <button type="button" onClick={() => setShowCopyModal(false)}>Close</button>
+                                                </div>
+                                              </div>
+                                            </div>
+                                        ) : null}
+                                    </td>
                                 </tr>
                                 </tbody>
                             </table>

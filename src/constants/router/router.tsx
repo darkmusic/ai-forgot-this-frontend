@@ -6,7 +6,6 @@ import {
 } from "react-router-dom";
 import Admin from "../../components/Admin/Admin.tsx";
 import EditUser from "../../components/Admin/EditUser.tsx";
-import AddModel from "../../components/Admin/AddModel.tsx";
 import Home from "../../components/Main/Home/Home.tsx";
 import EditDeck from "../../components/Main/Deck/EditDeck.tsx";
 import Quiz from "../../components/Main/Card/Quiz.tsx";
@@ -58,11 +57,6 @@ const ROUTES = [
     {
         path: "/admin/edit-user",
         element: <EditUser/>,
-        loader: requireAuthLoader
-    },
-    {
-        path: "/admin/add-model",
-        element: <AddModel/>,
         loader: requireAuthLoader
     },
     {
