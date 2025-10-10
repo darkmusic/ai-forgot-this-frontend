@@ -1,13 +1,13 @@
 import '../../../css/themes.css'
 import UserProfileWidget from "../Shared/UserProfileWidget.tsx";
 import {useLocation, useNavigate} from "react-router-dom";
-import {AiModel, Card, Deck, Tag} from "../../../constants/data/data.ts";
+import {Card, Deck, Tag} from "../../../constants/data/data.ts";
 import TagWidget from "../Shared/TagWidget.tsx";
 import {ChangeEvent, FormEvent, useEffect, useMemo, useState} from "react";
 import DeckWidget from "../Shared/DeckWidget.tsx";
 import {useCurrentUser} from "../../Shared/Authentication.ts";
-import {fetchModels} from "../../Shared/AiUtility.ts";
 import { deleteOk, postJson, putJson, apiFetch } from "../../../lib/api";
+import Markdown from "react-markdown";
 
 const EditCard = () => {
     const {state} = useLocation();
@@ -22,16 +22,17 @@ const EditCard = () => {
     };
     const [deleting, setDeleting] = useState(false);
     const user = useCurrentUser();
-    const [aiModels, setAiModels] = useState([] as AiModel[]);
-    const [fetchedAiModels, setFetchedAiModels] = useState(false);
     const [formData, setFormData] = useState({
         front: '',
         back: '',
         tags: [] as Tag[],
         ai_question: '',
         ai_answer: '',
-        ai_model: '',
     });
+    // Add copied indicator for clipboard action
+    const [copied, setCopied] = useState(false);
+    // Add loading indicator state for AI request
+    const [aiLoading, setAiLoading] = useState(false);
 
     // Get card from state or create a new one if null
     const card : Card = useMemo(
@@ -54,7 +55,6 @@ const EditCard = () => {
                 tags: card.tags || [] as Tag[],
                 ai_question: '',
                 ai_answer: '',
-                ai_model: '',
             });
             setSelectedCardTags(card.tags || []);
         }
@@ -62,13 +62,6 @@ const EditCard = () => {
 
     if (!user) {
         return <div>Loading user profile...</div>
-    }
-    if (!fetchedAiModels) {
-        fetchModels().then((models) => setAiModels(models))
-            .then(() => setFetchedAiModels(true));
-    }
-    if (aiModels === null || aiModels.length === 0) {
-        return <div>Loading models...</div>
     }
     if (deck === null || deck.id === 0) {
         return <div>Loading deck...</div>
@@ -144,19 +137,19 @@ const EditCard = () => {
     }
 
     const handleAiQuestionAsk = () => {
-        const aiModel = formData.ai_model;
         const aiQuestion = formData.ai_question;
 
-        if (!aiModel || !aiQuestion) {
-            alert("Please select an AI model and enter a question.");
+        if (!aiQuestion) {
+            alert("Please enter a question.");
             return;
         }
 
+        setAiLoading(true);
         // Send the AI question to the server (streaming supported)
-        apiFetch(`/api/ai/ask`, {
+        apiFetch(`/api/ai/chat`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ model: aiModel, question: aiQuestion, userId: user.id })
+            body: JSON.stringify({ question: aiQuestion, userId: user.id })
         }).then(async (response) => {
             if (!response.ok) {
                 alert("Failed to get AI answer");
@@ -170,8 +163,31 @@ const EditCard = () => {
                 const text = await response.text();
                 setFormData({ ...formData, ai_answer: text });
             }
+        }).catch(() => {
+            alert("Failed to get AI answer");
+        }).finally(() => {
+            setAiLoading(false);
         });
     }
+    // Copy raw markdown to clipboard (with fallback)
+    const handleCopyAiAnswer = async () => {
+        const text = formData.ai_answer || "";
+        try {
+            await navigator.clipboard.writeText(text);
+            setCopied(true);
+        } catch {
+            // Fallback for environments without Clipboard API:
+            // Show a prompt so the user can copy manually.
+            try {
+                // eslint-disable-next-line no-alert
+                const res = window.prompt("Copy the Markdown below (Ctrl/Cmd+C), then press Enter to close:", text);
+                if (res !== null) setCopied(true);
+            } catch {
+                console.warn("Clipboard copy not supported in this environment.");
+            }
+        }
+        setTimeout(() => setCopied(false), 1200);
+    };
 
     return (
         <div>
@@ -221,17 +237,6 @@ const EditCard = () => {
                                 </thead>
                                 <tbody>
                                 <tr>
-                                    <td className={"edit-td-header-ai"}>Model:</td>
-                                    <td className={"edit-td-data-ai"}>
-                                        <select name={"ai_model"} className={"ai-select"} onChange={handleChange} value={formData.ai_model}>
-                                            {aiModels.map((model) => (
-                                                <option value={model.model}
-                                                        className={"ai-option"}>{model.name}</option>
-                                            ))}
-                                        </select>
-                                    </td>
-                                </tr>
-                                <tr>
                                     <td className={"edit-td-header-top-ai"}>Question:</td>
                                     <td className={"edit-td-data-ai"}><textarea name={"ai_question"} rows={6}
                                                                                 cols={50}
@@ -241,17 +246,30 @@ const EditCard = () => {
                                 </tr>
                                 <tr>
                                     <td className={"center"} colSpan={2}>
-                                        <button type={"button"} onClick={handleAiQuestionAsk} className={"ai-ask-button"}>Ask</button>
+                                        <button
+                                            type={"button"}
+                                            onClick={handleAiQuestionAsk}
+                                            className={"ai-ask-button"}
+                                            disabled={aiLoading}
+                                        >
+                                            {aiLoading ? "Asking..." : "Ask"}
+                                        </button>
+                                        {aiLoading ? <span style={{ marginLeft: '0.5rem' }}>Thinking...</span> : null}
                                     </td>
                                 </tr>
                                 <tr>
                                     <td className={"edit-td-header-top-ai"}>Answer:</td>
-                                    <td className={"edit-td-data-ai"}><textarea name={"ai_answer"} rows={15}
-                                                                                cols={50}
-                                                                                className={"ai-textarea"}
-                                                                                readOnly={true}
-                                                                                onChange={handleChange}
-                                                                                value={formData.ai_answer}/></td>
+                                    <td className={"edit-td-data-ai"}>
+                                        {/* Copy button and status */}
+                                        <div className="ai-answer-actions" style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.5rem' }}>
+                                            <button type="button" onClick={handleCopyAiAnswer}>Copy</button>
+                                            {copied ? <span>Copied!</span> : null}
+                                        </div>
+                                        {/* Render AI answer with Markdown formatting */}
+                                        <div className="ai-answer-markdown">
+                                            <Markdown>{formData.ai_answer || ""}</Markdown>
+                                        </div>
+                                    </td>
                                 </tr>
                                 </tbody>
                             </table>

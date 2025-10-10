@@ -1,11 +1,10 @@
-import {Link, useNavigate} from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import '../../css/themes.css';
-import {AiModel, User} from "../../constants/data/data.ts";
+import {User} from "../../constants/data/data.ts";
 import UserProfileWidget from "../Main/Shared/UserProfileWidget.tsx";
 import HomeWidget from "../Main/Shared/HomeWidget.tsx";
 import {useState} from "react";
 import {useCurrentUser} from "../Shared/Authentication.ts";
-import {fetchModels} from "../Shared/AiUtility.ts";
 import { getJson } from "../../lib/api";
 
 const UserRow = ({ user }: { user: User | null }) => {
@@ -31,26 +30,6 @@ const UserRow = ({ user }: { user: User | null }) => {
                 <a className={"link-pointer"} onClick={() => navigate('/admin/edit-user', { state: { user: user } })}>
                     {user === null ? "<new>" : (user.active ? "Yes" : "No")}
                 </a>
-            </td>
-        </tr>
-    );
-};
-
-const AiModelRow = ({ aiModel }: { aiModel: AiModel | null}) => {
-    return (
-        <tr>
-            <td className={'table-data'}>{aiModel === null ? "<new>" : aiModel.name}</td>
-        </tr>
-    );
-};
-
-const AiModelNewRow = () => {
-    return (
-        <tr>
-            <td className={'table-data'}>
-                <Link to="/admin/add-model" className={"link-pointer"}>
-                    {"<new>"}
-                </Link>
             </td>
         </tr>
     );
@@ -95,30 +74,6 @@ const Users = () => {
     );
 }
 
-const AiModels = () => {
-    const [aiModels, setAiModels] = useState([] as AiModel[]);
-    const [fetchedAiModels, setFetchedAiModels] = useState(false);
-    if (!fetchedAiModels) {
-        fetchModels().then((models) => setAiModels(models))
-            .then(() => setFetchedAiModels(true));
-    }
-
-    return (
-        <table className={'table'}>
-            <thead>
-            <tr className={'table-header'}><th colSpan={2}>AI Models - List</th></tr>
-            <tr className={'table-column-header'}><th>Name</th></tr>
-            </thead>
-            <tbody>
-            <AiModelNewRow/>
-            {aiModels?.map((aiModel : AiModel) => {
-                return <AiModelRow key={aiModel.model} aiModel={aiModel} />;
-            })}
-            </tbody>
-        </table>
-    );
-}
-
 const Admin = () => {
     const user = useCurrentUser();
 
@@ -132,9 +87,6 @@ const Admin = () => {
             <UserProfileWidget user={user} />
             <h2>Ai Forgot These Cards - Admin</h2>
             <Users />
-            <br />
-            <br />
-            <AiModels />
         </div>
     );
 }

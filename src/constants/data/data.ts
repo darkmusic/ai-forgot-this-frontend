@@ -10,12 +10,6 @@ export interface User {
     themeId?: number | null;
 }
 
-export interface AiModel {
-    id: number | null;
-    name: string;
-    model: string;
-}
-
 export interface Deck {
     id: number | null;
     name: string;
