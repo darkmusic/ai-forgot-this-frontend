@@ -1,5 +1,3 @@
-SHELL := bash
-
 .PHONY: compile-scss-windows compile-scss deploy-windows deploy
 
 # Windows: requires 'sass' on PATH (Dart Sass or compatible)
