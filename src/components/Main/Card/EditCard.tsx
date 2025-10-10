@@ -3,7 +3,7 @@ import UserProfileWidget from "../Shared/UserProfileWidget.tsx";
 import {useLocation, useNavigate} from "react-router-dom";
 import {Card, Deck, Tag} from "../../../constants/data/data.ts";
 import TagWidget from "../Shared/TagWidget.tsx";
-import {ChangeEvent, FormEvent, useEffect, useMemo, useState} from "react";
+import {ChangeEvent, FormEvent, useEffect, useMemo, useState, useRef} from "react";
 import DeckWidget from "../Shared/DeckWidget.tsx";
 import {useCurrentUser} from "../../Shared/Authentication.ts";
 import { deleteOk, postJson, putJson, apiFetch } from "../../../lib/api";
@@ -33,6 +33,9 @@ const EditCard = () => {
     const [copied, setCopied] = useState(false);
     // Add loading indicator state for AI request
     const [aiLoading, setAiLoading] = useState(false);
+    // Modal fallback for manual copy
+    const [showCopyModal, setShowCopyModal] = useState(false);
+    const copyTextRef = useRef<HTMLTextAreaElement | null>(null);
 
     // Get card from state or create a new one if null
     const card : Card = useMemo(
@@ -59,6 +62,13 @@ const EditCard = () => {
             setSelectedCardTags(card.tags || []);
         }
     }, [card]);
+
+    useEffect(() => {
+        if (showCopyModal && copyTextRef.current) {
+            copyTextRef.current.focus();
+            copyTextRef.current.select();
+        }
+    }, [showCopyModal]);
 
     if (!user) {
         return <div>Loading user profile...</div>
@@ -176,17 +186,17 @@ const EditCard = () => {
             await navigator.clipboard.writeText(text);
             setCopied(true);
         } catch {
-            // Fallback for environments without Clipboard API:
-            // Show a prompt so the user can copy manually.
-            try {
-                // eslint-disable-next-line no-alert
-                const res = window.prompt("Copy the Markdown below (Ctrl/Cmd+C), then press Enter to close:", text);
-                if (res !== null) setCopied(true);
-            } catch {
-                console.warn("Clipboard copy not supported in this environment.");
-            }
+            // Fallback: open modal with selectable text for manual copy
+            setShowCopyModal(true);
         }
         setTimeout(() => setCopied(false), 1200);
+    };
+
+    const handleSelectAllCopyModal = () => {
+        if (copyTextRef.current) {
+            copyTextRef.current.focus();
+            copyTextRef.current.select();
+        }
     };
 
     return (
@@ -269,6 +279,48 @@ const EditCard = () => {
                                         <div className="ai-answer-markdown">
                                             <Markdown>{formData.ai_answer || ""}</Markdown>
                                         </div>
+                                        {/* Manual copy modal fallback */}
+                                        {showCopyModal ? (
+                                            <div
+                                              className="ai-copy-modal-overlay"
+                                              style={{
+                                                position: 'fixed',
+                                                inset: 0,
+                                                background: 'rgba(0,0,0,0.4)',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                zIndex: 1000
+                                              }}
+                                            >
+                                              <div
+                                                className="ai-copy-modal"
+                                                style={{
+                                                  background: 'var(--background, #fff)',
+                                                  color: 'inherit',
+                                                  padding: '1rem',
+                                                  borderRadius: '6px',
+                                                  width: 'min(720px, 90vw)',
+                                                  boxShadow: '0 8px 24px rgba(0,0,0,0.2)'
+                                                }}
+                                              >
+                                                <h4 style={{ marginTop: 0, marginBottom: '0.5rem' }}>Copy Markdown</h4>
+                                                <p style={{ marginTop: 0, marginBottom: '0.5rem' }}>
+                                                  Press Ctrl/Cmd+C to copy the selected text.
+                                                </p>
+                                                <textarea
+                                                  ref={copyTextRef}
+                                                  readOnly
+                                                  value={formData.ai_answer}
+                                                  style={{ width: '100%', height: '240px', fontFamily: 'monospace' }}
+                                                />
+                                                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+                                                  <button type="button" onClick={handleSelectAllCopyModal}>Select All</button>
+                                                  <button type="button" onClick={() => setShowCopyModal(false)}>Close</button>
+                                                </div>
+                                              </div>
+                                            </div>
+                                        ) : null}
                                     </td>
                                 </tr>
                                 </tbody>
