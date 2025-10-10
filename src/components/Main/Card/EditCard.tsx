@@ -37,6 +37,8 @@ const EditCard = () => {
     const [showCopyModal, setShowCopyModal] = useState(false);
     const copyTextRef = useRef<HTMLTextAreaElement | null>(null);
     const COPY_FEEDBACK_DURATION = 1200; // milliseconds
+    // Track copied feedback timeout to avoid leaks
+    const copyTimeoutRef = useRef<number | null>(null);
 
     // Get card from state or create a new one if null
     const card : Card = useMemo(
@@ -70,6 +72,16 @@ const EditCard = () => {
             copyTextRef.current.select();
         }
     }, [showCopyModal]);
+
+    // Clear any pending copy feedback timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (copyTimeoutRef.current !== null) {
+                clearTimeout(copyTimeoutRef.current);
+                copyTimeoutRef.current = null;
+            }
+        };
+    }, []);
 
     if (!user) {
         return <div>Loading user profile...</div>
@@ -216,7 +228,15 @@ const EditCard = () => {
             // Fallback: open modal with selectable text for manual copy
             setShowCopyModal(true);
         }
-        setTimeout(() => setCopied(false), COPY_FEEDBACK_DURATION);
+        // Reset copied flag after a delay; clear any prior timer first
+        if (copyTimeoutRef.current !== null) {
+            clearTimeout(copyTimeoutRef.current);
+            copyTimeoutRef.current = null;
+        }
+        copyTimeoutRef.current = window.setTimeout(() => {
+            setCopied(false);
+            copyTimeoutRef.current = null;
+        }, COPY_FEEDBACK_DURATION);
     };
 
     const handleSelectAllCopyModal = () => {
@@ -291,7 +311,7 @@ const EditCard = () => {
                                         >
                                             {aiLoading ? "Asking..." : "Ask"}
                                         </button>
-                                        {aiLoading ? <span style={{ marginLeft: '0.5rem' }}>Thinking...</span> : null}
+                                        {aiLoading ? <span className="ai-thinking">Thinking...</span> : null}
                                     </td>
                                 </tr>
                                 <tr>
