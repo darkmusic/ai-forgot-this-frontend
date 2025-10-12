@@ -167,8 +167,7 @@ const EditDeck = () => {
             ? postJson<Deck>(`/api/deck`, deckData)
             : putJson<Deck>(`/api/deck/${deck.id}`, deckData);
         save
-            .then(() => navigate("/home"))
-            .catch(() => alert("Failed to save deck"));
+            .then(() => navigate("/home"));
     }
 
 
