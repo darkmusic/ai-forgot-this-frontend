@@ -6,7 +6,7 @@ import TagWidget from "../Shared/TagWidget.tsx";
 import {ChangeEvent, FormEvent, useEffect, useMemo, useState, useRef} from "react";
 import DeckWidget from "../Shared/DeckWidget.tsx";
 import {useCurrentUser} from "../../Shared/Authentication.ts";
-import { deleteOk, postJson, putJson, apiFetch } from "../../../lib/api";
+import {deleteOk, postJson, putJson, apiFetch, getJson} from "../../../lib/api";
 import Markdown from "react-markdown";
 
 const EditCard = () => {
@@ -152,11 +152,21 @@ const EditCard = () => {
             ? postJson<Card>(`/api/card`, cardData)
             : putJson<Card>(`/api/card/${card.id}`, cardData);
         save
-            .then(() => {
-                alert("Successfully updated card");
-                navigate("/deck/edit", {state: {deck: deck}});
+            .then(async () => {
+                try {
+                    const updatedDeck = await getJson<Deck>(`/api/deck/${deck.id}`);
+                    navigate("/deck/edit", {state: {deck: updatedDeck}});
+                } catch (error) {
+                    console.error("Failed to fetch updated deck:", error);
+                    // Fallback: navigate with stale deck or back to home
+                    alert("Card saved but failed to refresh deck. Returning to home to refresh deck.");
+                    navigate("/home");
+                }
             })
-            .catch(() => alert("Failed to save card"));
+            .catch((error) => {
+                console.error("Failed to save card:", error);
+                alert("Failed to save card. Please try again.");
+            });
     }
 
     const handleAiQuestionAsk = () => {
