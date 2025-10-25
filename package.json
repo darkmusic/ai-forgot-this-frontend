@@ -15,27 +15,27 @@
   "dependencies": {
     "ai-forgot-this-frontend": "file:",
     "bcryptjs": "^3.0.2",
-    "dotenv": "^17.2.1",
-    "env-cmd": "^10.1.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "dotenv": "17.2.3",
+    "env-cmd": "11.0.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "react-markdown": "^10.1.0",
-    "react-router-dom": "^7.6.2"
+    "react-router-dom": "^7.9.4"
   },
   "devDependencies": {
-    "@eslint/js": "^9.19.0",
+    "@eslint/js": "^9.38.0",
     "@types/bcryptjs": "^2.4.6",
-    "@types/node": "^24.5.2",
-    "@types/react": "^19.0.8",
-    "@types/react-dom": "^19.0.3",
-    "@vitejs/plugin-react": "^4.3.4",
-    "eslint": "^9.19.0",
-    "eslint-plugin-react-hooks": "^5.0.0",
-    "eslint-plugin-react-refresh": "^0.4.18",
-    "globals": "^15.14.0",
+    "@types/node": "^24.9.1",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "@vitejs/plugin-react": "^5.1.0",
+    "eslint": "^9.38.0",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.4.0",
     "sass": "^1.93.2",
-    "typescript": "~5.7.2",
-    "typescript-eslint": "^8.22.0",
-    "vite": "6.4.1"
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.46.2",
+    "vite": "7.1.12"
   }
 }
