@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "build:dev": "tsc -b --pretty --sourceMap && vite build --mode development --minify false",
     "build:prod": "tsc -b && vite build --mode production",
+    "scss": "make compile-scss",
     "deploy": "make deploy",
     "lint": "eslint .",
     "preview": "vite preview"
