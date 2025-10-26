@@ -140,7 +140,7 @@ body {
   background-color: $body-bg-color;
 }
 
-.table, .table th, .table td {
+.table, .table th, .table td, .edit-card-table, .edit-card-table th, .edit-card-table td {
   border: 1px solid $border-color;
   border-collapse: collapse;
   margin: 5px;
