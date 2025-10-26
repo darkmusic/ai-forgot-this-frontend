@@ -18,10 +18,13 @@
     "bcryptjs": "^3.0.2",
     "dotenv": "17.2.3",
     "env-cmd": "11.0.0",
+    "katex": "^0.16.25",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-markdown": "^10.1.0",
-    "react-router-dom": "^7.9.4"
+    "react-router-dom": "^7.9.4",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.38.0",

@@ -9,6 +9,8 @@ import { putJson } from '../../../lib/api';
 const UserSettingsForm = ({onClose}: { onClose: () => void }) => {
     const [themes, setThemes] = useState([] as Theme[]);
     const [fetchedThemes, setFetchedThemes] = useState(false);
+    const minPasswordLength = 6;
+
     var user = useCurrentUser();
     const [formData, setFormData] = useState({
         name: '',
@@ -102,14 +104,14 @@ const UserSettingsForm = ({onClose}: { onClose: () => void }) => {
         }
 
         // If password is provided, check its length
-        if (formData.password.length > 0 && formData.password.length < 8) {
-            alert("Password must be at least 8 characters long");
+        if (formData.password.length > 0 && formData.password.length < minPasswordLength) {
+            alert("Password must be at least " + minPasswordLength + " characters long");
             return;
         }
 
         // If repeat_password is provided, check its length
-        if (formData.repeat_password.length > 0 && formData.repeat_password.length < 8) {
-            alert("Repeat password must be at least 8 characters long");
+        if (formData.repeat_password.length > 0 && formData.repeat_password.length < minPasswordLength) {
+            alert("Repeat password must be at least " + minPasswordLength + " characters long");
             return;
         }
 
@@ -160,7 +162,7 @@ const UserSettingsForm = ({onClose}: { onClose: () => void }) => {
                     </tr>
                     <tr>
                         <td className={"edit-td-header"}>Password</td>
-                        <td className={"edit-td-data"}><input name={"password"} onChange={handleChange}/></td>
+                        <td className={"edit-td-data"}><input name={"password"} type={"password"} onChange={handleChange}/></td>
                     </tr>
                     <tr>
                         <td className={"edit-td-header"}>Repeat Password:</td>

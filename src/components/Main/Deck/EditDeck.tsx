@@ -166,8 +166,7 @@ const EditDeck = () => {
         const save = deck.id === 0
             ? postJson<Deck>(`/api/deck`, deckData)
             : putJson<Deck>(`/api/deck/${deck.id}`, deckData);
-        save
-            .then(() => navigate("/home"));
+        save;
     }
 
 
