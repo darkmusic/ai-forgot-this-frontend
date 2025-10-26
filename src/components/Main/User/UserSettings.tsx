@@ -1,5 +1,4 @@
 import { Theme, User } from '../../../constants/data/data.ts';
-import '../../../css/themes.css'
 import {useCurrentUser} from "../../Shared/Authentication.ts";
 import { fetchThemes } from '../../Shared/ThemeUtility.ts';
 import { useState, useMemo, useEffect, ChangeEvent } from "react";

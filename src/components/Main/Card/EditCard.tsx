@@ -1,4 +1,3 @@
-import '../../../css/themes.css'
 import UserProfileWidget from "../Shared/UserProfileWidget.tsx";
 import {useLocation, useNavigate} from "react-router-dom";
 import {Card, Deck, Tag} from "../../../constants/data/data.ts";
@@ -7,7 +6,9 @@ import {ChangeEvent, FormEvent, useEffect, useMemo, useState, useRef} from "reac
 import DeckWidget from "../Shared/DeckWidget.tsx";
 import {useCurrentUser} from "../../Shared/Authentication.ts";
 import {deleteOk, postJson, putJson, apiFetch, getJson} from "../../../lib/api";
-import Markdown from "react-markdown";
+import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
 
 const EditCard = () => {
     const {state} = useLocation();
@@ -263,14 +264,14 @@ const EditCard = () => {
             {card.id === 0 ? <h2>Create Card</h2> : <h2>Edit Card</h2>}
             <form onSubmit={handleSubmit}>
 
-                <table className={"table"}>
+                <table className={"edit-card-table"}>
                     <tbody>
                     <tr>
                         <td className={"edit-td-header"}>
-                            <table className={"table"}>
+                            <table className={"edit-card-table"}>
                                 <tbody>
                                 <tr>
-                                    <td className={"edit-td-header-top"}>Card Front (Markdown supported):</td>
+                                    <td className={"edit-td-header-top"}>Front:</td>
                                     <td className={"edit-td-data"}><textarea name={"front"}
                                                                              onChange={handleChange}
                                                                              className={"card"}
@@ -278,7 +279,7 @@ const EditCard = () => {
                                                                              cols={50}/></td>
                                 </tr>
                                 <tr>
-                                    <td className={"edit-td-header-top"}>Card Back (Markdown supported):</td>
+                                    <td className={"edit-td-header-top"}>Back:</td>
                                     <td className={"edit-td-data"}><textarea name={"back"}
                                                                              onChange={handleChange}
                                                                              className={"card"}
@@ -286,7 +287,7 @@ const EditCard = () => {
                                                                              cols={50}/></td>
                                 </tr>
                                 <tr>
-                                    <td className={"edit-td-header"}>Deck Tags:</td>
+                                    <td className={"edit-td-header"}>Card Tags:</td>
                                     <td className={"edit-td-data"}>
                                         <TagWidget onTagsChange={setSelectedCardTags} initialTags={card?.tags}/>
                                     </td>
@@ -298,8 +299,7 @@ const EditCard = () => {
                             <table className={"ai-table"}>
                                 <thead>
                                 <tr>
-                                    <td colSpan={2} className={"table-column-header center"}><h3>AI, help
-                                        please!</h3></td>
+                                    <td colSpan={2} className={"table-column-header center"}><h3>AI, help please!</h3></td>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -334,7 +334,7 @@ const EditCard = () => {
                                         </div>
                                         {/* Render AI answer with Markdown formatting */}
                                         <div className="ai-answer-markdown">
-                                            <Markdown>{formData.ai_answer || ""}</Markdown>
+                                            <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>{formData.ai_answer || ""}</ReactMarkdown>
                                         </div>
                                         {/* Manual copy modal fallback */}
                                         {showCopyModal ? (

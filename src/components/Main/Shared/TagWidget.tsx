@@ -7,9 +7,10 @@ interface TagWidgetProps {
     onTagsChange?: Dispatch<SetStateAction<Tag[]>>;
     initialTags?: Tag[]; // Tags already associated with the item
     allowCreation?: boolean; // Flag to enable tag creation
+    placeholderText?: string; // Placeholder text for the widget
 }
 
-const TagWidget = ({ onTagsChange, initialTags, allowCreation = true }: TagWidgetProps) => {
+const TagWidget = ({ onTagsChange, initialTags, allowCreation = true, placeholderText = 'Type to add or create tags...' }: TagWidgetProps) => {
     const [selectedTags, setSelectedTags] = useState<Tag[]>(initialTags || []);
     const [input, setInput] = useState('');
     const [suggestions, setSuggestions] = useState<Tag[]>([]);
@@ -127,7 +128,7 @@ const TagWidget = ({ onTagsChange, initialTags, allowCreation = true }: TagWidge
                     value={input}
                     onChange={handleInputChange}
                     onKeyDown={handleKeyDown}
-                    placeholder="Type to add or create tags..."
+                    placeholder={placeholderText}
                     className="tag-input"
                 />
             </div>

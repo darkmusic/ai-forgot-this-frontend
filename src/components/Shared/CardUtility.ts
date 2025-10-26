@@ -12,3 +12,7 @@ export const FilterCards = (cards: Card[], selectedTags: Tag[], searchText: stri
             )
     );
 }
+
+export const PrepareCardMarkdown = (template: string, cardContent: string) => {
+    return template.concat(' ', cardContent);
+}

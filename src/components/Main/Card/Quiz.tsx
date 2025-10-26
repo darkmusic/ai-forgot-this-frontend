@@ -1,5 +1,3 @@
-import 'katex/dist/katex.min.css'
-import '../../../css/themes.css'
 import HomeWidget from "../Shared/HomeWidget.tsx";
 import UserProfileWidget from "../Shared/UserProfileWidget.tsx";
 import {useLocation} from "react-router-dom";
@@ -9,6 +7,7 @@ import {useCurrentUser} from "../../Shared/Authentication.ts";
 import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
+import {PrepareCardMarkdown} from "../../Shared/CardUtility.ts";
 
 const GetPreviousCardIndex = (deck: Deck, currentCard: number) => {
     if (currentCard === 0) {
@@ -43,7 +42,7 @@ const Quiz = () => {
             <div className={"quiz-header"}>Deck: {deck.name}</div>
             <br/>
             <br/>
-            <div className={"quiz-card"} onClick={() => {setFlipped(!flipped)}}><ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>{flipped ? deck.templateBack.concat(' ', card.back) : deck.templateFront.concat(' ', card.front)}</ReactMarkdown></div>
+            <div className={"quiz-card"} onClick={() => {setFlipped(!flipped)}}><ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>{flipped ? PrepareCardMarkdown(deck.templateBack, card.back) : PrepareCardMarkdown(deck.templateFront, card.front)}</ReactMarkdown></div>
             <br/>
             <button className={"quiz-button"} onClick={() => {setFlipped(false); setCurrentCard(GetPreviousCardIndex(deck, currentCard))}}>{"<--Previous"}</button>
             <button className={"quiz-button"} onClick={() => {setFlipped(false); setCurrentCard(GetNextCardIndex(deck, currentCard))}}>{"Next-->"}</button>

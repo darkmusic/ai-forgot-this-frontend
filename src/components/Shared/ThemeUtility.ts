@@ -1,5 +1,5 @@
 import {Theme} from "../../constants/data/data.ts";
-import { getJson } from "../../lib/api";
+import {getJson} from "../../lib/api";
 
 export const fetchThemes = async () : Promise<Theme[]> => {
   return await getJson<Theme[]>(`/api/themes`);

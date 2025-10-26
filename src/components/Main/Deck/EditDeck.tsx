@@ -8,6 +8,10 @@ import {FilterCards} from "../../Shared/CardUtility.ts";
 import TagWidget from "../Shared/TagWidget.tsx";
 import {useCurrentUser} from "../../Shared/Authentication.ts";
 import { deleteOk, postJson, putJson } from "../../../lib/api";
+import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import {PrepareCardMarkdown} from "../../Shared/CardUtility.ts";
 
 const CardTable = (p: { cards: Card[], deck: Deck }) => {
     const { cards, deck } = p;
@@ -30,7 +34,7 @@ const CardTable = (p: { cards: Card[], deck: Deck }) => {
             {cards?.map((c: Card) => (
                 <tr key={c.front}>
                     <td className={"edit-td-data"}>{c.front}</td>
-                    <td className={"edit-td-data"}>{c.back}</td>
+                    <td className={"edit-td-data"}><ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>{PrepareCardMarkdown(deck.templateBack, c.back)}</ReactMarkdown></td>
                     <td className={"edit-td-data"}>
                         <a className={"link-pointer"} onClick={() => navigate("/card/view", {state: {deck, card: c}})}>View</a> |
                         <a className={"link-pointer"} onClick={() => navigate("/card/edit", {state: {deck, card: c}})}>Edit</a> |
