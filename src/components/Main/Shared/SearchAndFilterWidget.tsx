@@ -29,7 +29,7 @@ const SearchAndFilterWidget = (props: SearchAndFilterProps) => {
                     />
                 </td>
                 <td>
-                    <TagWidget onTagsChange={setSelectedTags} initialTags={[]}/>
+                    <TagWidget onTagsChange={setSelectedTags} initialTags={[]} placeholderText="Type to search for tags to filter by..."/>
                 </td>
             </tr>
             </tbody>

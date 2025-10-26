@@ -263,14 +263,14 @@ const EditCard = () => {
             {card.id === 0 ? <h2>Create Card</h2> : <h2>Edit Card</h2>}
             <form onSubmit={handleSubmit}>
 
-                <table className={"table"}>
+                <table className={"edit-card-table"}>
                     <tbody>
                     <tr>
                         <td className={"edit-td-header"}>
-                            <table className={"table"}>
+                            <table className={"edit-card-table"}>
                                 <tbody>
                                 <tr>
-                                    <td className={"edit-td-header-top"}>Card Front (Markdown supported):</td>
+                                    <td className={"edit-td-header-top"}>Front:</td>
                                     <td className={"edit-td-data"}><textarea name={"front"}
                                                                              onChange={handleChange}
                                                                              className={"card"}
@@ -278,7 +278,7 @@ const EditCard = () => {
                                                                              cols={50}/></td>
                                 </tr>
                                 <tr>
-                                    <td className={"edit-td-header-top"}>Card Back (Markdown supported):</td>
+                                    <td className={"edit-td-header-top"}>Back:</td>
                                     <td className={"edit-td-data"}><textarea name={"back"}
                                                                              onChange={handleChange}
                                                                              className={"card"}
@@ -286,7 +286,7 @@ const EditCard = () => {
                                                                              cols={50}/></td>
                                 </tr>
                                 <tr>
-                                    <td className={"edit-td-header"}>Deck Tags:</td>
+                                    <td className={"edit-td-header"}>Card Tags:</td>
                                     <td className={"edit-td-data"}>
                                         <TagWidget onTagsChange={setSelectedCardTags} initialTags={card?.tags}/>
                                     </td>
@@ -298,8 +298,7 @@ const EditCard = () => {
                             <table className={"ai-table"}>
                                 <thead>
                                 <tr>
-                                    <td colSpan={2} className={"table-column-header center"}><h3>AI, help
-                                        please!</h3></td>
+                                    <td colSpan={2} className={"table-column-header center"}><h3>AI, help please!</h3></td>
                                 </tr>
                                 </thead>
                                 <tbody>

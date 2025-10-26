@@ -26,7 +26,7 @@ $ai-edit-data-bg: #f0f8ff;
 
 // Text Colors
 $text-color: #333333;
-$heading-color: #495057;
+$heading-color: #10aec3;
 $table-header-text: #495057;
 $table-column-header-text: #495057;
 $link-color: #0066cc;
@@ -87,7 +87,7 @@ $quiz-card-hover-bg: #f8f9fa;
 
   // Text Colors
   $text-color: darkcyan !global;
-  $heading-color: darkslategray !global;
+  $heading-color: rgb(21, 196, 178) !global;
   $table-header-text: #213547 !global;
   $table-column-header-text: darkseagreen !global;
   $link-color: darkcyan !global;
@@ -124,6 +124,7 @@ $quiz-card-hover-bg: #f8f9fa;
 
 #root {
   max-width: 1280px;
+  min-width: 1024px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
@@ -163,7 +164,11 @@ h2 {
 
 .table {
   margin: 0 auto;
-  width: 800px;
+  width: 1024px;
+}
+
+.edit-card-table {
+  margin: 0 auto;
 }
 
 .table-header {
@@ -228,6 +233,7 @@ input, textarea, select, option, button {
   background-color: $edit-data-bg;
   color: $edit-data-text;
   text-align: left;
+  text-wrap: nowrap;
 }
 
 .edit-td-header-ai {
@@ -309,7 +315,7 @@ input, textarea, select, option, button {
   padding: 2rem;
   border-radius: 8px;
   border: 1px solid $modal-border-color;
-  max-width: 800px;
+  max-width: 1024px;
   width: 100%;
   position: relative;
 }
