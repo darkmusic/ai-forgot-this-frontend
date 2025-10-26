@@ -1,4 +1,3 @@
-import '../../../css/themes.css'
 import {useState} from "react";
 import {Tag} from "../../../constants/data/data.ts";
 import UserProfileWidget from "../Shared/UserProfileWidget.tsx";

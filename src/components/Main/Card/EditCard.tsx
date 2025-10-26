@@ -1,4 +1,3 @@
-import '../../../css/themes.css'
 import UserProfileWidget from "../Shared/UserProfileWidget.tsx";
 import {useLocation, useNavigate} from "react-router-dom";
 import {Card, Deck, Tag} from "../../../constants/data/data.ts";
@@ -7,7 +6,9 @@ import {ChangeEvent, FormEvent, useEffect, useMemo, useState, useRef} from "reac
 import DeckWidget from "../Shared/DeckWidget.tsx";
 import {useCurrentUser} from "../../Shared/Authentication.ts";
 import {deleteOk, postJson, putJson, apiFetch, getJson} from "../../../lib/api";
-import Markdown from "react-markdown";
+import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
 
 const EditCard = () => {
     const {state} = useLocation();
@@ -333,7 +334,7 @@ const EditCard = () => {
                                         </div>
                                         {/* Render AI answer with Markdown formatting */}
                                         <div className="ai-answer-markdown">
-                                            <Markdown>{formData.ai_answer || ""}</Markdown>
+                                            <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>{formData.ai_answer || ""}</ReactMarkdown>
                                         </div>
                                         {/* Manual copy modal fallback */}
                                         {showCopyModal ? (

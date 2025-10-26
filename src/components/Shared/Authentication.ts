@@ -1,7 +1,7 @@
 import {User, UserAuthResponse} from "../../constants/data/data.ts";
 import {useEffect, useState} from "react";
 import {hash} from "bcryptjs";
-import { getJson } from "../../lib/api";
+import {getJson} from "../../lib/api";
 
 export const useCurrentUser = (): User | null => {
     const [user, setUser] = useState<User | null>(null);

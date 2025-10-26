@@ -1,4 +1,3 @@
-import "../../../css/themes.css";
 import { useState } from "react";
 import UserSettingsForm from "../User/UserSettings.tsx";
 import * as React from "react";
