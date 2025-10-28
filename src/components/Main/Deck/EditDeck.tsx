@@ -33,7 +33,7 @@ const CardTable = (p: { cards: Card[], deck: Deck }) => {
             </tr>
             {cards?.map((c: Card) => (
                 <tr key={c.front}>
-                    <td className={"edit-td-data"}>{c.front}</td>
+                    <td className={"edit-td-data"}><ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>{PrepareCardMarkdown(deck.templateBack, c.front)}</ReactMarkdown></td>
                     <td className={"edit-td-data"}><ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>{PrepareCardMarkdown(deck.templateBack, c.back)}</ReactMarkdown></td>
                     <td className={"edit-td-data"}>
                         <a className={"link-pointer"} onClick={() => navigate("/card/view", {state: {deck, card: c}})}>View</a> |
