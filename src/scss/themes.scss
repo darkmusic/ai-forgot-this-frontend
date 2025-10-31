@@ -657,7 +657,7 @@ input, textarea, select, option, button {
   h3 {
     margin-top: 0;
     margin-bottom: 1rem;
-    color: #213547;
+    color: $ai-edit-header-bg;
   }
 }
 
@@ -686,7 +686,7 @@ input, textarea, select, option, button {
 .srs-stat-label {
   font-family: $standard-fonts;
   font-size: 0.9rem;
-  color: #213547;
+  color: $ai-edit-header-bg;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
