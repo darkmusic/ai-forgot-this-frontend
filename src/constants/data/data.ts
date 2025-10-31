@@ -47,3 +47,19 @@ export interface Theme {
     cssUrl: string;
     active: boolean;
 }
+
+export interface SrsCardResponse {
+    card: Card;
+    deck: Deck;  // Include deck separately to avoid JSON serialization issues
+    nextReviewAt?: string;
+    intervalDays?: number;
+    repetitions?: number;
+    isNew: boolean;
+}
+
+export interface SrsStatsResponse {
+    totalCards: number;
+    reviewedCards: number;
+    newCards: number;
+    dueCards: number;
+}

@@ -8,9 +8,9 @@ import Admin from "../../components/Admin/Admin.tsx";
 import EditUser from "../../components/Admin/EditUser.tsx";
 import Home from "../../components/Main/Home/Home.tsx";
 import EditDeck from "../../components/Main/Deck/EditDeck.tsx";
-import Quiz from "../../components/Main/Card/Quiz.tsx";
 import ViewCard from "../../components/Main/Card/ViewCard.tsx";
 import EditCard from "../../components/Main/Card/EditCard.tsx";
+import Review from "../../components/Main/Review/Review.tsx";
 import { primeCsrf, login as apiLogin, getJson } from "../../lib/api";
 import LoginPage from "../../components/Main/Shared/LoginPage.tsx";
 import LogoutPage from "../../components/Main/Shared/LogoutPage.tsx";
@@ -70,8 +70,8 @@ const ROUTES = [
         loader: requireAuthLoader
     },
     {
-        path: "/quiz",
-        element: <Quiz/>,
+        path: "/review",
+        element: <Review/>,
         loader: requireAuthLoader
     },
     {
