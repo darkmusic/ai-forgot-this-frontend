@@ -1,6 +1,6 @@
 // SASS Variables Theme System
 
-// Light Theme (Default)
+// Light Theme
 $bg-color: #ffffff;
 $body-bg-color: #ffffff;
 $table-bg-color: #ffffff;
@@ -59,6 +59,9 @@ $card-border-color: #dee2e6;
 $menu-hover-bg: #f8f9fa;
 $tag-hover-bg: #f8f9fa;
 $quiz-card-hover-bg: #f8f9fa;
+
+// Fonts
+$standard-fonts: "Noto Sans", sans-serif;
 
 // Dark Theme overrides
 [data-theme="dark"] {
@@ -135,7 +138,7 @@ $quiz-card-hover-bg: #f8f9fa;
 }
 
 body {
-  font-family: "Noto Sans", sans-serif;
+  font-family: $standard-fonts;
   font-size: small;
   background-color: $body-bg-color;
 }
@@ -145,7 +148,7 @@ body {
   border-collapse: collapse;
   margin: 5px;
   padding: 5px;
-  font-family: "Noto Sans", sans-serif;
+  font-family: $standard-fonts;
 }
 
 .ai-table, .ai-table th, .ai-table td {
@@ -153,12 +156,12 @@ body {
   border-collapse: collapse;
   margin: 5px;
   padding: 5px;
-  font-family: "Noto Sans", sans-serif;
+  font-family: $standard-fonts;
 }
 
 h2 {
   margin: 1rem 0;
-  font-family: "Noto Sans", sans-serif;
+  font-family: $standard-fonts;
   color: $heading-color;
 }
 
@@ -199,7 +202,7 @@ h2 {
 input, textarea, select, option, button {
   margin: 5px;
   padding: 5px;
-  font-family: "Noto Sans", sans-serif;
+  font-family: $standard-fonts;
   background-color: $bg-color;
   color: $text-color;
   font-size: small;
@@ -209,7 +212,7 @@ input, textarea, select, option, button {
 .ai-input, .ai-textarea, .ai-select, .ai-option, .ai-button {
   margin: 5px;
   padding: 5px;
-  font-family: "Noto Sans", sans-serif;
+  font-family: $standard-fonts;
   background-color: $ai-bg-color;
   color: $ai-text-color;
   font-size: small;
@@ -498,4 +501,212 @@ input, textarea, select, option, button {
   width: 150px;
   text-wrap: nowrap;
   vertical-align: top;
+}
+
+// Review SRS Styles
+.review-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+
+  h2 {
+    margin: 0;
+    color: $text-color;
+  }
+}
+
+.review-progress {
+  font-family: $standard-fonts;
+  font-size: 1rem;
+  color: $hint-text-color;
+
+  .new-badge {
+    background-color: $heading-color;
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-family: $standard-fonts;
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-left: 0.5rem;
+  }
+}
+
+.review-deck-info {
+  font-size: 0.9rem;
+  color: $hint-text-color;
+  margin-bottom: 1.5rem;
+}
+
+.review-card {
+  background-color: $quiz-card-bg;
+  color: $quiz-card-text;
+  border: 2px solid $card-border-color;
+  border-radius: 8px;
+  padding: 2rem;
+  margin: 2rem 0;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: $standard-fonts;
+  font-size: 1.2rem;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: $quiz-card-hover-bg;
+  }
+}
+
+.review-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.review-quality-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.review-button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  border: none;
+  font-family: $standard-fonts;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &.show-answer {
+    background-color: $heading-color;
+    color: white;
+    min-width: 200px;
+
+    &:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+  }
+
+  &.quality-again {
+    background-color: #dc3545;
+    color: white;
+
+    &:hover {
+      background-color: #c82333;
+      transform: translateY(-2px);
+    }
+  }
+
+  &.quality-hard {
+    background-color: #ffc107;
+    color: #000;
+
+    &:hover {
+      background-color: #e0a800;
+      transform: translateY(-2px);
+    }
+  }
+
+  &.quality-good {
+    background-color: #28a745;
+    color: white;
+
+    &:hover {
+      background-color: #218838;
+      transform: translateY(-2px);
+    }
+  }
+
+  &.quality-easy {
+    background-color: #007bff;
+    color: white;
+
+    &:hover {
+      background-color: #0056b3;
+      transform: translateY(-2px);
+    }
+  }
+}
+
+.error {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+// SRS Stats Widget
+.srs-stats-widget {
+  background-color: $card-bg;
+  border: 1px solid $card-border-color;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1rem 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: $ai-edit-header-bg;
+  }
+}
+
+.srs-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.srs-stat-item {
+  text-align: center;
+  padding: 1rem;
+  background-color: $table-header-bg;
+  border-radius: 6px;
+}
+
+.srs-stat-value {
+  font-family: $standard-fonts;
+  font-size: 2rem;
+  font-weight: bold;
+  color: $heading-color;
+  margin-bottom: 0.5rem;
+}
+
+.srs-stat-label {
+  font-family: $standard-fonts;
+  font-size: 0.9rem;
+  color: $ai-edit-header-bg;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.srs-review-button {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  background-color: $heading-color;
+  color: white;
+  text-align: center;
+  border-radius: 6px;
+  text-decoration: none;
+  font-family: $standard-fonts;
+  font-weight: 600;
+  transition: all 0.2s;
+
+  &:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+    color: white;
+  }
 }

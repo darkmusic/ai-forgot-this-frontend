@@ -55,6 +55,9 @@ const UserProfileMenu = ({
 }) => {
   return (
     <div className="profile-menu">
+      <Link className="menu-item" to="/review">
+        Review
+      </Link>
       <a className="menu-item" onClick={onSettingsClick}>
         Settings...
       </a>
