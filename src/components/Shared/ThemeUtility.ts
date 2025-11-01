@@ -1,9 +1,9 @@
-import {Theme} from "../../constants/data/data.ts";
-import {getJson} from "../../lib/api";
+import { Theme } from "../../constants/data/data.ts";
+import { getJson } from "../../lib/api";
 
-export const fetchThemes = async () : Promise<Theme[]> => {
+export const fetchThemes = async (): Promise<Theme[]> => {
   return await getJson<Theme[]>(`/api/themes`);
-}
+};
 
 export const switchTheme = (props: { themeId: number }) => {
   if (props.themeId === 1) {
@@ -11,4 +11,4 @@ export const switchTheme = (props: { themeId: number }) => {
   } else if (props.themeId === 2) {
     document.documentElement.setAttribute("data-theme", "light");
   }
-}
+};

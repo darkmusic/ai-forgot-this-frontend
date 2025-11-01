@@ -10,7 +10,13 @@ const UserProfile = (props: { user: User }) => {
 
   // Check if the themeId is set and if the current document theme does not match the user's theme
   // Also ensure that the theme has not already been changed to avoid unnecessary updates
-  if (props.user?.themeId !== undefined && props.user?.themeId !== null && document.documentElement.getAttribute("data-theme") !== props.user?.themeId.toString() && !themeChanged) {
+  if (
+    props.user?.themeId !== undefined &&
+    props.user?.themeId !== null &&
+    document.documentElement.getAttribute("data-theme") !==
+      props.user?.themeId.toString() &&
+    !themeChanged
+  ) {
     switchTheme({ themeId: props.user.themeId });
     setThemeChanged(true);
   }
@@ -62,11 +68,11 @@ const UserProfileMenu = ({
         Settings...
       </a>
       {user?.admin && (
-        <Link className="menu-item" to="/admin" >
+        <Link className="menu-item" to="/admin">
           Admin
         </Link>
       )}
-      <Link className="menu-item" to="/logout" >
+      <Link className="menu-item" to="/logout">
         Log out
       </Link>
     </div>

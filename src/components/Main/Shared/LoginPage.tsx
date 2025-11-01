@@ -8,11 +8,16 @@ export default function LoginPage() {
   return (
     <div>
       <h1>Sign in</h1>
-      {data?.error && <p style={{color:"crimson"}}>{data.error}</p>}
+      {data?.error && <p style={{ color: "crimson" }}>{data.error}</p>}
       <Form method="post" replace>
-        <input type="hidden" name="redirectTo" value={redirectTo}/>
+        <input type="hidden" name="redirectTo" value={redirectTo} />
         <input name="username" placeholder="user" className="login-field" />
-        <input name="password" type="password" className="login-field" placeholder="••••••" />
+        <input
+          name="password"
+          type="password"
+          className="login-field"
+          placeholder="••••••"
+        />
         <button type="submit">Login</button>
       </Form>
     </div>
