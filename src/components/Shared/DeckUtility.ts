@@ -26,5 +26,5 @@ export const FilterDecks = (
         !searchText ||
         deck.name.toLowerCase().includes(searchText.toLowerCase()) ||
         deck.description.toLowerCase().includes(searchText.toLowerCase())
-    );
+    ).sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
 };
