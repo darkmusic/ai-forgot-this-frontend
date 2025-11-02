@@ -11,6 +11,7 @@ import EditDeck from "../../components/Main/Deck/EditDeck.tsx";
 import ViewCard from "../../components/Main/Card/ViewCard.tsx";
 import EditCard from "../../components/Main/Card/EditCard.tsx";
 import Review from "../../components/Main/Review/Review.tsx";
+import Cram from "../../components/Main/Cram/Cram.tsx";
 import { primeCsrf, login as apiLogin, getJson } from "../../lib/api";
 import LoginPage from "../../components/Main/Shared/LoginPage.tsx";
 import LogoutPage from "../../components/Main/Shared/LogoutPage.tsx";
@@ -83,6 +84,11 @@ const ROUTES = [
   {
     path: "/review",
     element: <Review />,
+    loader: requireAuthLoader,
+  },
+  {
+    path: "/cram",
+    element: <Cram />,
     loader: requireAuthLoader,
   },
   {

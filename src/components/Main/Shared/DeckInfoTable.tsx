@@ -61,6 +61,13 @@ const DeckRow = ({ deck }: { deck: Deck | null }) => {
           >
             View/Edit
           </a>
+          {" | "}
+          <a
+            className={"link-pointer"}
+            onClick={() => navigate("/cram", { state: { deck: deck } })}
+          >
+            Cram
+          </a>
         </td>
       )}
     </tr>
