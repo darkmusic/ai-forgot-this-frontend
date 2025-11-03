@@ -1,8 +1,26 @@
 import { Deck } from "../../../constants/data/data.ts";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import BulkCardEntry from "../Deck/BulkCardEntry.tsx";
 
-const DeckRow = ({ deck }: { deck: Deck | null }) => {
+const DeckRow = ({ deck, onRefresh }: { deck: Deck | null; onRefresh?: () => void }) => {
   const navigate = useNavigate();
+  const [isBulkEntryOpen, setIsBulkEntryOpen] = useState(false);
+
+  const handleBulkEntryClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsBulkEntryOpen(true);
+  };
+
+  const handleBulkEntryClose = () => {
+    setIsBulkEntryOpen(false);
+  };
+
+  const handleCardsCreated = () => {
+    if (onRefresh) {
+      onRefresh();
+    }
+  };
 
   return (
     <tr>
@@ -68,13 +86,28 @@ const DeckRow = ({ deck }: { deck: Deck | null }) => {
           >
             Cram
           </a>
+          {" | "}
+          <a
+            className={"link-pointer"}
+            onClick={handleBulkEntryClick}
+          >
+            Bulk Entry
+          </a>
         </td>
+      )}
+      {deck && (
+        <BulkCardEntry
+          isOpen={isBulkEntryOpen}
+          onClose={handleBulkEntryClose}
+          deck={deck}
+          onCardsCreated={handleCardsCreated}
+        />
       )}
     </tr>
   );
 };
 
-const DeckInfoTable = ({ decks }: { decks: Deck[] }) => {
+const DeckInfoTable = ({ decks, onRefresh }: { decks: Deck[]; onRefresh?: () => void }) => {
   return (
     <table className="table">
       <thead>
@@ -85,9 +118,9 @@ const DeckInfoTable = ({ decks }: { decks: Deck[] }) => {
         </tr>
       </thead>
       <tbody>
-        <DeckRow key={"<new>"} deck={null} />
+        <DeckRow key={"<new>"} deck={null} onRefresh={onRefresh} />
         {decks.map((deck) => (
-          <DeckRow key={deck.name} deck={deck} />
+          <DeckRow key={deck.name} deck={deck} onRefresh={onRefresh} />
         ))}
       </tbody>
     </table>

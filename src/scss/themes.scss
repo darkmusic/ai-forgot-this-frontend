@@ -307,10 +307,14 @@ input, textarea, select, option, button {
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  overflow-y: auto; // Make the overlay scrollable
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch; // Smooth scrolling on touch devices
+  padding: 2rem 0; // Vertical padding only
   display: flex;
   justify-content: center;
-  align-items: center;
-  z-index: 1000;
+  align-items: flex-start; // Align to top instead of center
 }
 
 .modal-content {
@@ -321,6 +325,10 @@ input, textarea, select, option, button {
   max-width: 1024px;
   width: 100%;
   position: relative;
+  max-height: 90vh; // Constrain to viewport height
+  display: flex; // Flex column to allow internal scroll area
+  flex-direction: column;
+  overflow: hidden; // Contain scrollable child
 }
 
 .modal-close {
@@ -709,4 +717,222 @@ input, textarea, select, option, button {
     transform: translateY(-2px);
     color: white;
   }
+}
+
+// Bulk Card Entry Modal Styles
+.bulk-entry-modal {
+  max-width: 95vw;
+  width: 95vw;
+  max-height: none; // Remove max-height constraint
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto; // Center horizontally, allow natural height
+  position: relative; // Ensure it's positioned relative to scrolling context
+}
+
+.bulk-entry-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 0; // Required for flex scrolling
+  flex: 1 1 auto; // Take remaining height within modal
+  overflow-y: auto; // This is the scrollable area
+  overscroll-behavior: contain; // Prevent body scroll chaining
+
+  h2 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    color: $heading-color;
+    flex-shrink: 0;
+  }
+}
+
+.bulk-entry-instructions {
+  margin-bottom: 1rem;
+  color: $hint-text-color;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.bulk-entry-top-actions {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid $tag-border-color;
+  flex-shrink: 0;
+}
+
+.bulk-entry-table-container {
+  /* Let container size naturally inside the scrollable modal body */
+  overflow: visible;
+  margin-bottom: 1rem;
+  border: 1px solid $tag-border-color;
+  border-radius: 4px;
+}
+
+.bulk-entry-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: $table-bg-color;
+
+  th, td {
+    padding: 0.5rem;
+    border: 1px solid $tag-border-color;
+    vertical-align: top;
+  }
+
+  thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: $table-header-bg;
+  }
+
+  .bulk-entry-header {
+    color: $table-header-text;
+    font-weight: 600;
+    text-align: left;
+  }
+
+  .actions-column {
+    width: 60px;
+    text-align: center;
+  }
+
+  .new-row {
+    background-color: rgba(16, 174, 195, 0.05);
+
+    td {
+      border-left: 3px solid $heading-color;
+    }
+  }
+}
+
+.bulk-entry-textarea {
+  width: 95%;
+  min-width: 200px;
+  padding: 0.5rem;
+  border: 1px solid $tag-border-color;
+  border-radius: 4px;
+  background-color: $tag-container-bg;
+  color: $text-color;
+  font-family: $standard-fonts;
+  font-size: 0.9rem;
+  resize: vertical;
+
+  &:focus {
+    outline: none;
+    border-color: $heading-color;
+  }
+}
+
+.bulk-entry-input {
+  width: 90%;
+  min-width: 150px;
+  padding: 0.5rem;
+  border: 1px solid $tag-border-color;
+  border-radius: 4px;
+  background-color: $tag-container-bg;
+  color: $text-color;
+  font-family: $standard-fonts;
+  font-size: 0.9rem;
+
+  &:focus {
+    outline: none;
+    border-color: $heading-color;
+  }
+}
+
+.bulk-entry-remove-btn {
+  background: none;
+  border: none;
+  color: #dc3545;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: rgba(220, 53, 69, 0.1);
+  }
+}
+
+.bulk-entry-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 1px solid $tag-border-color;
+  flex-shrink: 0;
+  background-color: $modal-bg;
+}
+
+.bulk-entry-stats {
+  display: flex;
+  gap: 1rem;
+}
+
+.bulk-entry-stat {
+  font-size: 0.9rem;
+  color: $hint-text-color;
+  font-weight: 600;
+}
+
+.bulk-entry-stat-delete {
+  color: #dc3545;
+}
+
+.bulk-entry-actions-right {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.bulk-entry-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid $nav-button-border;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: $standard-fonts;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  background-color: $nav-button-bg;
+  color: $nav-button-text;
+
+  &:hover:not(:disabled) {
+    opacity: 0.8;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.bulk-entry-btn-primary {
+  background-color: $heading-color;
+  color: white;
+  border-color: $heading-color;
+
+  &:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+}
+
+.bulk-entry-btn-cancel {
+  background-color: #6c757d;
+  color: white;
+  border-color: #6c757d;
+
+  &:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 0.75rem;
+  border-radius: 4px;
+  border: 1px solid #f5c6cb;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
 }

@@ -12,6 +12,11 @@ const Home = () => {
   const [searchText, setSearchText] = useState("");
   const user = useCurrentUser();
 
+  const handleRefresh = () => {
+    // Reload the page to refresh the user data and deck information
+    window.location.reload();
+  };
+
   if (!user) {
     return <div>Loading user profile...</div>;
   }
@@ -32,7 +37,7 @@ const Home = () => {
         setSelectedTags={setSelectedTags}
       />
       <br />
-      <DeckInfoTable decks={filteredDecks} />
+      <DeckInfoTable decks={filteredDecks} onRefresh={handleRefresh} />
     </div>
   );
 };
