@@ -8,6 +8,7 @@ import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import { PrepareCardMarkdown } from "../../Shared/CardUtility.ts";
+import { useLocation } from "react-router-dom";
 
 const Review = () => {
   const user = useCurrentUser();
@@ -16,13 +17,17 @@ const Review = () => {
   const [showAnswer, setShowAnswer] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { state } = useLocation();
+  const deckFromState: { id?: number | null; name?: string } | undefined = state?.deck;
+  const deckId = deckFromState?.id ?? null;
 
   // Fetch the review queue on component mount
   useEffect(() => {
     const fetchReviewQueue = async () => {
       try {
         setLoading(true);
-        const queue = await getJson<SrsCardResponse[]>("/api/srs/review-queue");
+        const url = deckId ? `/api/srs/review-queue?deckId=${deckId}` : "/api/srs/review-queue";
+        const queue = await getJson<SrsCardResponse[]>(url);
         setReviewQueue(queue);
         setLoading(false);
       } catch (err) {
@@ -37,7 +42,7 @@ const Review = () => {
     };
 
     fetchReviewQueue();
-  }, []);
+  }, [deckId]);
 
   const handleReview = async (quality: number) => {
     if (currentIndex >= reviewQueue.length) return;
@@ -128,7 +133,7 @@ const Review = () => {
       <HomeWidget />
       <UserProfileWidget user={user} />
       <div className="quiz-header">
-        Review - Deck: {deck?.name || "Unknown Deck"}
+        {deckId ? `Review - Deck: ${deckFromState?.name || deck?.name || "Unknown Deck"}` : "Review - All Due Cards"}
       </div>
       <div className="review-progress">
         Card {currentIndex + 1} of {reviewQueue.length}

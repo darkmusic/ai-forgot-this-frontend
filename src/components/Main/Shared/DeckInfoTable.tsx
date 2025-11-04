@@ -1,11 +1,20 @@
-import { Deck } from "../../../constants/data/data.ts";
+import { Deck, SrsStatsResponse } from "../../../constants/data/data.ts";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BulkCardEntry from "../Deck/BulkCardEntry.tsx";
+import { getJson } from "../../../lib/api.ts";
 
 const DeckRow = ({ deck, onRefresh }: { deck: Deck | null; onRefresh?: () => void }) => {
   const navigate = useNavigate();
   const [isBulkEntryOpen, setIsBulkEntryOpen] = useState(false);
+  const [srsStats, setSrsStats] = useState<{
+    due: number;
+    newCount: number;
+    reviewed: number;
+    total: number;
+    loading: boolean;
+    error?: string;
+  } | null>(null);
 
   const handleBulkEntryClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -21,6 +30,38 @@ const DeckRow = ({ deck, onRefresh }: { deck: Deck | null; onRefresh?: () => voi
       onRefresh();
     }
   };
+
+  useEffect(() => {
+    const fetchDeckSrsStats = async () => {
+      if (!deck || !deck.id) {
+        setSrsStats(null);
+        return;
+      }
+      try {
+        setSrsStats((prev) => ({ ...(prev || { due: 0, newCount: 0, reviewed: 0, total: 0 }), loading: true }));
+        const stats = await getJson<SrsStatsResponse>(`/api/srs/stats?deckId=${deck.id}`);
+        setSrsStats({
+          due: stats.dueCards,
+          newCount: stats.newCards,
+          reviewed: stats.reviewedCards,
+          total: stats.totalCards,
+          loading: false,
+        });
+      } catch (e: any) {
+        setSrsStats({
+          due: 0,
+          newCount: 0,
+          reviewed: 0,
+          total: deck?.cards?.length || 0,
+          loading: false,
+          error: e?.message || String(e),
+        });
+        console.error("Failed to load per-deck SRS stats", e);
+      }
+    };
+
+    fetchDeckSrsStats();
+  }, [deck?.id]);
 
   return (
     <tr>
@@ -63,6 +104,21 @@ const DeckRow = ({ deck, onRefresh }: { deck: Deck | null; onRefresh?: () => voi
         </td>
       )}
       {deck === null ? (
+        <>
+          <td className={"edit-td-data"}>-</td>
+          <td className={"edit-td-data"}>-</td>
+          <td className={"edit-td-data"}>-</td>
+          <td className={"edit-td-data"}>-</td>
+        </>
+      ) : (
+        <>
+          <td className={"edit-td-data"} title="Cards due now (includes New)">{srsStats?.loading ? <span className="spinner" /> : srsStats?.due ?? "-"}</td>
+          <td className={"edit-td-data"} title="Cards never reviewed in this deck">{srsStats?.loading ? <span className="spinner" /> : srsStats?.newCount ?? "-"}</td>
+          <td className={"edit-td-data"} title="Cards with an existing SRS record">{srsStats?.loading ? <span className="spinner" /> : srsStats?.reviewed ?? "-"}</td>
+          <td className={"edit-td-data"} title="All cards in this deck">{srsStats?.loading ? <span className="spinner" /> : srsStats?.total ?? deck.cards?.length ?? "-"}</td>
+        </>
+      )}
+      {deck === null ? (
         <td className={"edit-td-data"}>
           <a
             className={"link-pointer"}
@@ -85,6 +141,13 @@ const DeckRow = ({ deck, onRefresh }: { deck: Deck | null; onRefresh?: () => voi
             onClick={() => navigate("/cram", { state: { deck: deck } })}
           >
             Cram
+          </a>
+          {" | "}
+          <a
+            className={"link-pointer"}
+            onClick={() => navigate("/review", { state: { deck: deck } })}
+          >
+            Start Review Session
           </a>
           {" | "}
           <a
@@ -114,6 +177,10 @@ const DeckInfoTable = ({ decks, onRefresh }: { decks: Deck[]; onRefresh?: () => 
         <tr>
           <td className="table-header">Deck Name</td>
           <td className="table-header">Description</td>
+          <td className="table-header">Due</td>
+          <td className="table-header">New</td>
+          <td className="table-header">Reviewed</td>
+          <td className="table-header">Total</td>
           <td className="table-header">Actions</td>
         </tr>
       </thead>
