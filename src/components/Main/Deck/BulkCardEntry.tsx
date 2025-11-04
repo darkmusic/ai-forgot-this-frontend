@@ -23,15 +23,8 @@ const Modal = ({
 }) => {
   if (!isOpen) return null;
 
-  const handleOverlayClick = (e: React.MouseEvent) => {
-    // Close only if clicking directly on the overlay (not the modal content)
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
-
   return (
-    <div className="modal-overlay" onClick={handleOverlayClick}>
+    <div className="modal-overlay">
       <div className="modal-content bulk-entry-modal">
         <button className="modal-close" onClick={onClose}>
           &times;
