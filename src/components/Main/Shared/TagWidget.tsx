@@ -14,17 +14,23 @@ import { getJson, postJson } from "../../../lib/api";
 interface TagWidgetProps {
   onTagsChange?: Dispatch<SetStateAction<Tag[]>>;
   initialTags?: Tag[]; // Tags already associated with the item
+  selectedTags?: Tag[]; // Optional: controlled tags from parent
   allowCreation?: boolean; // Flag to enable tag creation
   placeholderText?: string; // Placeholder text for the widget
+  availableTags?: Tag[]; // Optional: restrict suggestions to a provided set of tags
 }
 
 const TagWidget = ({
   onTagsChange,
   initialTags,
+  selectedTags: controlledTags,
   allowCreation = true,
   placeholderText = "Type to add or create tags...",
+  availableTags,
 }: TagWidgetProps) => {
-  const [selectedTags, setSelectedTags] = useState<Tag[]>(initialTags || []);
+  const [selectedTags, setSelectedTags] = useState<Tag[]>(
+    controlledTags ?? initialTags ?? []
+  );
   const [input, setInput] = useState("");
   const [suggestions, setSuggestions] = useState<Tag[]>([]);
   const [fetchedTags, setFetchedTags] = useState<Tag[]>([]);
@@ -32,6 +38,19 @@ const TagWidget = ({
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    if (!controlledTags) return;
+    setSelectedTags(controlledTags);
+    setSuggestions([]);
+    setIsCreatingTag(false);
+    setInput("");
+  }, [controlledTags]);
+
+  useEffect(() => {
+    if (availableTags) {
+      setFetchedTags(availableTags);
+      return;
+    }
+
     const fetchTags = async () => {
       try {
         const data = await getJson<Tag[]>(`/api/tag/all`);
@@ -42,7 +61,7 @@ const TagWidget = ({
     };
 
     fetchTags().then((_) => {});
-  }, []);
+  }, [availableTags]);
 
   const createNewTag = async (tagName: string) => {
     try {

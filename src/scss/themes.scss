@@ -437,6 +437,56 @@ input, textarea, select, option, button {
   background-color: $tag-hover-bg;
 }
 
+.tag-cloud {
+  border: 1px solid $tag-border-color;
+  border-radius: 4px;
+  background-color: $tag-container-bg;
+  padding: 0.5rem;
+}
+
+.tag-cloud-title {
+  font-size: 0.85rem;
+  color: $tag-text-color;
+  opacity: 0.9;
+  margin-bottom: 0.25rem;
+}
+
+.tag-cloud-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.tag-cloud-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid $tag-border-color;
+  background-color: $tag-label-bg;
+  color: $tag-text-color;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  cursor: pointer;
+  line-height: 1.1;
+}
+
+.tag-cloud-item:hover {
+  background-color: $tag-hover-bg;
+}
+
+.tag-cloud-item.selected {
+  border-color: $tag-text-color;
+}
+
+.tag-cloud-name {
+  white-space: nowrap;
+}
+
+.tag-cloud-count {
+  font-size: 0.75em;
+  opacity: 0.75;
+}
+
 .quiz-header {
   background-color: $quiz-header-bg;
   color: $quiz-text-color;

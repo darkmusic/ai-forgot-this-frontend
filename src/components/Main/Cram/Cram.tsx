@@ -1,14 +1,16 @@
 import HomeWidget from "../Shared/HomeWidget.tsx";
 import UserProfileWidget from "../Shared/UserProfileWidget.tsx";
 import { useCurrentUser } from "../../Shared/Authentication.ts";
-import { useState, useEffect } from "react";
-import { SrsCardResponse } from "../../../constants/data/data.ts";
+import { useState, useEffect, useMemo } from "react";
+import { SrsCardResponse, Tag } from "../../../constants/data/data.ts";
 import { getJson } from "../../../lib/api.ts";
 import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import { PrepareCardMarkdown } from "../../Shared/CardUtility.ts";
 import { useLocation, useNavigate } from "react-router-dom";
+import TagWidget from "../Shared/TagWidget.tsx";
+import TagCloud, { TagCloudEntry } from "../Shared/TagCloud.tsx";
 
 const Cram = () => {
   const user = useCurrentUser();
@@ -21,6 +23,9 @@ const Cram = () => {
   const [showAnswer, setShowAnswer] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
+  const [tagMatchMode, setTagMatchMode] = useState<"ANY" | "ALL">("ANY");
+  const [tagWidgetKey, setTagWidgetKey] = useState(0);
 
   // Fetch the cram queue on component mount
   useEffect(() => {
@@ -37,6 +42,8 @@ const Cram = () => {
           `/api/srs/cram-queue?deckId=${deck.id}`
         );
         setCramQueue(queue);
+        setCurrentIndex(0);
+        setShowAnswer(false);
         setLoading(false);
       } catch (err) {
         console.error("Error loading cram queue:", err);
@@ -52,8 +59,78 @@ const Cram = () => {
     fetchCramQueue();
   }, [deck?.id]);
 
+  const availableTags = useMemo<Tag[]>(() => {
+    const byId = new Map<number, Tag>();
+    for (const item of cramQueue) {
+      for (const tag of item.card.tags ?? []) {
+        if (tag.id == null) continue;
+        byId.set(tag.id, tag);
+      }
+    }
+    return Array.from(byId.values()).sort((a, b) =>
+      (a.name || "").localeCompare(b.name || "")
+    );
+  }, [cramQueue]);
+
+  const tagCloudEntries = useMemo<TagCloudEntry[]>(() => {
+    const byId = new Map<number, TagCloudEntry>();
+    for (const item of cramQueue) {
+      for (const tag of item.card.tags ?? []) {
+        if (tag.id == null) continue;
+        const existing = byId.get(tag.id);
+        if (existing) {
+          existing.count += 1;
+        } else {
+          byId.set(tag.id, { tag, count: 1 });
+        }
+      }
+    }
+    return Array.from(byId.values()).sort((a, b) => {
+      const diff = b.count - a.count;
+      if (diff !== 0) return diff;
+      return (a.tag.name || "").localeCompare(b.tag.name || "");
+    });
+  }, [cramQueue]);
+
+  const toggleSelectedTag = (tag: Tag) => {
+    if (tag.id == null) return;
+    setSelectedTags((prev) => {
+      const exists = prev.some((t) => t.id === tag.id);
+      if (exists) return prev.filter((t) => t.id !== tag.id);
+      return [...prev, tag];
+    });
+  };
+
+  const filteredQueue = useMemo<SrsCardResponse[]>(() => {
+    if (selectedTags.length === 0) return cramQueue;
+
+    const selectedIds = selectedTags
+      .map((t) => t.id)
+      .filter((id): id is number => id != null);
+
+    if (selectedIds.length === 0) return cramQueue;
+
+    return cramQueue.filter((item) => {
+      const cardTagIds = new Set(
+        (item.card.tags ?? [])
+          .map((t) => t.id)
+          .filter((id): id is number => id != null)
+      );
+
+      if (tagMatchMode === "ALL") {
+        return selectedIds.every((id) => cardTagIds.has(id));
+      }
+      return selectedIds.some((id) => cardTagIds.has(id));
+    });
+  }, [cramQueue, selectedTags, tagMatchMode]);
+
+  useEffect(() => {
+    setCurrentIndex(0);
+    setShowAnswer(false);
+  }, [selectedTags, tagMatchMode]);
+
   const handleNext = () => {
-    if (currentIndex < cramQueue.length - 1) {
+    if (currentIndex < filteredQueue.length - 1) {
       setShowAnswer(false);
       setCurrentIndex(currentIndex + 1);
     }
@@ -68,6 +145,11 @@ const Cram = () => {
 
   const handleFinish = () => {
     navigate("/home");
+  };
+
+  const handleClearFilter = () => {
+    setSelectedTags([]);
+    setTagWidgetKey((k) => k + 1);
   };
 
   if (!user) {
@@ -113,21 +195,116 @@ const Cram = () => {
     );
   }
 
-  if (currentIndex >= cramQueue.length) {
+  if (filteredQueue.length === 0) {
+    return (
+      <div>
+        <HomeWidget />
+        <UserProfileWidget user={user} />
+        <div className="review-container">
+          <div className="quiz-header">
+            Cram Session - Deck: {deck?.name || "Unknown Deck"}
+          </div>
+          <br />
+          <table className={"table"}>
+            <thead>
+              <tr>
+                <td className="table-header">Filter by tag(s)</td>
+                <td className="table-header">Match</td>
+                <td className="table-header">Actions</td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <TagWidget
+                    key={tagWidgetKey}
+                    onTagsChange={setSelectedTags}
+                    selectedTags={selectedTags}
+                    initialTags={[]}
+                    allowCreation={false}
+                    availableTags={availableTags}
+                    placeholderText="Type to search tags in this deck..."
+                  />
+                </td>
+                <td>
+                  <label>
+                    <input
+                      type="radio"
+                      name="tagMatchMode"
+                      value="ANY"
+                      checked={tagMatchMode === "ANY"}
+                      onChange={() => setTagMatchMode("ANY")}
+                    />
+                    Any
+                  </label>
+                  <br />
+                  <label>
+                    <input
+                      type="radio"
+                      name="tagMatchMode"
+                      value="ALL"
+                      checked={tagMatchMode === "ALL"}
+                      onChange={() => setTagMatchMode("ALL")}
+                    />
+                    All
+                  </label>
+                </td>
+                <td>
+                  <button
+                    className="quiz-button"
+                    onClick={handleClearFilter}
+                    disabled={selectedTags.length === 0}
+                  >
+                    Clear Filter
+                  </button>
+                  <button className="quiz-button" onClick={handleFinish}>
+                    Back to Home
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td colSpan={3}>
+                  <TagCloud
+                    title="Tags in this deck"
+                    entries={tagCloudEntries}
+                    selectedTagIds={selectedTags
+                      .map((t) => t.id)
+                      .filter((id): id is number => id != null)}
+                    onTagToggle={toggleSelectedTag}
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <br />
+          <p>No cards match the selected tag filter.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (currentIndex >= filteredQueue.length) {
     return (
       <div>
         <HomeWidget />
         <UserProfileWidget user={user} />
         <div className="review-container">
           <h2>Cram Session Complete!</h2>
-          <p>You've gone through all {cramQueue.length} cards. 🎉</p>
-          <button onClick={handleFinish}>Back to Home</button>
+          <p>You've gone through all {filteredQueue.length} cards. 🎉</p>
+          {selectedTags.length > 0 && (
+            <button className="quiz-button" onClick={handleClearFilter}>
+              Clear Filter
+            </button>
+          )}
+          <button className="quiz-button" onClick={handleFinish}>
+            Back to Home
+          </button>
         </div>
       </div>
     );
   }
 
-  const currentCardResponse = cramQueue[currentIndex];
+  const currentCardResponse = filteredQueue[currentIndex];
   const card = currentCardResponse.card;
   const deckInfo = currentCardResponse.deck;
 
@@ -138,8 +315,76 @@ const Cram = () => {
       <div className="quiz-header">
         Cram Session - Deck: {deckInfo?.name || "Unknown Deck"}
       </div>
+      <table className={"table"}>
+        <thead>
+          <tr>
+            <td className="table-header">Filter by tag(s)</td>
+            <td className="table-header">Match</td>
+            <td className="table-header">Actions</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <TagWidget
+                key={tagWidgetKey}
+                onTagsChange={setSelectedTags}
+                selectedTags={selectedTags}
+                initialTags={[]}
+                allowCreation={false}
+                availableTags={availableTags}
+                placeholderText="Type to search tags in this deck..."
+              />
+            </td>
+            <td>
+              <label>
+                <input
+                  type="radio"
+                  name="tagMatchMode"
+                  value="ANY"
+                  checked={tagMatchMode === "ANY"}
+                  onChange={() => setTagMatchMode("ANY")}
+                />
+                Any
+              </label>
+              <br />
+              <label>
+                <input
+                  type="radio"
+                  name="tagMatchMode"
+                  value="ALL"
+                  checked={tagMatchMode === "ALL"}
+                  onChange={() => setTagMatchMode("ALL")}
+                />
+                All
+              </label>
+            </td>
+            <td>
+              <button
+                className="quiz-button"
+                onClick={handleClearFilter}
+                disabled={selectedTags.length === 0}
+              >
+                Clear Filter
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td colSpan={3}>
+              <TagCloud
+                title="Tags in this deck"
+                entries={tagCloudEntries}
+                selectedTagIds={selectedTags
+                  .map((t) => t.id)
+                  .filter((id): id is number => id != null)}
+                onTagToggle={toggleSelectedTag}
+              />
+            </td>
+          </tr>
+        </tbody>
+      </table>
       <div className="review-progress">
-        Card {currentIndex + 1} of {cramQueue.length}
+        Card {currentIndex + 1} of {filteredQueue.length}
         {currentCardResponse.isNew && <span className="new-badge"> (NEW)</span>}
       </div>
       <br />
@@ -168,7 +413,7 @@ const Cram = () => {
         >
           {showAnswer ? "Show Question" : "Show Answer"}
         </button>
-        {currentIndex === cramQueue.length - 1 ? (
+        {currentIndex === filteredQueue.length - 1 ? (
           <button className="quiz-button" onClick={handleFinish}>
             Finish
           </button>
