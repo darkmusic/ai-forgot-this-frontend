@@ -127,7 +127,9 @@ const EditUser = () => {
         const userBeingEditedObj : User = {
             id: userBeingEdited?.id || null,
             username: formData.username,
-            password_hash: hash,
+            // Only send password_hash when the password was changed.
+            // If omitted, backend preserves the existing hash.
+            password_hash: formData.password ? hash : undefined,
             name: formData.name,
             decks: [],
             admin: formData.role === "admin",

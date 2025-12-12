@@ -12,7 +12,7 @@ import ViewCard from "../../components/Main/Card/ViewCard.tsx";
 import EditCard from "../../components/Main/Card/EditCard.tsx";
 import Review from "../../components/Main/Review/Review.tsx";
 import Cram from "../../components/Main/Cram/Cram.tsx";
-import { primeCsrf, login as apiLogin, getJson } from "../../lib/api";
+import { primeCsrf, login as apiLogin, getJson, apiFetch } from "../../lib/api";
 import LoginPage from "../../components/Main/Shared/LoginPage.tsx";
 import LogoutPage from "../../components/Main/Shared/LogoutPage.tsx";
 import NotFoundPage from "../../components/Main/Shared/404Page.tsx";
@@ -20,22 +20,22 @@ import NotFoundPage from "../../components/Main/Shared/404Page.tsx";
 // Runs once per app load / navigation to root—good place to prime CSRF
 export async function rootLoader() {
   await primeCsrf();
-  // Optional: fetch current user to hydrate UI (ignore 401)
-  try {
-    const me = await getJson<{ username: string }>("/api/current-user");
-    return { me };
-  } catch {
-    return { me: null };
-  }
+
+  // Decide the initial landing page based on authentication.
+  // Use apiFetch so we can branch on status codes without relying on exceptions.
+  const res = await apiFetch("/api/current-user", { method: "GET" });
+  return res.ok ? redirect("/home") : redirect("/login");
 }
 
 // Protect routes with a loader
-export async function requireAuthLoader() {
+export async function requireAuthLoader({ request }: { request: Request }) {
   try {
     await getJson("/api/current-user");
     return null;
   } catch {
-    throw redirect("/login");
+    const url = new URL(request.url);
+    const redirectTo = url.pathname + url.search;
+    throw redirect(`/login?redirectTo=${encodeURIComponent(redirectTo)}`);
   }
 }
 
@@ -58,7 +58,7 @@ export async function loginAction({ request }: { request: Request }) {
 const ROUTES = [
   {
     path: "/",
-    element: <meta httpEquiv="refresh" content="0;url=/home" />,
+    element: <div />,
     loader: rootLoader,
   },
   {
@@ -102,12 +102,12 @@ const ROUTES = [
     loader: requireAuthLoader,
   },
   {
-    path: "/login",
+    path: "/login/*",
     element: <LoginPage />,
     action: loginAction,
   },
   {
-    path: "/logout",
+    path: "/logout/*",
     element: <LogoutPage />,
   },
   {
