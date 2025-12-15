@@ -47,21 +47,27 @@ const DeckRow = ({ deck, onRefresh }: { deck: Deck | null; onRefresh?: () => voi
           total: stats.totalCards,
           loading: false,
         });
-      } catch (e: any) {
+      } catch (e: unknown) {
+        const message =
+          e instanceof Error
+            ? e.message
+            : e && typeof e === "object" && "message" in e
+              ? String((e as { message?: unknown }).message)
+              : String(e);
         setSrsStats({
           due: 0,
           newCount: 0,
           reviewed: 0,
           total: deck?.cards?.length || 0,
           loading: false,
-          error: e?.message || String(e),
+          error: message,
         });
         console.error("Failed to load per-deck SRS stats", e);
       }
     };
 
     fetchDeckSrsStats();
-  }, [deck?.id]);
+  }, [deck]);
 
   return (
     <tr>

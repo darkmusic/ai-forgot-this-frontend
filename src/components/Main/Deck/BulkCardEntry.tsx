@@ -100,7 +100,7 @@ const BulkCardEntry = ({
 
       setRows(existingCardRows);
     }
-  }, [isOpen, deck.cards]);
+  }, [isOpen, deck.cards, rows.length]);
 
   const handleCellChange = (tempId: string, field: keyof BulkCardRow, value: string) => {
     setRows((prev) =>

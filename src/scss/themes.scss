@@ -167,7 +167,39 @@ h2 {
 
 .table {
   margin: 0 auto;
-  width: 1024px;
+  width: 100%;
+  max-width: 1024px;
+}
+
+.table.deck-cards-table {
+  table-layout: fixed;
+}
+
+.table.deck-cards-table td.edit-td-data {
+  text-wrap: wrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.table.deck-cards-table .deck-card-markdown {
+  max-width: 100%;
+}
+
+.table.deck-cards-table .deck-card-markdown img {
+  max-width: 100%;
+  height: auto;
+}
+
+.table.deck-cards-table .deck-card-markdown pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.table.deck-cards-table .deck-card-markdown .katex-display {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .edit-card-table {

@@ -28,9 +28,9 @@ const TagWidget = ({
   placeholderText = "Type to add or create tags...",
   availableTags,
 }: TagWidgetProps) => {
-  const [selectedTags, setSelectedTags] = useState<Tag[]>(
-    controlledTags ?? initialTags ?? []
-  );
+  const isControlled = controlledTags !== undefined;
+  const [uncontrolledTags, setUncontrolledTags] = useState<Tag[]>(initialTags ?? []);
+  const selectedTags = isControlled ? (controlledTags as Tag[]) : uncontrolledTags;
   const [input, setInput] = useState("");
   const [suggestions, setSuggestions] = useState<Tag[]>([]);
   const [fetchedTags, setFetchedTags] = useState<Tag[]>([]);
@@ -38,19 +38,7 @@ const TagWidget = ({
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!controlledTags) return;
-    setSelectedTags(controlledTags);
-    setSuggestions([]);
-    setIsCreatingTag(false);
-    setInput("");
-  }, [controlledTags]);
-
-  useEffect(() => {
-    if (availableTags) {
-      setFetchedTags(availableTags);
-      return;
-    }
-
+    if (availableTags) return;
     const fetchTags = async () => {
       try {
         const data = await getJson<Tag[]>(`/api/tag/all`);
@@ -60,7 +48,7 @@ const TagWidget = ({
       }
     };
 
-    fetchTags().then((_) => {});
+    void fetchTags();
   }, [availableTags]);
 
   const createNewTag = async (tagName: string) => {
@@ -113,7 +101,7 @@ const TagWidget = ({
   const addTag = (tag: Tag) => {
     if (!selectedTags.some((t) => t.id === tag.id)) {
       const newTags = [...selectedTags, tag];
-      setSelectedTags(newTags);
+      if (!isControlled) setUncontrolledTags(newTags);
       onTagsChange?.(newTags);
       setInput("");
       setSuggestions([]);
@@ -125,7 +113,7 @@ const TagWidget = ({
   const removeTag = (tagId: number | null) => {
     if (!tagId) return;
     const newTags = selectedTags.filter((tag) => tag.id !== tagId);
-    setSelectedTags(newTags);
+    if (!isControlled) setUncontrolledTags(newTags);
     onTagsChange?.(newTags);
   };
 
@@ -134,7 +122,7 @@ const TagWidget = ({
       e.preventDefault();
 
       if (isCreatingTag && input.trim()) {
-        createNewTag(input.trim()).then((_) => {});
+        void createNewTag(input.trim());
       } else if (suggestions.length > 0) {
         addTag(suggestions[0]);
       }

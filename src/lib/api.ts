@@ -1,14 +1,13 @@
 let csrfToken: string | null = null;
 let csrfHeaderName: string | null = null;
-const BASE_URL: string | undefined = (import.meta as any).env?.VITE_TOMCAT_SERVER_URL;
+const BASE_URL: string | undefined = import.meta.env?.VITE_TOMCAT_SERVER_URL;
 
 function resolveUrl(input: string): string {
   // If an absolute URL is provided, use it. Otherwise, prefix with BASE_URL when set.
   try {
     // new URL throws if relative and no base provided
-    // eslint-disable-next-line no-new
-    new URL(input);
-    return input; // already absolute
+    const parsed = new URL(input);
+    return parsed.toString();
   } catch {
     if (BASE_URL && input.startsWith('/')) return BASE_URL.replace(/\/$/, '') + input;
     return input;
@@ -31,7 +30,7 @@ export async function primeCsrf(): Promise<void> {
     const data = await res.json();
     csrfToken = data.token;
     csrfHeaderName = data.headerName;
-  } catch (e) {
+  } catch {
     // fall back to cookie (for legacy compatibility, if needed)
     csrfToken = null;
     csrfHeaderName = "X-XSRF-TOKEN";

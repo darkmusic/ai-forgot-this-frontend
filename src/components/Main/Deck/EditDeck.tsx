@@ -17,7 +17,7 @@ const CardTable = (p: { cards: Card[]; deck: Deck }) => {
   const { cards, deck } = p;
   const navigate = useNavigate();
   return (
-    <table className="table">
+    <table className="table deck-cards-table">
       <thead>
         <tr>
           <td className={"table-column-header"}>Front</td>
@@ -61,20 +61,24 @@ const CardTable = (p: { cards: Card[]; deck: Deck }) => {
         {cards?.map((c: Card) => (
           <tr key={c.front}>
             <td className={"edit-td-data"}>
-              <ReactMarkdown
-                remarkPlugins={[remarkMath]}
-                rehypePlugins={[rehypeKatex]}
-              >
-                {PrepareCardMarkdown(deck.templateBack, c.front)}
-              </ReactMarkdown>
+              <div className="deck-card-markdown">
+                <ReactMarkdown
+                  remarkPlugins={[remarkMath]}
+                  rehypePlugins={[rehypeKatex]}
+                >
+                  {PrepareCardMarkdown(deck.templateBack, c.front)}
+                </ReactMarkdown>
+              </div>
             </td>
             <td className={"edit-td-data"}>
-              <ReactMarkdown
-                remarkPlugins={[remarkMath]}
-                rehypePlugins={[rehypeKatex]}
-              >
-                {PrepareCardMarkdown(deck.templateBack, c.back)}
-              </ReactMarkdown>
+              <div className="deck-card-markdown">
+                <ReactMarkdown
+                  remarkPlugins={[remarkMath]}
+                  rehypePlugins={[rehypeKatex]}
+                >
+                  {PrepareCardMarkdown(deck.templateBack, c.back)}
+                </ReactMarkdown>
+              </div>
             </td>
             <td className={"edit-td-data"}>
               <a

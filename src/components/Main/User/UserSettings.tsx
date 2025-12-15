@@ -10,7 +10,7 @@ const UserSettingsForm = ({ onClose }: { onClose: () => void }) => {
   const [fetchedThemes, setFetchedThemes] = useState(false);
   const minPasswordLength = 6;
 
-  var user = useCurrentUser();
+  const user = useCurrentUser();
   const [formData, setFormData] = useState({
     name: "",
     username: "",
@@ -23,13 +23,15 @@ const UserSettingsForm = ({ onClose }: { onClose: () => void }) => {
   // Initialize formData with user data if available
   useEffect(() => {
     if (user) {
-      setFormData({
-        name: user.name || "",
-        username: user.username || "",
-        password: "", // Password should not be pre-filled for security reasons
-        repeat_password: "",
-        themeId: user.themeId || 1,
-        profile_pic_url: user.profile_pic_url || "",
+      void Promise.resolve().then(() => {
+        setFormData({
+          name: user.name || "",
+          username: user.username || "",
+          password: "", // Password should not be pre-filled for security reasons
+          repeat_password: "",
+          themeId: user.themeId || 1,
+          profile_pic_url: user.profile_pic_url || "",
+        });
       });
     }
   }, [user]);

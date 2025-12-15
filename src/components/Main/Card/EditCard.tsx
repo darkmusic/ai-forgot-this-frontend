@@ -70,14 +70,16 @@ const EditCard = () => {
   // Initialize form data when card is available
   useEffect(() => {
     if (card) {
-      setFormData({
-        front: card.front || "",
-        back: card.back || "",
-        tags: card.tags || ([] as Tag[]),
-        ai_question: "",
-        ai_answer: "",
+      void Promise.resolve().then(() => {
+        setFormData({
+          front: card.front || "",
+          back: card.back || "",
+          tags: card.tags || ([] as Tag[]),
+          ai_question: "",
+          ai_answer: "",
+        });
+        setSelectedCardTags(card.tags || []);
       });
-      setSelectedCardTags(card.tags || []);
     }
   }, [card]);
 
@@ -248,7 +250,10 @@ const EditCard = () => {
           // Fetch typically throws TypeError on network/CORS issues
           msg = "Network error or CORS issue prevented the request.";
         } else if (err && typeof err === "object" && "message" in err) {
-          msg = String((err as any).message);
+          const maybeMessage = (err as { message?: unknown }).message;
+          if (typeof maybeMessage === "string") {
+            msg = maybeMessage;
+          }
         }
         alert(`Failed to get AI answer: ${msg}`);
       })
