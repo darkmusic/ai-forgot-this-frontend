@@ -7,12 +7,23 @@ export interface SearchAndFilterProps {
   setSearchText: Dispatch<SetStateAction<string>>;
   selectedTags: Tag[];
   setSelectedTags: Dispatch<SetStateAction<Tag[]>>;
+  availableTags?: Tag[];
+  allowTagCreation?: boolean;
+  tagPlaceholderText?: string;
 }
 
 const SearchAndFilterWidget = (props: SearchAndFilterProps) => {
-  const { searchText, setSearchText, setSelectedTags } = props;
+  const {
+    searchText,
+    setSearchText,
+    selectedTags,
+    setSelectedTags,
+    availableTags,
+    allowTagCreation = true,
+    tagPlaceholderText = "Type to search for tags to filter by...",
+  } = props;
   return (
-    <table className={"table"}>
+    <table className={"table search-and-filter-widget"}>
       <thead>
         <tr>
           <td className="table-header">Search</td>
@@ -24,6 +35,7 @@ const SearchAndFilterWidget = (props: SearchAndFilterProps) => {
           <td>
             <input
               type="text"
+              className="search-and-filter-search-input"
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
             />
@@ -31,8 +43,11 @@ const SearchAndFilterWidget = (props: SearchAndFilterProps) => {
           <td>
             <TagWidget
               onTagsChange={setSelectedTags}
+              selectedTags={selectedTags}
               initialTags={[]}
-              placeholderText="Type to search for tags to filter by..."
+              allowCreation={allowTagCreation}
+              availableTags={availableTags}
+              placeholderText={tagPlaceholderText}
             />
           </td>
         </tr>

@@ -37,6 +37,15 @@ const TagWidget = ({
   const [isCreatingTag, setIsCreatingTag] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const normalizeTagName = (name: string) => name.trim().replace(/^#+/, "").replace(/\s+/g, " ").toLowerCase();
+
+  const tagsEqual = (a: Tag, b: Tag) => {
+    if (a.id != null && b.id != null) return a.id === b.id;
+    return normalizeTagName(a.name) === normalizeTagName(b.name);
+  };
+
+  const allTags = availableTags ?? fetchedTags;
+
   useEffect(() => {
     if (availableTags) return;
     const fetchTags = async () => {
@@ -59,7 +68,7 @@ const TagWidget = ({
       };
       try {
         const newTag = await postJson<Tag>(`/api/tag`, tag);
-        setFetchedTags([...fetchedTags, newTag]);
+        setFetchedTags((prev) => [...prev, newTag]);
         addTag(newTag);
       } catch (error) {
         console.error("Failed to create tag", error);
@@ -80,17 +89,15 @@ const TagWidget = ({
 
     if (value.trim()) {
       // Check if this would be a new tag
-      const exactMatch = fetchedTags.find(
-        (tag) => tag.name.toLowerCase() === value.toLowerCase()
-      );
+      const exactMatch = allTags.find((tag) => normalizeTagName(tag.name) === normalizeTagName(value));
       setIsCreatingTag(allowCreation && !exactMatch && value.trim().length > 0);
 
       // Filter for suggestions
-      const filtered = fetchedTags.filter(
-        (tag) =>
-          tag.name.toLowerCase().includes(value.toLowerCase()) &&
-          !selectedTags.some((selected) => selected.id === tag.id)
-      );
+      const needle = value.toLowerCase();
+      const filtered = allTags.filter((tag) => {
+        if (!tag.name.toLowerCase().includes(needle)) return false;
+        return !selectedTags.some((selected) => tagsEqual(selected, tag));
+      });
       setSuggestions(filtered);
     } else {
       setSuggestions([]);
@@ -99,7 +106,7 @@ const TagWidget = ({
   };
 
   const addTag = (tag: Tag) => {
-    if (!selectedTags.some((t) => t.id === tag.id)) {
+    if (!selectedTags.some((t) => tagsEqual(t, tag))) {
       const newTags = [...selectedTags, tag];
       if (!isControlled) setUncontrolledTags(newTags);
       onTagsChange?.(newTags);
@@ -110,9 +117,8 @@ const TagWidget = ({
     }
   };
 
-  const removeTag = (tagId: number | null) => {
-    if (!tagId) return;
-    const newTags = selectedTags.filter((tag) => tag.id !== tagId);
+  const removeTag = (tagToRemove: Tag) => {
+    const newTags = selectedTags.filter((tag) => !tagsEqual(tag, tagToRemove));
     if (!isControlled) setUncontrolledTags(newTags);
     onTagsChange?.(newTags);
   };
@@ -135,7 +141,7 @@ const TagWidget = ({
         {selectedTags.map((tag) => (
           <span key={tag.id} className="tag-label">
             #{tag.name}
-            <button className="tag-remove" onClick={() => removeTag(tag.id)}>
+            <button className="tag-remove" onClick={() => removeTag(tag)}>
               ×
             </button>
           </span>

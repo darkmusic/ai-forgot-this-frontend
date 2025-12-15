@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import * as React from "react";
-import { Deck } from "../../../constants/data/data.ts";
+import { Deck, Tag } from "../../../constants/data/data.ts";
 import { postJson } from "../../../lib/api.ts";
+import SearchAndFilterWidget from "../Shared/SearchAndFilterWidget.tsx";
 
 interface BulkCardRow {
   cardId: number | null; // null for new cards, number for existing cards
@@ -11,6 +12,25 @@ interface BulkCardRow {
   tagNames: string;
   isDeleted: boolean;
 }
+
+const canonicalizeTagName = (name: string) =>
+  name.trim().replace(/^#+/, "").replace(/\s+/g, " ");
+
+// Normalize for matching (case-insensitive)
+const normalizeTagName = (name: string) => canonicalizeTagName(name).toLowerCase();
+
+const formatTagNamesForDisplay = (tagNames: string) => {
+  const uniqueByNorm = new Map<string, string>();
+  for (const raw of (tagNames || "").split(",")) {
+    const canonical = canonicalizeTagName(raw);
+    if (!canonical) continue;
+    const norm = normalizeTagName(canonical);
+    if (!uniqueByNorm.has(norm)) uniqueByNorm.set(norm, canonical);
+  }
+  return Array.from(uniqueByNorm.values())
+    .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }))
+    .join(", ");
+};
 
 const Modal = ({
   isOpen,
@@ -50,10 +70,12 @@ const BulkCardEntry = ({
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Normalize a tag name (trim and collapse spaces)
-  const normalizeTagName = (name: string) => name.trim().replace(/\s+/g, " ").toLowerCase();
+  const [searchText, setSearchText] = useState("");
+  const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
 
-  // (Note) normalizeTagName used to prepare tag strings for backend bulk API
+  type SortKey = "front" | "back" | "tagNames";
+  const [sortKey, setSortKey] = useState<SortKey>("front");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   // Prevent background (html/body) scrolling when modal is open
   useEffect(() => {
@@ -94,13 +116,104 @@ const BulkCardEntry = ({
         tempId: `card-${card.id}`,
         front: card.front || "",
         back: card.back || "",
-        tagNames: (card.tags || []).map((tag) => tag.name).join(", "),
+        tagNames: (card.tags || [])
+          .map((tag) => tag.name)
+          .filter((n): n is string => !!n)
+          .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }))
+          .join(", "),
         isDeleted: false,
       })).sort((a, b) => (a.cardId! - b.cardId!)); // Sort by cardId ascending
 
       setRows(existingCardRows);
     }
   }, [isOpen, deck.cards, rows.length]);
+
+  const availableTags = useMemo<Tag[]>(() => {
+    const byKey = new Map<string, Tag>();
+    for (const card of deck.cards || []) {
+      for (const tag of card.tags || []) {
+        const name = tag?.name?.trim();
+        if (!name) continue;
+        const key = `${tag.id ?? "name"}:${name.toLowerCase()}`;
+        if (!byKey.has(key)) {
+          byKey.set(key, { id: tag.id ?? null, name });
+        }
+      }
+    }
+    return Array.from(byKey.values()).sort((a, b) => a.name.localeCompare(b.name));
+  }, [deck.cards]);
+
+  const availableTagsForFilter = availableTags.length > 0 ? availableTags : undefined;
+
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDirection((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDirection("asc");
+    }
+  };
+
+  const sortIndicator = (key: SortKey) => {
+    if (sortKey !== key) return "";
+    return sortDirection === "asc" ? "▲" : "▼";
+  };
+
+  const filteredAndSortedRows = useMemo(() => {
+    const selectedNames = new Set(
+      (selectedTags ?? [])
+        .map((t) => t?.name)
+        .filter((n): n is string => !!n)
+        .map((n) => normalizeTagName(n))
+    );
+
+    const normalizedSearch = (searchText || "").trim().toLowerCase();
+
+    const visible = rows
+      .filter((r) => !r.isDeleted)
+      .filter((r) => {
+        if (!normalizedSearch) return true;
+        return (
+          (r.front || "").toLowerCase().includes(normalizedSearch) ||
+          (r.back || "").toLowerCase().includes(normalizedSearch) ||
+          (r.tagNames || "").toLowerCase().includes(normalizedSearch)
+        );
+      })
+      .filter((r) => {
+        if (selectedNames.size === 0) return true;
+        const rowTagSet = new Set(
+          (r.tagNames || "")
+            .split(",")
+            .map((t) => normalizeTagName(t))
+            .filter((t) => t.length > 0)
+        );
+        return Array.from(selectedNames).some((t) => rowTagSet.has(t));
+      });
+
+    const indexed = visible.map((r, idx) => ({ r, idx }));
+
+    const getSortValue = (row: BulkCardRow): string => {
+      switch (sortKey) {
+        case "front":
+          return (row.front || "").toLowerCase();
+        case "back":
+          return (row.back || "").toLowerCase();
+        case "tagNames":
+          return (row.tagNames || "").toLowerCase();
+      }
+    };
+
+    indexed.sort((a, b) => {
+      const av = getSortValue(a.r);
+      const bv = getSortValue(b.r);
+      const cmp = av.localeCompare(bv, undefined, { sensitivity: "base" });
+      if (cmp !== 0) return sortDirection === "asc" ? cmp : -cmp;
+      // Stable tiebreaker
+      return a.idx - b.idx;
+    });
+
+    return indexed.map((x) => x.r);
+  }, [rows, searchText, selectedTags, sortKey, sortDirection]);
 
   const handleCellChange = (tempId: string, field: keyof BulkCardRow, value: string) => {
     setRows((prev) =>
@@ -154,10 +267,18 @@ const BulkCardEntry = ({
         deckId: deck.id!,
         front: row.front,
         back: row.back,
-        tags: (row.tagNames || "")
-          .split(",")
-          .map((t) => normalizeTagName(t))
-          .filter((t) => t.length > 0),
+        tags: (() => {
+          const uniqueByNorm = new Map<string, string>();
+          for (const raw of (row.tagNames || "").split(",")) {
+            const canonical = canonicalizeTagName(raw);
+            if (!canonical) continue;
+            const norm = normalizeTagName(canonical);
+            if (!uniqueByNorm.has(norm)) uniqueByNorm.set(norm, canonical);
+          }
+          return Array.from(uniqueByNorm.values()).sort((a, b) =>
+            a.localeCompare(b, undefined, { sensitivity: "base" })
+          );
+        })(),
       });
 
       const payload = {
@@ -195,6 +316,18 @@ const BulkCardEntry = ({
           Edit existing cards or add new ones. Separate multiple tags with commas.
         </p>
 
+        <div className="bulk-entry-filter">
+          <SearchAndFilterWidget
+            searchText={searchText}
+            setSearchText={setSearchText}
+            selectedTags={selectedTags}
+            setSelectedTags={setSelectedTags}
+            availableTags={availableTagsForFilter}
+            allowTagCreation={false}
+            tagPlaceholderText="Type to search tags in this deck..."
+          />
+        </div>
+
         {error && <div className="error-message">{error}</div>}
 
         <div className="bulk-entry-top-actions">
@@ -207,16 +340,44 @@ const BulkCardEntry = ({
           <table className="bulk-entry-table">
             <thead>
               <tr>
-                <th className="bulk-entry-header">Front</th>
-                <th className="bulk-entry-header">Back</th>
-                <th className="bulk-entry-header">Tags (comma-separated)</th>
+                <th className="bulk-entry-header">
+                  <button
+                    type="button"
+                    className="bulk-entry-sort-button"
+                    onClick={() => toggleSort("front")}
+                    aria-label={`Sort by Front ${sortKey === "front" ? (sortDirection === "asc" ? "descending" : "ascending") : "ascending"}`}
+                  >
+                    <span>Front</span>
+                    <span className="bulk-entry-sort-indicator">{sortIndicator("front")}</span>
+                  </button>
+                </th>
+                <th className="bulk-entry-header">
+                  <button
+                    type="button"
+                    className="bulk-entry-sort-button"
+                    onClick={() => toggleSort("back")}
+                    aria-label={`Sort by Back ${sortKey === "back" ? (sortDirection === "asc" ? "descending" : "ascending") : "ascending"}`}
+                  >
+                    <span>Back</span>
+                    <span className="bulk-entry-sort-indicator">{sortIndicator("back")}</span>
+                  </button>
+                </th>
+                <th className="bulk-entry-header">
+                  <button
+                    type="button"
+                    className="bulk-entry-sort-button"
+                    onClick={() => toggleSort("tagNames")}
+                    aria-label={`Sort by Tags ${sortKey === "tagNames" ? (sortDirection === "asc" ? "descending" : "ascending") : "ascending"}`}
+                  >
+                    <span>Tags (comma-separated)</span>
+                    <span className="bulk-entry-sort-indicator">{sortIndicator("tagNames")}</span>
+                  </button>
+                </th>
                 <th className="bulk-entry-header actions-column">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {rows
-                .filter((row) => !row.isDeleted)
-                .map((row) => (
+              {filteredAndSortedRows.map((row) => (
                   <tr key={row.tempId} className={row.cardId === null ? "new-row" : ""}>
                     <td>
                       <textarea
@@ -242,6 +403,7 @@ const BulkCardEntry = ({
                         className="bulk-entry-input"
                         value={row.tagNames}
                         onChange={(e) => handleCellChange(row.tempId, "tagNames", e.target.value)}
+                        onBlur={(e) => handleCellChange(row.tempId, "tagNames", formatTagNamesForDisplay(e.target.value))}
                         placeholder="tag1, tag2"
                       />
                     </td>
@@ -256,7 +418,7 @@ const BulkCardEntry = ({
                       </button>
                     </td>
                   </tr>
-                ))}
+              ))}
             </tbody>
           </table>
         </div>

@@ -862,6 +862,23 @@ input, textarea, select, option, button {
   flex-shrink: 0;
 }
 
+.bulk-entry-filter {
+  margin-bottom: 1rem;
+  flex-shrink: 0;
+
+  .table {
+    width: 100%;
+    max-width: none;
+  }
+
+  .search-and-filter-search-input {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    display: block;
+  }
+}
+
 .bulk-entry-table-container {
   /* Let container size naturally inside the scrollable modal body */
   overflow: visible;
@@ -892,6 +909,25 @@ input, textarea, select, option, button {
     color: $table-header-text;
     font-weight: 600;
     text-align: left;
+  }
+
+  .bulk-entry-sort-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0;
+    border: none;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .bulk-entry-sort-indicator {
+    opacity: 0.8;
+    font-size: 0.85em;
   }
 
   .actions-column {
