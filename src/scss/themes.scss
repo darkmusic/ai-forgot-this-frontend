@@ -175,6 +175,22 @@ h2 {
   table-layout: fixed;
 }
 
+.table.deck-cards-table thead td:nth-child(1) { /* Front */
+  width: 30%;
+}
+
+.table.deck-cards-table thead td:nth-child(2) { /* Back (1.5x Front) */
+  width: 45%;
+}
+
+.table.deck-cards-table thead td:nth-child(3) { /* Tags */
+  width: 15%;
+}
+
+.table.deck-cards-table thead td:nth-child(4) { /* Actions */
+  width: 10%;
+}
+
 .table.deck-cards-table td.edit-td-data {
   text-wrap: wrap;
   white-space: normal;
@@ -517,6 +533,10 @@ input, textarea, select, option, button {
 .tag-cloud-count {
   font-size: 0.75em;
   opacity: 0.75;
+}
+
+.deck-card-tags .tag-cloud-item {
+  cursor: default;
 }
 
 .quiz-header {

@@ -22,11 +22,22 @@ const CardTable = (p: { cards: Card[]; deck: Deck }) => {
         <tr>
           <td className={"table-column-header"}>Front</td>
           <td className={"table-column-header"}>Back</td>
+          <td className={"table-column-header"}>Tags</td>
           {cards !== null && <td className={"table-column-header"}>Actions</td>}
         </tr>
       </thead>
       <tbody>
         <tr key={"<new>"}>
+          <td className={"edit-td-data"}>
+            <a
+              className={"link-pointer"}
+              onClick={() =>
+                navigate("/card/edit", { state: { deck, card: null } })
+              }
+            >
+              {"<new>"}
+            </a>
+          </td>
           <td className={"edit-td-data"}>
             <a
               className={"link-pointer"}
@@ -79,6 +90,21 @@ const CardTable = (p: { cards: Card[]; deck: Deck }) => {
                   {PrepareCardMarkdown(deck.templateBack, c.back)}
                 </ReactMarkdown>
               </div>
+            </td>
+            <td className={"edit-td-data"}>
+              {c.tags && c.tags.length > 0 ? (
+                <div className="tag-cloud-items deck-card-tags">
+                  {c.tags
+                    .filter((t) => t?.name)
+                    .map((t) => (
+                      <span key={t.id ?? t.name} className="tag-cloud-item">
+                        <span className="tag-cloud-name">#{t.name}</span>
+                      </span>
+                    ))}
+                </div>
+              ) : (
+                ""
+              )}
             </td>
             <td className={"edit-td-data"}>
               <a
