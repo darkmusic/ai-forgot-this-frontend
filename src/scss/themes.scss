@@ -856,10 +856,25 @@ input, textarea, select, option, button {
 }
 
 .bulk-entry-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
   margin-bottom: 1rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid $tag-border-color;
   flex-shrink: 0;
+}
+
+.bulk-entry-disable-sorting {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: $hint-text-color;
+  user-select: none;
+
+  input {
+    margin: 0;
+  }
 }
 
 .bulk-entry-filter {
@@ -876,6 +891,10 @@ input, textarea, select, option, button {
     box-sizing: border-box;
     margin: 0;
     display: block;
+  }
+
+  .search-and-filter-widget.is-disabled {
+    opacity: 0.65;
   }
 }
 
@@ -903,6 +922,19 @@ input, textarea, select, option, button {
     top: 0;
     z-index: 10;
     background-color: $table-header-bg;
+  }
+
+  .bulk-entry-sorting-disabled-row th {
+    padding: 0.35rem 0.5rem;
+    text-align: center;
+    background-color: rgba($heading-color, 0.08);
+  }
+
+  .bulk-entry-sorting-disabled-hint {
+    display: inline-block;
+    color: $hint-text-color;
+    font-weight: 600;
+    letter-spacing: 0.2px;
   }
 
   .bulk-entry-header {

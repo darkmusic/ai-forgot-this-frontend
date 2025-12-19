@@ -76,6 +76,14 @@ const BulkCardEntry = ({
   type SortKey = "front" | "back" | "tagNames";
   const [sortKey, setSortKey] = useState<SortKey>("front");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [disableSorting, setDisableSorting] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      // Default to sorting enabled each time the modal opens.
+      setDisableSorting(false);
+    }
+  }, [isOpen]);
 
   // Prevent background (html/body) scrolling when modal is open
   useEffect(() => {
@@ -160,6 +168,11 @@ const BulkCardEntry = ({
   };
 
   const filteredAndSortedRows = useMemo(() => {
+    if (disableSorting) {
+      // When sorting is disabled, keep the list stable by bypassing all filters and sorting.
+      return rows.filter((r) => !r.isDeleted);
+    }
+
     const selectedNames = new Set(
       (selectedTags ?? [])
         .map((t) => t?.name)
@@ -213,7 +226,7 @@ const BulkCardEntry = ({
     });
 
     return indexed.map((x) => x.r);
-  }, [rows, searchText, selectedTags, sortKey, sortDirection]);
+  }, [rows, searchText, selectedTags, sortKey, sortDirection, disableSorting]);
 
   const handleCellChange = (tempId: string, field: keyof BulkCardRow, value: string) => {
     setRows((prev) =>
@@ -222,6 +235,9 @@ const BulkCardEntry = ({
   };
 
   const addRow = () => {
+    // Adding a new row while sorting is enabled causes it to jump around as the
+    // user types in the sorted field. Auto-disable sorting to keep the new row stable.
+    setDisableSorting(true);
     const newRow: BulkCardRow = {
       cardId: null,
       tempId: `new-${Date.now()}`,
@@ -291,6 +307,7 @@ const BulkCardEntry = ({
 
       // Reset form
       setRows([]);
+      setDisableSorting(false);
       if (onCardsCreated) {
         onCardsCreated();
       }
@@ -305,6 +322,7 @@ const BulkCardEntry = ({
   const handleCancel = () => {
     setRows([]);
     setError(null);
+    setDisableSorting(false);
     onClose();
   };
 
@@ -325,6 +343,7 @@ const BulkCardEntry = ({
             availableTags={availableTagsForFilter}
             allowTagCreation={false}
             tagPlaceholderText="Type to search tags in this deck..."
+            disabled={disableSorting}
           />
         </div>
 
@@ -334,17 +353,33 @@ const BulkCardEntry = ({
           <button type="button" className="bulk-entry-btn" onClick={addRow}>
             + Add New Card
           </button>
+          <label className="bulk-entry-disable-sorting">
+            <input
+              type="checkbox"
+              checked={disableSorting}
+              onChange={(e) => setDisableSorting(e.target.checked)}
+            />
+            <span>Disable Sorting</span>
+          </label>
         </div>
 
         <div className="bulk-entry-table-container">
           <table className="bulk-entry-table">
             <thead>
+              {disableSorting && (
+                <tr className="bulk-entry-sorting-disabled-row">
+                  <th colSpan={4}>
+                    <span className="bulk-entry-sorting-disabled-hint">Sorting disabled</span>
+                  </th>
+                </tr>
+              )}
               <tr>
                 <th className="bulk-entry-header">
                   <button
                     type="button"
                     className="bulk-entry-sort-button"
                     onClick={() => toggleSort("front")}
+                    disabled={disableSorting}
                     aria-label={`Sort by Front ${sortKey === "front" ? (sortDirection === "asc" ? "descending" : "ascending") : "ascending"}`}
                   >
                     <span>Front</span>
@@ -356,6 +391,7 @@ const BulkCardEntry = ({
                     type="button"
                     className="bulk-entry-sort-button"
                     onClick={() => toggleSort("back")}
+                    disabled={disableSorting}
                     aria-label={`Sort by Back ${sortKey === "back" ? (sortDirection === "asc" ? "descending" : "ascending") : "ascending"}`}
                   >
                     <span>Back</span>
@@ -367,6 +403,7 @@ const BulkCardEntry = ({
                     type="button"
                     className="bulk-entry-sort-button"
                     onClick={() => toggleSort("tagNames")}
+                    disabled={disableSorting}
                     aria-label={`Sort by Tags ${sortKey === "tagNames" ? (sortDirection === "asc" ? "descending" : "ascending") : "ascending"}`}
                   >
                     <span>Tags (comma-separated)</span>

@@ -18,6 +18,7 @@ interface TagWidgetProps {
   allowCreation?: boolean; // Flag to enable tag creation
   placeholderText?: string; // Placeholder text for the widget
   availableTags?: Tag[]; // Optional: restrict suggestions to a provided set of tags
+  disabled?: boolean;
 }
 
 const TagWidget = ({
@@ -27,6 +28,7 @@ const TagWidget = ({
   allowCreation = true,
   placeholderText = "Type to add or create tags...",
   availableTags,
+  disabled = false,
 }: TagWidgetProps) => {
   const isControlled = controlledTags !== undefined;
   const [uncontrolledTags, setUncontrolledTags] = useState<Tag[]>(initialTags ?? []);
@@ -60,6 +62,12 @@ const TagWidget = ({
     void fetchTags();
   }, [availableTags]);
 
+  useEffect(() => {
+    if (!disabled) return;
+    setSuggestions([]);
+    setIsCreatingTag(false);
+  }, [disabled]);
+
   const createNewTag = async (tagName: string) => {
     try {
       const tag: Tag = {
@@ -79,11 +87,13 @@ const TagWidget = ({
   };
 
   const handleSuggestionClick = (tag: Tag, e: React.MouseEvent) => {
+    if (disabled) return;
     e.stopPropagation(); // Prevent event from reaching the document click handler
     addTag(tag);
   };
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (disabled) return;
     const value = e.target.value;
     setInput(value);
 
@@ -106,6 +116,7 @@ const TagWidget = ({
   };
 
   const addTag = (tag: Tag) => {
+    if (disabled) return;
     if (!selectedTags.some((t) => tagsEqual(t, tag))) {
       const newTags = [...selectedTags, tag];
       if (!isControlled) setUncontrolledTags(newTags);
@@ -118,12 +129,14 @@ const TagWidget = ({
   };
 
   const removeTag = (tagToRemove: Tag) => {
+    if (disabled) return;
     const newTags = selectedTags.filter((tag) => !tagsEqual(tag, tagToRemove));
     if (!isControlled) setUncontrolledTags(newTags);
     onTagsChange?.(newTags);
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (disabled) return;
     if (e.key === "Enter") {
       e.preventDefault();
 
@@ -141,7 +154,7 @@ const TagWidget = ({
         {selectedTags.map((tag) => (
           <span key={tag.id} className="tag-label">
             #{tag.name}
-            <button className="tag-remove" onClick={() => removeTag(tag)}>
+            <button className="tag-remove" onClick={() => removeTag(tag)} disabled={disabled}>
               ×
             </button>
           </span>
@@ -154,9 +167,10 @@ const TagWidget = ({
           onKeyDown={handleKeyDown}
           placeholder={placeholderText}
           className="tag-input"
+          disabled={disabled}
         />
       </div>
-      {(suggestions.length > 0 || isCreatingTag) && (
+      {!disabled && (suggestions.length > 0 || isCreatingTag) && (
         <div className="tag-suggestions">
           {isCreatingTag && (
             <div className="tag-suggestion create-new">

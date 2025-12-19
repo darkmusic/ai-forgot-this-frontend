@@ -10,6 +10,7 @@ export interface SearchAndFilterProps {
   availableTags?: Tag[];
   allowTagCreation?: boolean;
   tagPlaceholderText?: string;
+  disabled?: boolean;
 }
 
 const SearchAndFilterWidget = (props: SearchAndFilterProps) => {
@@ -21,9 +22,10 @@ const SearchAndFilterWidget = (props: SearchAndFilterProps) => {
     availableTags,
     allowTagCreation = true,
     tagPlaceholderText = "Type to search for tags to filter by...",
+    disabled = false,
   } = props;
   return (
-    <table className={"table search-and-filter-widget"}>
+    <table className={"table search-and-filter-widget" + (disabled ? " is-disabled" : "")}>
       <thead>
         <tr>
           <td className="table-header">Search</td>
@@ -38,6 +40,7 @@ const SearchAndFilterWidget = (props: SearchAndFilterProps) => {
               className="search-and-filter-search-input"
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
+              disabled={disabled}
             />
           </td>
           <td>
@@ -48,6 +51,7 @@ const SearchAndFilterWidget = (props: SearchAndFilterProps) => {
               allowCreation={allowTagCreation}
               availableTags={availableTags}
               placeholderText={tagPlaceholderText}
+              disabled={disabled}
             />
           </td>
         </tr>
