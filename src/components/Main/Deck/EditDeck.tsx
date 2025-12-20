@@ -340,8 +340,11 @@ const EditDeck = () => {
               <td className={"edit-td-data"}>
                 <TagWidget
                   onTagsChange={setSelectedDeckTags}
+                  selectedTags={selectedDeckTags}
                   initialTags={formData.deckTags}
                   allowCreation={true}
+                  resultCount={selectedDeckTags.length}
+                  resultCountLabel="Tags"
                 />
               </td>
             </tr>
@@ -368,6 +371,7 @@ const EditDeck = () => {
           setSearchText={setSearchText}
           selectedTags={selectedCardTags}
           setSelectedTags={setSelectedCardTags}
+          resultCount={filteredCards.length}
           tagMatchMode={cardTagMatchMode}
           setTagMatchMode={setCardTagMatchMode}
         />

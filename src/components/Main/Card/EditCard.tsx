@@ -348,7 +348,10 @@ const EditCard = () => {
                       <td className={"edit-td-data"}>
                         <TagWidget
                           onTagsChange={setSelectedCardTags}
+                          selectedTags={selectedCardTags}
                           initialTags={card?.tags}
+                          resultCount={selectedCardTags.length}
+                          resultCountLabel="Tags"
                         />
                       </td>
                     </tr>

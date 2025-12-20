@@ -8,6 +8,8 @@ export interface SearchAndFilterProps {
   setSearchText: Dispatch<SetStateAction<string>>;
   selectedTags: Tag[];
   setSelectedTags: Dispatch<SetStateAction<Tag[]>>;
+  resultCount: number;
+  resultCountLabel?: string;
   tagMatchMode?: TagMatchMode;
   setTagMatchMode?: Dispatch<SetStateAction<TagMatchMode>>;
   availableTags?: Tag[];
@@ -22,6 +24,8 @@ const SearchAndFilterWidget = (props: SearchAndFilterProps) => {
     setSearchText,
     selectedTags,
     setSelectedTags,
+    resultCount,
+    resultCountLabel = "Results",
     tagMatchMode,
     setTagMatchMode,
     availableTags,
@@ -60,6 +64,8 @@ const SearchAndFilterWidget = (props: SearchAndFilterProps) => {
               showMatchModeToggle={!!setTagMatchMode}
               matchMode={tagMatchMode}
               onMatchModeChange={setTagMatchMode}
+              resultCount={resultCount}
+              resultCountLabel={resultCountLabel}
             />
           </td>
         </tr>

@@ -348,6 +348,7 @@ const BulkCardEntry = ({
             setSearchText={setSearchText}
             selectedTags={selectedTags}
             setSelectedTags={setSelectedTags}
+            resultCount={filteredAndSortedRows.length}
             tagMatchMode={tagMatchMode}
             setTagMatchMode={setTagMatchMode}
             availableTags={availableTagsForFilter}

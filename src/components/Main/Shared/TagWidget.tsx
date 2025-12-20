@@ -21,6 +21,9 @@ interface TagWidgetProps {
   availableTags?: Tag[]; // Optional: restrict suggestions to a provided set of tags
   disabled?: boolean;
 
+  resultCount: number;
+  resultCountLabel?: string;
+
   showMatchModeToggle?: boolean;
   matchMode?: TagMatchMode;
   defaultMatchMode?: TagMatchMode;
@@ -37,6 +40,9 @@ const TagWidget = ({
   placeholderText = "Type to add or create tags...",
   availableTags,
   disabled = false,
+
+  resultCount,
+  resultCountLabel = "Results",
   showMatchModeToggle = false,
   matchMode: controlledMatchMode,
   defaultMatchMode = "AND",
@@ -192,32 +198,40 @@ const TagWidget = ({
         />
       </div>
 
-      {showMatchModeToggle && (
-        <div className="tag-match-mode" aria-disabled={disabled}>
-          <label className="tag-match-mode-option">
-            <input
-              type="radio"
-              name={`tagMatchMode-${matchModeName}`}
-              value="OR"
-              checked={matchMode === "OR"}
-              onChange={() => updateMatchMode("OR")}
-              disabled={disabled}
-            />
-            OR
-          </label>
-          <label className="tag-match-mode-option">
-            <input
-              type="radio"
-              name={`tagMatchMode-${matchModeName}`}
-              value="AND"
-              checked={matchMode === "AND"}
-              onChange={() => updateMatchMode("AND")}
-              disabled={disabled}
-            />
-            AND
-          </label>
+      <div className={"tag-widget-controls" + (showMatchModeToggle ? "" : " no-match-mode")}>
+        {showMatchModeToggle ? (
+          <div className="tag-match-mode" aria-disabled={disabled}>
+            <label className="tag-match-mode-option">
+              <input
+                type="radio"
+                name={`tagMatchMode-${matchModeName}`}
+                value="OR"
+                checked={matchMode === "OR"}
+                onChange={() => updateMatchMode("OR")}
+                disabled={disabled}
+              />
+              OR
+            </label>
+            <label className="tag-match-mode-option">
+              <input
+                type="radio"
+                name={`tagMatchMode-${matchModeName}`}
+                value="AND"
+                checked={matchMode === "AND"}
+                onChange={() => updateMatchMode("AND")}
+                disabled={disabled}
+              />
+              AND
+            </label>
+          </div>
+        ) : (
+          <div />
+        )}
+
+        <div className="tag-result-count" aria-live="polite">
+          {resultCountLabel}: <strong>{resultCount}</strong>
         </div>
-      )}
+      </div>
 
       {(effectiveSuggestions.length > 0 || effectiveIsCreatingTag) && (
         <div className="tag-suggestions">

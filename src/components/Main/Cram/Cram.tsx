@@ -222,6 +222,7 @@ const Cram = () => {
                     initialTags={[]}
                     allowCreation={false}
                     availableTags={availableTags}
+                    resultCount={filteredQueue.length}
                     placeholderText="Type to search tags in this deck..."
                     showMatchModeToggle={true}
                     matchMode={tagMatchMode}
@@ -311,6 +312,7 @@ const Cram = () => {
                 initialTags={[]}
                 allowCreation={false}
                 availableTags={availableTags}
+                resultCount={filteredQueue.length}
                 placeholderText="Type to search tags in this deck..."
                 showMatchModeToggle={true}
                 matchMode={tagMatchMode}

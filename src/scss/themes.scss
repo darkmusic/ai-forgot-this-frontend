@@ -494,6 +494,24 @@ input, textarea, select, option, button {
   opacity: 0.95;
 }
 
+.tag-widget-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tag-widget-controls.no-match-mode {
+  justify-content: flex-end;
+}
+
+.tag-result-count {
+  padding: 0.35rem 0.5rem;
+  font-size: 0.85rem;
+  color: $tag-text-color;
+  opacity: 0.95;
+  text-wrap: nowrap;
+}
+
 .tag-match-mode-option {
   display: inline-flex;
   align-items: center;

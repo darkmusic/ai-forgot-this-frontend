@@ -221,6 +221,7 @@ const Review = () => {
                     initialTags={[]}
                     allowCreation={false}
                     availableTags={availableTags}
+                    resultCount={filteredQueue.length}
                     placeholderText={
                       deckId
                         ? "Type to search tags in this deck..."
@@ -309,6 +310,7 @@ const Review = () => {
                 initialTags={[]}
                 allowCreation={false}
                 availableTags={availableTags}
+                resultCount={filteredQueue.length}
                 placeholderText={
                   deckId
                     ? "Type to search tags in this deck..."

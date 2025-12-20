@@ -37,6 +37,7 @@ const Home = () => {
         setSearchText={setSearchText}
         selectedTags={selectedTags}
         setSelectedTags={setSelectedTags}
+        resultCount={filteredDecks.length}
         tagMatchMode={tagMatchMode}
         setTagMatchMode={setTagMatchMode}
       />
