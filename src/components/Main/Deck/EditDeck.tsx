@@ -366,15 +366,17 @@ const EditDeck = () => {
       <br />
       {deck.id !== null && deck.id > 0 && <h3>Cards</h3>}
       {deck.id !== null && deck.id > 0 && (
-        <SearchAndFilterWidget
-          searchText={searchText}
-          setSearchText={setSearchText}
-          selectedTags={selectedCardTags}
-          setSelectedTags={setSelectedCardTags}
-          resultCount={filteredCards.length}
-          tagMatchMode={cardTagMatchMode}
-          setTagMatchMode={setCardTagMatchMode}
-        />
+        <div className={"edit-card-filter"}>
+          <SearchAndFilterWidget
+            searchText={searchText}
+            setSearchText={setSearchText}
+            selectedTags={selectedCardTags}
+            setSelectedTags={setSelectedCardTags}
+            resultCount={filteredCards.length}
+            tagMatchMode={cardTagMatchMode}
+            setTagMatchMode={setCardTagMatchMode}
+          />
+        </div>
       )}
       <br />
 
