@@ -103,9 +103,9 @@ const TagWidget = ({
       setIsCreatingTag(allowCreation && !exactMatch && value.trim().length > 0);
 
       // Filter for suggestions
-      const needle = value.toLowerCase();
+      const needle = normalizeTagName(value);
       const filtered = allTags.filter((tag) => {
-        if (!tag.name.toLowerCase().includes(needle)) return false;
+        if (!normalizeTagName(tag.name).includes(needle)) return false;
         return !selectedTags.some((selected) => tagsEqual(selected, tag));
       });
       setSuggestions(filtered);
@@ -152,7 +152,7 @@ const TagWidget = ({
     <div className="tag-widget">
       <div className="tag-input-container">
         {selectedTags.map((tag) => (
-          <span key={tag.id} className="tag-label">
+          <span key={tag.id ?? tag.name} className="tag-label">
             #{tag.name}
             <button className="tag-remove" onClick={() => removeTag(tag)} disabled={disabled}>
               ×
@@ -173,13 +173,19 @@ const TagWidget = ({
       {!disabled && (suggestions.length > 0 || isCreatingTag) && (
         <div className="tag-suggestions">
           {isCreatingTag && (
-            <div className="tag-suggestion create-new">
+            <div
+              className="tag-suggestion create-new"
+              onClick={() => {
+                if (!input.trim()) return;
+                void createNewTag(input.trim());
+              }}
+            >
               Create new tag: <strong>#{input}</strong>
             </div>
           )}
           {suggestions.map((tag) => (
             <div
-              key={tag.id}
+              key={tag.id ?? tag.name}
               className="tag-suggestion"
               onClick={(e) => handleSuggestionClick(tag, e)}
             >

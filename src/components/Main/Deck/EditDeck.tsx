@@ -69,15 +69,15 @@ const CardTable = (p: { cards: Card[]; deck: Deck }) => {
             </a>
           </td>
         </tr>
-        {cards?.map((c: Card) => (
-          <tr key={c.front}>
+        {cards?.map((c: Card, idx: number) => (
+          <tr key={c.id ?? `${c.front}-${c.back}-${idx}`}>
             <td className={"edit-td-data"}>
               <div className="deck-card-markdown">
                 <ReactMarkdown
                   remarkPlugins={[remarkMath]}
-                  rehypePlugins={[rehypeKatex]}
+                  rehypePlugins={[[rehypeKatex, { output: "html" }]]}
                 >
-                  {PrepareCardMarkdown(deck.templateBack, c.front)}
+                  {PrepareCardMarkdown(deck.templateFront, c.front)}
                 </ReactMarkdown>
               </div>
             </td>
@@ -85,7 +85,7 @@ const CardTable = (p: { cards: Card[]; deck: Deck }) => {
               <div className="deck-card-markdown">
                 <ReactMarkdown
                   remarkPlugins={[remarkMath]}
-                  rehypePlugins={[rehypeKatex]}
+                  rehypePlugins={[[rehypeKatex, { output: "html" }]]}
                 >
                   {PrepareCardMarkdown(deck.templateBack, c.back)}
                 </ReactMarkdown>

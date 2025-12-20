@@ -25,14 +25,19 @@ import rehypeKatex from "rehype-katex";
 
 const EditCard = () => {
   const { state } = useLocation();
-  const deck = state?.deck as Deck;
+  const deck = (state?.deck as Deck | undefined) ??
+    ((state?.card as Card | undefined)?.deck as Deck | undefined);
   const [selectedCardTags, setSelectedCardTags] = useState<Tag[]>([]);
   const navigate = useNavigate();
   const [canceling, setCanceling] = useState(false);
   const cancelRoute = () => {
     setCanceling(true);
-    const path = "/deck/edit";
-    navigate(path, { state: { deck: deck } });
+    if (deck) {
+      const path = "/deck/edit";
+      navigate(path, { state: { deck: deck } });
+    } else {
+      navigate("/home");
+    }
   };
   const [deleting, setDeleting] = useState(false);
   const user = useCurrentUser();
@@ -103,8 +108,19 @@ const EditCard = () => {
   if (!user) {
     return <div>Loading user profile...</div>;
   }
-  if (deck === null || deck.id === 0) {
-    return <div>Loading deck...</div>;
+
+  if (!deck || deck.id == null || deck.id === 0) {
+    return (
+      <div>
+        <DeckWidget />
+        <UserProfileWidget user={user} />
+        <h2>Edit Card</h2>
+        <p>
+          Missing deck context (this page requires navigation from a deck).
+        </p>
+        <button type="button" onClick={() => navigate("/home")}>Return Home</button>
+      </div>
+    );
   }
 
   const handleChange = (

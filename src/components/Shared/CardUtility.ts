@@ -1,5 +1,13 @@
 import { Card, Tag } from "../../constants/data/data.ts";
 
+const normalizeTagName = (name: string) =>
+  name.trim().replace(/^#+/, "").replace(/\s+/g, " ").toLowerCase();
+
+const tagsEqual = (a: Tag, b: Tag) => {
+  if (a.id != null && b.id != null) return a.id === b.id;
+  return normalizeTagName(a.name) === normalizeTagName(b.name);
+};
+
 export const FilterCards = (
   cards: Card[],
   selectedTags: Tag[],
@@ -18,7 +26,7 @@ export const FilterCards = (
         selectedTags.length === 0 ||
         (card.tags &&
           selectedTags.every((selectedTag) =>
-            card.tags?.some((cardTag) => cardTag.id === selectedTag.id)
+            card.tags?.some((cardTag) => tagsEqual(cardTag, selectedTag))
           ))
     );
 };
