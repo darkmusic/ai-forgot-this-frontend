@@ -11,6 +11,7 @@ import { PrepareCardMarkdown } from "../../Shared/CardUtility.ts";
 import { useLocation, useNavigate } from "react-router-dom";
 import TagWidget, { TagMatchMode } from "../Shared/TagWidget.tsx";
 import TagCloud, { TagCloudEntry } from "../Shared/TagCloud.tsx";
+import { shuffleArray } from "../../../lib/shuffle.ts";
 
 const Cram = () => {
   const user = useCurrentUser();
@@ -147,9 +148,20 @@ const Cram = () => {
     navigate("/home");
   };
 
+  const handleCompleteSession = () => {
+    setShowAnswer(false);
+    setCurrentIndex(filteredQueue.length);
+  };
+
   const handleClearFilter = () => {
     setSelectedTags([]);
     setTagWidgetKey((k) => k + 1);
+  };
+
+  const handleShuffleDeck = () => {
+    setCramQueue((prev) => shuffleArray(prev));
+    setCurrentIndex(0);
+    setShowAnswer(false);
   };
 
   if (!user) {
@@ -237,6 +249,13 @@ const Cram = () => {
                   >
                     Clear Filter
                   </button>
+                  <button
+                    className="quiz-button"
+                    onClick={handleShuffleDeck}
+                    disabled={filteredQueue.length <= 1}
+                  >
+                    Shuffle Deck
+                  </button>
                   <button className="quiz-button" onClick={handleFinish}>
                     Back to Home
                   </button>
@@ -271,6 +290,13 @@ const Cram = () => {
         <div className="review-container">
           <h2>Cram Session Complete!</h2>
           <p>You've gone through all {filteredQueue.length} cards. 🎉</p>
+          <button
+            className="quiz-button"
+            onClick={handleShuffleDeck}
+            disabled={filteredQueue.length <= 1}
+          >
+            Shuffle Deck
+          </button>
           {selectedTags.length > 0 && (
             <button className="quiz-button" onClick={handleClearFilter}>
               Clear Filter
@@ -327,6 +353,13 @@ const Cram = () => {
               >
                 Clear Filter
               </button>
+              <button
+                className="quiz-button"
+                onClick={handleShuffleDeck}
+                disabled={filteredQueue.length <= 1}
+              >
+                Shuffle Deck
+              </button>
             </td>
           </tr>
           <tr>
@@ -374,8 +407,8 @@ const Cram = () => {
           {showAnswer ? "Show Question" : "Show Answer"}
         </button>
         {currentIndex === filteredQueue.length - 1 ? (
-          <button className="quiz-button" onClick={handleFinish}>
-            Finish
+          <button className="quiz-button" onClick={handleCompleteSession}>
+            Complete
           </button>
         ) : (
           <button className="quiz-button" onClick={handleNext}>

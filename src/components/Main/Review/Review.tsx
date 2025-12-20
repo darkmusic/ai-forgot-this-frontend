@@ -1,7 +1,7 @@
 import HomeWidget from "../Shared/HomeWidget.tsx";
 import UserProfileWidget from "../Shared/UserProfileWidget.tsx";
 import { useCurrentUser } from "../../Shared/Authentication.ts";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { SrsCardResponse, Tag } from "../../../constants/data/data.ts";
 import { getJson, postJson } from "../../../lib/api.ts";
 import ReactMarkdown from "react-markdown";
@@ -11,6 +11,7 @@ import { PrepareCardMarkdown } from "../../Shared/CardUtility.ts";
 import { useLocation } from "react-router-dom";
 import TagWidget, { TagMatchMode } from "../Shared/TagWidget.tsx";
 import TagCloud, { TagCloudEntry } from "../Shared/TagCloud.tsx";
+import { shuffleArray } from "../../../lib/shuffle.ts";
 
 const Review = () => {
   const user = useCurrentUser();
@@ -26,14 +27,15 @@ const Review = () => {
   const deckFromState: { id?: number | null; name?: string } | undefined = state?.deck;
   const deckId = deckFromState?.id ?? null;
 
-  // Fetch the review queue on component mount
-  useEffect(() => {
-    const fetchReviewQueue = async () => {
+  const fetchReviewQueue = useCallback(
+    async (opts?: { shuffle?: boolean }) => {
       try {
         setLoading(true);
-        const url = deckId ? `/api/srs/review-queue?deckId=${deckId}` : "/api/srs/review-queue";
+        const url = deckId
+          ? `/api/srs/review-queue?deckId=${deckId}`
+          : "/api/srs/review-queue";
         const queue = await getJson<SrsCardResponse[]>(url);
-        setReviewQueue(queue);
+        setReviewQueue(opts?.shuffle ? shuffleArray(queue) : queue);
         setCurrentIndex(0);
         setShowAnswer(false);
         setLoading(false);
@@ -46,10 +48,14 @@ const Review = () => {
         );
         setLoading(false);
       }
-    };
+    },
+    [deckId]
+  );
 
-    fetchReviewQueue();
-  }, [deckId]);
+  // Fetch the review queue on component mount
+  useEffect(() => {
+    void fetchReviewQueue();
+  }, [fetchReviewQueue]);
 
   const availableTags = useMemo<Tag[]>(() => {
     const byId = new Map<number, Tag>();
@@ -124,6 +130,10 @@ const Review = () => {
   const handleClearFilter = () => {
     setSelectedTags([]);
     setTagWidgetKey((k) => k + 1);
+  };
+
+  const handleShuffleDeck = () => {
+    void fetchReviewQueue({ shuffle: true });
   };
 
   const handleReview = async (quality: number) => {
@@ -240,6 +250,13 @@ const Review = () => {
                   >
                     Clear Filter
                   </button>
+                  <button
+                    className="quiz-button"
+                    onClick={handleShuffleDeck}
+                    disabled={filteredQueue.length <= 1}
+                  >
+                    Shuffle Deck
+                  </button>
                 </td>
               </tr>
               <tr>
@@ -271,6 +288,13 @@ const Review = () => {
         <div className="review-container">
           <h2>Review Complete!</h2>
           <p>You've reviewed all {filteredQueue.length} cards. Well done! 🎉</p>
+          <button
+            className="quiz-button"
+            onClick={handleShuffleDeck}
+            disabled={filteredQueue.length <= 1}
+          >
+            Shuffle Deck
+          </button>
           {selectedTags.length > 0 && (
             <button className="quiz-button" onClick={handleClearFilter}>
               Clear Filter
@@ -328,6 +352,13 @@ const Review = () => {
                 disabled={selectedTags.length === 0}
               >
                 Clear Filter
+              </button>
+              <button
+                className="quiz-button"
+                onClick={handleShuffleDeck}
+                disabled={filteredQueue.length <= 1}
+              >
+                Shuffle Deck
               </button>
             </td>
           </tr>
