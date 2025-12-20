@@ -6,9 +6,11 @@ import DeckInfoTable from "../Shared/DeckInfoTable.tsx";
 import SrsStatsWidget from "../Shared/SrsStatsWidget.tsx";
 import { FilterDecks } from "../../Shared/DeckUtility.ts";
 import { useCurrentUser } from "../../Shared/Authentication.ts";
+import { TagMatchMode } from "../Shared/TagWidget.tsx";
 
 const Home = () => {
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
+  const [tagMatchMode, setTagMatchMode] = useState<TagMatchMode>("AND");
   const [searchText, setSearchText] = useState("");
   const user = useCurrentUser();
 
@@ -20,7 +22,7 @@ const Home = () => {
   if (!user) {
     return <div>Loading user profile...</div>;
   }
-  const filteredDecks = FilterDecks(user.decks || [], selectedTags, searchText);
+  const filteredDecks = FilterDecks(user.decks || [], selectedTags, searchText, tagMatchMode);
 
   return (
     <div>
@@ -35,6 +37,8 @@ const Home = () => {
         setSearchText={setSearchText}
         selectedTags={selectedTags}
         setSelectedTags={setSelectedTags}
+        tagMatchMode={tagMatchMode}
+        setTagMatchMode={setTagMatchMode}
       />
       <br />
       <DeckInfoTable decks={filteredDecks} onRefresh={handleRefresh} />

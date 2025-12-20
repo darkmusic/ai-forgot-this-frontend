@@ -2,6 +2,7 @@ import {
   useState,
   useRef,
   useEffect,
+  useId,
   KeyboardEvent,
   ChangeEvent,
   Dispatch,
@@ -19,7 +20,14 @@ interface TagWidgetProps {
   placeholderText?: string; // Placeholder text for the widget
   availableTags?: Tag[]; // Optional: restrict suggestions to a provided set of tags
   disabled?: boolean;
+
+  showMatchModeToggle?: boolean;
+  matchMode?: TagMatchMode;
+  defaultMatchMode?: TagMatchMode;
+  onMatchModeChange?: Dispatch<SetStateAction<TagMatchMode>>;
 }
+
+export type TagMatchMode = "AND" | "OR";
 
 const TagWidget = ({
   onTagsChange,
@@ -29,15 +37,25 @@ const TagWidget = ({
   placeholderText = "Type to add or create tags...",
   availableTags,
   disabled = false,
+  showMatchModeToggle = false,
+  matchMode: controlledMatchMode,
+  defaultMatchMode = "AND",
+  onMatchModeChange,
 }: TagWidgetProps) => {
   const isControlled = controlledTags !== undefined;
   const [uncontrolledTags, setUncontrolledTags] = useState<Tag[]>(initialTags ?? []);
   const selectedTags = isControlled ? (controlledTags as Tag[]) : uncontrolledTags;
+
+  const matchModeIsControlled = controlledMatchMode !== undefined;
+  const [uncontrolledMatchMode, setUncontrolledMatchMode] = useState<TagMatchMode>(defaultMatchMode);
+  const matchMode = matchModeIsControlled ? (controlledMatchMode as TagMatchMode) : uncontrolledMatchMode;
+
   const [input, setInput] = useState("");
   const [suggestions, setSuggestions] = useState<Tag[]>([]);
   const [fetchedTags, setFetchedTags] = useState<Tag[]>([]);
   const [isCreatingTag, setIsCreatingTag] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const matchModeName = useId();
 
   const normalizeTagName = (name: string) => name.trim().replace(/^#+/, "").replace(/\s+/g, " ").toLowerCase();
 
@@ -62,11 +80,14 @@ const TagWidget = ({
     void fetchTags();
   }, [availableTags]);
 
-  useEffect(() => {
-    if (!disabled) return;
-    setSuggestions([]);
-    setIsCreatingTag(false);
-  }, [disabled]);
+  const effectiveSuggestions = disabled ? [] : suggestions;
+  const effectiveIsCreatingTag = disabled ? false : isCreatingTag;
+
+  const updateMatchMode = (nextMode: TagMatchMode) => {
+    if (disabled) return;
+    if (!matchModeIsControlled) setUncontrolledMatchMode(nextMode);
+    onMatchModeChange?.(nextMode);
+  };
 
   const createNewTag = async (tagName: string) => {
     try {
@@ -170,9 +191,37 @@ const TagWidget = ({
           disabled={disabled}
         />
       </div>
-      {!disabled && (suggestions.length > 0 || isCreatingTag) && (
+
+      {showMatchModeToggle && (
+        <div className="tag-match-mode" aria-disabled={disabled}>
+          <label className="tag-match-mode-option">
+            <input
+              type="radio"
+              name={`tagMatchMode-${matchModeName}`}
+              value="OR"
+              checked={matchMode === "OR"}
+              onChange={() => updateMatchMode("OR")}
+              disabled={disabled}
+            />
+            OR
+          </label>
+          <label className="tag-match-mode-option">
+            <input
+              type="radio"
+              name={`tagMatchMode-${matchModeName}`}
+              value="AND"
+              checked={matchMode === "AND"}
+              onChange={() => updateMatchMode("AND")}
+              disabled={disabled}
+            />
+            AND
+          </label>
+        </div>
+      )}
+
+      {(effectiveSuggestions.length > 0 || effectiveIsCreatingTag) && (
         <div className="tag-suggestions">
-          {isCreatingTag && (
+          {effectiveIsCreatingTag && (
             <div
               className="tag-suggestion create-new"
               onClick={() => {
@@ -183,7 +232,7 @@ const TagWidget = ({
               Create new tag: <strong>#{input}</strong>
             </div>
           )}
-          {suggestions.map((tag) => (
+          {effectiveSuggestions.map((tag) => (
             <div
               key={tag.id ?? tag.name}
               className="tag-suggestion"

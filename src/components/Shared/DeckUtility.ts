@@ -1,9 +1,11 @@
 import { Deck, Tag } from "../../constants/data/data.ts";
+import { TagMatchMode } from "../Main/Shared/TagWidget.tsx";
 
 export const FilterDecks = (
   decks: Deck[],
   selectedTags: Tag[],
-  searchText: string
+  searchText: string,
+  tagMatchMode: TagMatchMode = "AND"
 ) => {
   return decks
     .filter((deck) => {
@@ -16,9 +18,13 @@ export const FilterDecks = (
       // Check if deck has tags property and if it contains all selected tags
       return (
         deck.tags &&
-        selectedTags.every((selectedTag) =>
-          deck.tags?.some((deckTag) => deckTag.id === selectedTag.id)
-        )
+        (tagMatchMode === "AND"
+          ? selectedTags.every((selectedTag) =>
+              deck.tags?.some((deckTag) => deckTag.id === selectedTag.id)
+            )
+          : selectedTags.some((selectedTag) =>
+              deck.tags?.some((deckTag) => deckTag.id === selectedTag.id)
+            ))
       );
     })
     .filter(

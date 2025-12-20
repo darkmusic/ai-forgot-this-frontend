@@ -485,6 +485,21 @@ input, textarea, select, option, button {
   background-color: $tag-hover-bg;
 }
 
+.tag-match-mode {
+  display: flex;
+  gap: 1rem;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.85rem;
+  color: $tag-text-color;
+  opacity: 0.95;
+}
+
+.tag-match-mode-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
 .tag-cloud {
   border: 1px solid $tag-border-color;
   border-radius: 4px;

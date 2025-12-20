@@ -9,7 +9,7 @@ import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import { PrepareCardMarkdown } from "../../Shared/CardUtility.ts";
 import { useLocation, useNavigate } from "react-router-dom";
-import TagWidget from "../Shared/TagWidget.tsx";
+import TagWidget, { TagMatchMode } from "../Shared/TagWidget.tsx";
 import TagCloud, { TagCloudEntry } from "../Shared/TagCloud.tsx";
 
 const Cram = () => {
@@ -24,7 +24,7 @@ const Cram = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
-  const [tagMatchMode, setTagMatchMode] = useState<"ANY" | "ALL">("ANY");
+  const [tagMatchMode, setTagMatchMode] = useState<TagMatchMode>("OR");
   const [tagWidgetKey, setTagWidgetKey] = useState(0);
 
   // Fetch the cram queue on component mount
@@ -117,7 +117,7 @@ const Cram = () => {
           .filter((id): id is number => id != null)
       );
 
-      if (tagMatchMode === "ALL") {
+      if (tagMatchMode === "AND") {
         return selectedIds.every((id) => cardTagIds.has(id));
       }
       return selectedIds.some((id) => cardTagIds.has(id));
@@ -209,7 +209,6 @@ const Cram = () => {
             <thead>
               <tr>
                 <td className="table-header">Filter by tag(s)</td>
-                <td className="table-header">Match</td>
                 <td className="table-header">Actions</td>
               </tr>
             </thead>
@@ -224,30 +223,10 @@ const Cram = () => {
                     allowCreation={false}
                     availableTags={availableTags}
                     placeholderText="Type to search tags in this deck..."
+                    showMatchModeToggle={true}
+                    matchMode={tagMatchMode}
+                    onMatchModeChange={setTagMatchMode}
                   />
-                </td>
-                <td>
-                  <label>
-                    <input
-                      type="radio"
-                      name="tagMatchMode"
-                      value="ANY"
-                      checked={tagMatchMode === "ANY"}
-                      onChange={() => setTagMatchMode("ANY")}
-                    />
-                    Any
-                  </label>
-                  <br />
-                  <label>
-                    <input
-                      type="radio"
-                      name="tagMatchMode"
-                      value="ALL"
-                      checked={tagMatchMode === "ALL"}
-                      onChange={() => setTagMatchMode("ALL")}
-                    />
-                    All
-                  </label>
                 </td>
                 <td>
                   <button
@@ -263,7 +242,7 @@ const Cram = () => {
                 </td>
               </tr>
               <tr>
-                <td colSpan={3}>
+                <td colSpan={2}>
                   <TagCloud
                     title="Tags in this deck"
                     entries={tagCloudEntries}
@@ -319,7 +298,6 @@ const Cram = () => {
         <thead>
           <tr>
             <td className="table-header">Filter by tag(s)</td>
-            <td className="table-header">Match</td>
             <td className="table-header">Actions</td>
           </tr>
         </thead>
@@ -334,30 +312,10 @@ const Cram = () => {
                 allowCreation={false}
                 availableTags={availableTags}
                 placeholderText="Type to search tags in this deck..."
+                showMatchModeToggle={true}
+                matchMode={tagMatchMode}
+                onMatchModeChange={setTagMatchMode}
               />
-            </td>
-            <td>
-              <label>
-                <input
-                  type="radio"
-                  name="tagMatchMode"
-                  value="ANY"
-                  checked={tagMatchMode === "ANY"}
-                  onChange={() => setTagMatchMode("ANY")}
-                />
-                Any
-              </label>
-              <br />
-              <label>
-                <input
-                  type="radio"
-                  name="tagMatchMode"
-                  value="ALL"
-                  checked={tagMatchMode === "ALL"}
-                  onChange={() => setTagMatchMode("ALL")}
-                />
-                All
-              </label>
             </td>
             <td>
               <button
@@ -370,7 +328,7 @@ const Cram = () => {
             </td>
           </tr>
           <tr>
-            <td colSpan={3}>
+            <td colSpan={2}>
               <TagCloud
                 title="Tags in this deck"
                 entries={tagCloudEntries}

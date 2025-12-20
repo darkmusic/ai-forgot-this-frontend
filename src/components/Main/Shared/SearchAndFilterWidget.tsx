@@ -1,12 +1,15 @@
 import TagWidget from "./TagWidget.tsx";
 import { Dispatch, SetStateAction } from "react";
 import { Tag } from "../../../constants/data/data.ts";
+import { TagMatchMode } from "./TagWidget.tsx";
 
 export interface SearchAndFilterProps {
   searchText: string;
   setSearchText: Dispatch<SetStateAction<string>>;
   selectedTags: Tag[];
   setSelectedTags: Dispatch<SetStateAction<Tag[]>>;
+  tagMatchMode?: TagMatchMode;
+  setTagMatchMode?: Dispatch<SetStateAction<TagMatchMode>>;
   availableTags?: Tag[];
   allowTagCreation?: boolean;
   tagPlaceholderText?: string;
@@ -19,6 +22,8 @@ const SearchAndFilterWidget = (props: SearchAndFilterProps) => {
     setSearchText,
     selectedTags,
     setSelectedTags,
+    tagMatchMode,
+    setTagMatchMode,
     availableTags,
     allowTagCreation = true,
     tagPlaceholderText = "Type to search for tags to filter by...",
@@ -52,6 +57,9 @@ const SearchAndFilterWidget = (props: SearchAndFilterProps) => {
               availableTags={availableTags}
               placeholderText={tagPlaceholderText}
               disabled={disabled}
+              showMatchModeToggle={!!setTagMatchMode}
+              matchMode={tagMatchMode}
+              onMatchModeChange={setTagMatchMode}
             />
           </td>
         </tr>

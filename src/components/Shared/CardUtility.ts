@@ -1,4 +1,5 @@
 import { Card, Tag } from "../../constants/data/data.ts";
+import { TagMatchMode } from "../Main/Shared/TagWidget.tsx";
 
 const normalizeTagName = (name: string) =>
   name.trim().replace(/^#+/, "").replace(/\s+/g, " ").toLowerCase();
@@ -11,7 +12,8 @@ const tagsEqual = (a: Tag, b: Tag) => {
 export const FilterCards = (
   cards: Card[],
   selectedTags: Tag[],
-  searchText: string
+  searchText: string,
+  tagMatchMode: TagMatchMode = "AND"
 ) => {
   return cards
     ?.filter(
@@ -25,9 +27,13 @@ export const FilterCards = (
         selectedTags === null ||
         selectedTags.length === 0 ||
         (card.tags &&
-          selectedTags.every((selectedTag) =>
-            card.tags?.some((cardTag) => tagsEqual(cardTag, selectedTag))
-          ))
+          (tagMatchMode === "AND"
+            ? selectedTags.every((selectedTag) =>
+                card.tags?.some((cardTag) => tagsEqual(cardTag, selectedTag))
+              )
+            : selectedTags.some((selectedTag) =>
+                card.tags?.some((cardTag) => tagsEqual(cardTag, selectedTag))
+              )))
     );
 };
 

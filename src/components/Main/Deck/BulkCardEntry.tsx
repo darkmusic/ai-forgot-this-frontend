@@ -3,6 +3,7 @@ import * as React from "react";
 import { Deck, Tag } from "../../../constants/data/data.ts";
 import { postJson } from "../../../lib/api.ts";
 import SearchAndFilterWidget from "../Shared/SearchAndFilterWidget.tsx";
+import { TagMatchMode } from "../Shared/TagWidget.tsx";
 
 interface BulkCardRow {
   cardId: number | null; // null for new cards, number for existing cards
@@ -72,6 +73,7 @@ const BulkCardEntry = ({
 
   const [searchText, setSearchText] = useState("");
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
+  const [tagMatchMode, setTagMatchMode] = useState<TagMatchMode>("OR");
 
   type SortKey = "front" | "back" | "tagNames";
   const [sortKey, setSortKey] = useState<SortKey>("front");
@@ -200,7 +202,12 @@ const BulkCardEntry = ({
             .map((t) => normalizeTagName(t))
             .filter((t) => t.length > 0)
         );
-        return Array.from(selectedNames).some((t) => rowTagSet.has(t));
+
+        const selected = Array.from(selectedNames);
+        if (tagMatchMode === "AND") {
+          return selected.every((t) => rowTagSet.has(t));
+        }
+        return selected.some((t) => rowTagSet.has(t));
       });
 
     const indexed = visible.map((r, idx) => ({ r, idx }));
@@ -226,7 +233,8 @@ const BulkCardEntry = ({
     });
 
     return indexed.map((x) => x.r);
-  }, [rows, searchText, selectedTags, sortKey, sortDirection, disableSorting]);
+  }, [rows, searchText, selectedTags, tagMatchMode, sortKey, sortDirection, disableSorting]);
+
 
   const handleCellChange = (tempId: string, field: keyof BulkCardRow, value: string) => {
     setRows((prev) =>
@@ -340,6 +348,8 @@ const BulkCardEntry = ({
             setSearchText={setSearchText}
             selectedTags={selectedTags}
             setSelectedTags={setSelectedTags}
+            tagMatchMode={tagMatchMode}
+            setTagMatchMode={setTagMatchMode}
             availableTags={availableTagsForFilter}
             allowTagCreation={false}
             tagPlaceholderText="Type to search tags in this deck..."

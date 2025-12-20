@@ -5,7 +5,7 @@ import { ChangeEvent, FormEvent, useMemo, useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import HomeWidget from "../Shared/HomeWidget.tsx";
 import { FilterCards } from "../../Shared/CardUtility.ts";
-import TagWidget from "../Shared/TagWidget.tsx";
+import TagWidget, { TagMatchMode } from "../Shared/TagWidget.tsx";
 import { useCurrentUser } from "../../Shared/Authentication.ts";
 import { deleteOk, postJson, putJson } from "../../../lib/api";
 import ReactMarkdown from "react-markdown";
@@ -143,6 +143,7 @@ const CardTable = (p: { cards: Card[]; deck: Deck }) => {
 
 const EditDeck = () => {
   const [selectedCardTags, setSelectedCardTags] = useState<Tag[]>([]);
+  const [cardTagMatchMode, setCardTagMatchMode] = useState<TagMatchMode>("AND");
   const [selectedDeckTags, setSelectedDeckTags] = useState<Tag[]>([]);
   const [searchText, setSearchText] = useState("");
   const { state } = useLocation();
@@ -198,7 +199,7 @@ const EditDeck = () => {
     deck.user = user;
   }
 
-  const filteredCards = FilterCards(deck?.cards, selectedCardTags, searchText);
+  const filteredCards = FilterCards(deck?.cards, selectedCardTags, searchText, cardTagMatchMode);
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -367,6 +368,8 @@ const EditDeck = () => {
           setSearchText={setSearchText}
           selectedTags={selectedCardTags}
           setSelectedTags={setSelectedCardTags}
+          tagMatchMode={cardTagMatchMode}
+          setTagMatchMode={setCardTagMatchMode}
         />
       )}
       <br />

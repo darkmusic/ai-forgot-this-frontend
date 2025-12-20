@@ -9,7 +9,7 @@ import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import { PrepareCardMarkdown } from "../../Shared/CardUtility.ts";
 import { useLocation } from "react-router-dom";
-import TagWidget from "../Shared/TagWidget.tsx";
+import TagWidget, { TagMatchMode } from "../Shared/TagWidget.tsx";
 import TagCloud, { TagCloudEntry } from "../Shared/TagCloud.tsx";
 
 const Review = () => {
@@ -20,7 +20,7 @@ const Review = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
-  const [tagMatchMode, setTagMatchMode] = useState<"ANY" | "ALL">("ANY");
+  const [tagMatchMode, setTagMatchMode] = useState<TagMatchMode>("OR");
   const [tagWidgetKey, setTagWidgetKey] = useState(0);
   const { state } = useLocation();
   const deckFromState: { id?: number | null; name?: string } | undefined = state?.deck;
@@ -109,7 +109,7 @@ const Review = () => {
           .filter((id): id is number => id != null)
       );
 
-      if (tagMatchMode === "ALL") {
+      if (tagMatchMode === "AND") {
         return selectedIds.every((id) => cardTagIds.has(id));
       }
       return selectedIds.some((id) => cardTagIds.has(id));
@@ -208,7 +208,6 @@ const Review = () => {
             <thead>
               <tr>
                 <td className="table-header">Filter by tag(s)</td>
-                <td className="table-header">Match</td>
                 <td className="table-header">Actions</td>
               </tr>
             </thead>
@@ -227,30 +226,10 @@ const Review = () => {
                         ? "Type to search tags in this deck..."
                         : "Type to search tags in this review queue..."
                     }
+                    showMatchModeToggle={true}
+                    matchMode={tagMatchMode}
+                    onMatchModeChange={setTagMatchMode}
                   />
-                </td>
-                <td>
-                  <label>
-                    <input
-                      type="radio"
-                      name="tagMatchMode"
-                      value="ANY"
-                      checked={tagMatchMode === "ANY"}
-                      onChange={() => setTagMatchMode("ANY")}
-                    />
-                    Any
-                  </label>
-                  <br />
-                  <label>
-                    <input
-                      type="radio"
-                      name="tagMatchMode"
-                      value="ALL"
-                      checked={tagMatchMode === "ALL"}
-                      onChange={() => setTagMatchMode("ALL")}
-                    />
-                    All
-                  </label>
                 </td>
                 <td>
                   <button
@@ -263,7 +242,7 @@ const Review = () => {
                 </td>
               </tr>
               <tr>
-                <td colSpan={3}>
+                <td colSpan={2}>
                   <TagCloud
                     title={deckId ? "Tags in this deck" : "Tags in this review queue"}
                     entries={tagCloudEntries}
@@ -317,7 +296,6 @@ const Review = () => {
         <thead>
           <tr>
             <td className="table-header">Filter by tag(s)</td>
-            <td className="table-header">Match</td>
             <td className="table-header">Actions</td>
           </tr>
         </thead>
@@ -336,30 +314,10 @@ const Review = () => {
                     ? "Type to search tags in this deck..."
                     : "Type to search tags in this review queue..."
                 }
+                showMatchModeToggle={true}
+                matchMode={tagMatchMode}
+                onMatchModeChange={setTagMatchMode}
               />
-            </td>
-            <td>
-              <label>
-                <input
-                  type="radio"
-                  name="tagMatchMode"
-                  value="ANY"
-                  checked={tagMatchMode === "ANY"}
-                  onChange={() => setTagMatchMode("ANY")}
-                />
-                Any
-              </label>
-              <br />
-              <label>
-                <input
-                  type="radio"
-                  name="tagMatchMode"
-                  value="ALL"
-                  checked={tagMatchMode === "ALL"}
-                  onChange={() => setTagMatchMode("ALL")}
-                />
-                All
-              </label>
             </td>
             <td>
               <button
@@ -372,7 +330,7 @@ const Review = () => {
             </td>
           </tr>
           <tr>
-            <td colSpan={3}>
+            <td colSpan={2}>
               <TagCloud
                 title={deckId ? "Tags in this deck" : "Tags in this review queue"}
                 entries={tagCloudEntries}
