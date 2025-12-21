@@ -32,15 +32,17 @@ const Home = () => {
       <SrsStatsWidget />
       <br />
       <h3>Decks</h3>
-      <SearchAndFilterWidget
-        searchText={searchText}
-        setSearchText={setSearchText}
-        selectedTags={selectedTags}
-        setSelectedTags={setSelectedTags}
-        resultCount={filteredDecks.length}
-        tagMatchMode={tagMatchMode}
-        setTagMatchMode={setTagMatchMode}
-      />
+      <div className={"list-decks-filter"}>
+        <SearchAndFilterWidget
+          searchText={searchText}
+          setSearchText={setSearchText}
+          selectedTags={selectedTags}
+          setSelectedTags={setSelectedTags}
+          resultCount={filteredDecks.length}
+          tagMatchMode={tagMatchMode}
+          setTagMatchMode={setTagMatchMode}
+        />
+      </div>
       <br />
       <DeckInfoTable decks={filteredDecks} onRefresh={handleRefresh} />
     </div>
