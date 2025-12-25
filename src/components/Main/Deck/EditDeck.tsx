@@ -8,9 +8,7 @@ import { FilterCards } from "../../Shared/CardUtility.ts";
 import TagWidget, { TagMatchMode } from "../Shared/TagWidget.tsx";
 import { useCurrentUser } from "../../Shared/Authentication.ts";
 import { deleteOk, postJson, putJson } from "../../../lib/api";
-import ReactMarkdown from "react-markdown";
-import remarkMath from "remark-math";
-import rehypeKatex from "rehype-katex";
+import Markdown from "../../Shared/Markdown.tsx";
 import { PrepareCardMarkdown } from "../../Shared/CardUtility.ts";
 
 const CardTable = (p: { cards: Card[]; deck: Deck }) => {
@@ -73,22 +71,16 @@ const CardTable = (p: { cards: Card[]; deck: Deck }) => {
           <tr key={c.id ?? `${c.front}-${c.back}-${idx}`}>
             <td className={"edit-td-data"}>
               <div className="deck-card-markdown">
-                <ReactMarkdown
-                  remarkPlugins={[remarkMath]}
-                  rehypePlugins={[[rehypeKatex, { output: "html" }]]}
-                >
+                <Markdown>
                   {PrepareCardMarkdown(deck.templateFront, c.front)}
-                </ReactMarkdown>
+                </Markdown>
               </div>
             </td>
             <td className={"edit-td-data"}>
               <div className="deck-card-markdown">
-                <ReactMarkdown
-                  remarkPlugins={[remarkMath]}
-                  rehypePlugins={[[rehypeKatex, { output: "html" }]]}
-                >
+                <Markdown>
                   {PrepareCardMarkdown(deck.templateBack, c.back)}
-                </ReactMarkdown>
+                </Markdown>
               </div>
             </td>
             <td className={"edit-td-data"}>

@@ -218,6 +218,40 @@ h2 {
   overflow-y: hidden;
 }
 
+.app-markdown {
+  text-align: left;
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  table {
+    border-collapse: collapse;
+    margin: 0.5rem 0;
+    min-width: 100%;
+  }
+
+  th,
+  td {
+    border: 1px solid $tag-border-color;
+    padding: 0.35rem 0.5rem;
+    vertical-align: top;
+  }
+
+  thead th {
+    background-color: $table-header-bg;
+    color: $table-header-text;
+    font-weight: 600;
+  }
+
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+      "Liberation Mono", "Courier New", monospace;
+  }
+
+  pre {
+    overflow-x: auto;
+  }
+}
+
 .edit-card-table {
   margin: 0 auto;
 }

@@ -1,5 +1,5 @@
 import TagWidget from "./TagWidget.tsx";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Tag } from "../../../constants/data/data.ts";
 import { TagMatchMode } from "./TagWidget.tsx";
 
@@ -33,6 +33,29 @@ const SearchAndFilterWidget = (props: SearchAndFilterProps) => {
     tagPlaceholderText = "Type to search for tags to filter by...",
     disabled = false,
   } = props;
+
+  // Keep local input state so typing a single character doesn't trigger expensive filtering.
+  const [draftSearchText, setDraftSearchText] = useState(searchText);
+
+  useEffect(() => {
+    setDraftSearchText(searchText);
+  }, [searchText]);
+
+  const handleSearchChange = (nextValue: string) => {
+    setDraftSearchText(nextValue);
+
+    // Only propagate to the parent filter when:
+    // - empty (clear filter)
+    // - 2+ characters (meaningful search)
+    // For 1 character, treat as "no filter" to avoid performance issues on large result sets.
+    if (nextValue.length === 1) {
+      setSearchText("");
+      return;
+    }
+
+    setSearchText(nextValue);
+  };
+
   return (
     <table className={"table search-and-filter-widget" + (disabled ? " is-disabled" : "")}>
       <thead>
@@ -47,8 +70,8 @@ const SearchAndFilterWidget = (props: SearchAndFilterProps) => {
             <input
               type="text"
               className="search-and-filter-search-input"
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
+              value={draftSearchText}
+              onChange={(e) => handleSearchChange(e.target.value)}
               disabled={disabled}
             />
           </td>

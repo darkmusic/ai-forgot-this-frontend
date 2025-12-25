@@ -4,9 +4,7 @@ import { useCurrentUser } from "../../Shared/Authentication.ts";
 import { useState, useEffect, useMemo } from "react";
 import { SrsCardResponse, Tag } from "../../../constants/data/data.ts";
 import { getJson } from "../../../lib/api.ts";
-import ReactMarkdown from "react-markdown";
-import remarkMath from "remark-math";
-import rehypeKatex from "rehype-katex";
+import Markdown from "../../Shared/Markdown.tsx";
 import { PrepareCardMarkdown } from "../../Shared/CardUtility.ts";
 import { useLocation, useNavigate } from "react-router-dom";
 import TagWidget, { TagMatchMode } from "../Shared/TagWidget.tsx";
@@ -382,14 +380,11 @@ const Cram = () => {
       </div>
       <br />
       <div className="quiz-card" onClick={() => setShowAnswer(!showAnswer)}>
-        <ReactMarkdown
-          remarkPlugins={[remarkMath]}
-          rehypePlugins={[rehypeKatex]}
-        >
+        <Markdown>
           {showAnswer
             ? PrepareCardMarkdown(deckInfo?.templateBack || "", card.back)
             : PrepareCardMarkdown(deckInfo?.templateFront || "", card.front)}
-        </ReactMarkdown>
+        </Markdown>
       </div>
       <br />
       <div className="cram-navigation-buttons">

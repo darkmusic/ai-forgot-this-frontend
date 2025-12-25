@@ -3,9 +3,7 @@ import { useLocation } from "react-router-dom";
 import { Card, Deck } from "../../../constants/data/data.ts";
 import DeckWidget from "../Shared/DeckWidget.tsx";
 import { useCurrentUser } from "../../Shared/Authentication.ts";
-import ReactMarkdown from "react-markdown";
-import remarkMath from "remark-math";
-import rehypeKatex from "rehype-katex";
+import Markdown from "../../Shared/Markdown.tsx";
 import { PrepareCardMarkdown } from "../../Shared/CardUtility.ts";
 
 const ViewCard = () => {
@@ -24,21 +22,15 @@ const ViewCard = () => {
       <UserProfileWidget user={user} />
       <h2>View Card</h2>
       <div className={"quiz-card"}>
-        <ReactMarkdown
-          remarkPlugins={[remarkMath]}
-          rehypePlugins={[rehypeKatex]}
-        >
+        <Markdown>
           {PrepareCardMarkdown(deck.templateFront, card.front)}
-        </ReactMarkdown>
+        </Markdown>
       </div>
       <br />
       <div className={"quiz-card"}>
-        <ReactMarkdown
-          remarkPlugins={[remarkMath]}
-          rehypePlugins={[rehypeKatex]}
-        >
+        <Markdown>
           {PrepareCardMarkdown(deck.templateBack, card.back)}
-        </ReactMarkdown>
+        </Markdown>
       </div>
     </div>
   );

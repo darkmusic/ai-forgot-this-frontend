@@ -19,9 +19,7 @@ import {
   apiFetch,
   getJson,
 } from "../../../lib/api";
-import ReactMarkdown from "react-markdown";
-import remarkMath from "remark-math";
-import rehypeKatex from "rehype-katex";
+import Markdown from "../../Shared/Markdown.tsx";
 
 const EditCard = () => {
   const { state } = useLocation();
@@ -416,12 +414,9 @@ const EditCard = () => {
                         </div>
                         {/* Render AI answer with Markdown formatting */}
                         <div className="ai-answer-markdown">
-                          <ReactMarkdown
-                            remarkPlugins={[remarkMath]}
-                            rehypePlugins={[rehypeKatex]}
-                          >
+                          <Markdown>
                             {formData.ai_answer || ""}
-                          </ReactMarkdown>
+                          </Markdown>
                         </div>
                         {/* Manual copy modal fallback */}
                         {showCopyModal ? (
