@@ -925,11 +925,26 @@ input, textarea, select, option, button {
 .bulk-entry-top-actions {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 1rem;
   margin-bottom: 1rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid $tag-border-color;
   flex-shrink: 0;
+}
+
+.bulk-entry-top-actions-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.bulk-entry-top-actions-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  min-width: 260px;
 }
 
 .bulk-entry-disable-sorting {
@@ -1106,6 +1121,7 @@ input, textarea, select, option, button {
 .bulk-entry-stats {
   display: flex;
   gap: 1rem;
+  justify-content: flex-end;
 }
 
 .bulk-entry-stat {
@@ -1121,6 +1137,7 @@ input, textarea, select, option, button {
 .bulk-entry-actions-right {
   display: flex;
   gap: 0.5rem;
+  justify-content: flex-end;
 }
 
 .bulk-entry-btn {

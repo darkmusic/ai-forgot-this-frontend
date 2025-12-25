@@ -361,17 +361,52 @@ const BulkCardEntry = ({
         {error && <div className="error-message">{error}</div>}
 
         <div className="bulk-entry-top-actions">
-          <button type="button" className="bulk-entry-btn" onClick={addRow}>
-            + Add New Card
-          </button>
-          <label className="bulk-entry-disable-sorting">
-            <input
-              type="checkbox"
-              checked={disableSorting}
-              onChange={(e) => setDisableSorting(e.target.checked)}
-            />
-            <span>Disable Sorting</span>
-          </label>
+          <div className="bulk-entry-top-actions-left">
+            <button type="button" className="bulk-entry-btn" onClick={addRow}>
+              + Add New Card
+            </button>
+            <label className="bulk-entry-disable-sorting">
+              <input
+                type="checkbox"
+                checked={disableSorting}
+                onChange={(e) => setDisableSorting(e.target.checked)}
+              />
+              <span>Disable Sorting</span>
+            </label>
+          </div>
+
+          <div className="bulk-entry-top-actions-right">
+            <div className="bulk-entry-stats">
+              {rows.filter((r) => !r.isDeleted && r.cardId === null).length > 0 && (
+                <span className="bulk-entry-stat">
+                  New: {rows.filter((r) => !r.isDeleted && r.cardId === null).length}
+                </span>
+              )}
+              {rows.filter((r) => r.isDeleted).length > 0 && (
+                <span className="bulk-entry-stat bulk-entry-stat-delete">
+                  To Delete: {rows.filter((r) => r.isDeleted).length}
+                </span>
+              )}
+            </div>
+            <div className="bulk-entry-actions-right">
+              <button
+                type="button"
+                className="bulk-entry-btn bulk-entry-btn-cancel"
+                onClick={handleCancel}
+                disabled={isSaving}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="bulk-entry-btn bulk-entry-btn-primary"
+                onClick={handleSave}
+                disabled={isSaving}
+              >
+                {isSaving ? "Saving..." : "Save All Changes"}
+              </button>
+            </div>
+          </div>
         </div>
 
         <div className="bulk-entry-table-container">
@@ -469,39 +504,6 @@ const BulkCardEntry = ({
               ))}
             </tbody>
           </table>
-        </div>
-
-        <div className="bulk-entry-actions">
-          <div className="bulk-entry-stats">
-            {rows.filter((r) => !r.isDeleted && r.cardId === null).length > 0 && (
-              <span className="bulk-entry-stat">
-                New: {rows.filter((r) => !r.isDeleted && r.cardId === null).length}
-              </span>
-            )}
-            {rows.filter((r) => r.isDeleted).length > 0 && (
-              <span className="bulk-entry-stat bulk-entry-stat-delete">
-                To Delete: {rows.filter((r) => r.isDeleted).length}
-              </span>
-            )}
-          </div>
-          <div className="bulk-entry-actions-right">
-            <button
-              type="button"
-              className="bulk-entry-btn bulk-entry-btn-cancel"
-              onClick={handleCancel}
-              disabled={isSaving}
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              className="bulk-entry-btn bulk-entry-btn-primary"
-              onClick={handleSave}
-              disabled={isSaving}
-            >
-              {isSaving ? "Saving..." : "Save All Changes"}
-            </button>
-          </div>
         </div>
       </div>
     </Modal>
