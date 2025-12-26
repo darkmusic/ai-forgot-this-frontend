@@ -335,6 +335,7 @@ const EditDeck = () => {
                   selectedTags={selectedDeckTags}
                   initialTags={formData.deckTags}
                   allowCreation={true}
+                  suggestionScope="decks"
                   resultCount={selectedDeckTags.length}
                   resultCountLabel="Tags"
                 />
@@ -367,6 +368,7 @@ const EditDeck = () => {
             resultCount={filteredCards.length}
             tagMatchMode={cardTagMatchMode}
             setTagMatchMode={setCardTagMatchMode}
+            tagSuggestionScope="cards"
           />
         </div>
       )}

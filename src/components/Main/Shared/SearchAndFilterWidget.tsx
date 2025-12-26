@@ -1,7 +1,7 @@
 import TagWidget from "./TagWidget.tsx";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Tag } from "../../../constants/data/data.ts";
-import { TagMatchMode } from "./TagWidget.tsx";
+import { TagMatchMode, TagSuggestionScope } from "./TagWidget.tsx";
 
 export interface SearchAndFilterProps {
   searchText: string;
@@ -15,6 +15,7 @@ export interface SearchAndFilterProps {
   availableTags?: Tag[];
   allowTagCreation?: boolean;
   tagPlaceholderText?: string;
+  tagSuggestionScope?: TagSuggestionScope;
   disabled?: boolean;
 }
 
@@ -31,6 +32,7 @@ const SearchAndFilterWidget = (props: SearchAndFilterProps) => {
     availableTags,
     allowTagCreation = true,
     tagPlaceholderText = "Type to search for tags to filter by...",
+    tagSuggestionScope,
     disabled = false,
   } = props;
 
@@ -82,6 +84,7 @@ const SearchAndFilterWidget = (props: SearchAndFilterProps) => {
               initialTags={[]}
               allowCreation={allowTagCreation}
               availableTags={availableTags}
+              suggestionScope={tagSuggestionScope}
               placeholderText={tagPlaceholderText}
               disabled={disabled}
               showMatchModeToggle={!!setTagMatchMode}

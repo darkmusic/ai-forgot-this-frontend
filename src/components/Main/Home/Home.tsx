@@ -41,6 +41,7 @@ const Home = () => {
           resultCount={filteredDecks.length}
           tagMatchMode={tagMatchMode}
           setTagMatchMode={setTagMatchMode}
+          tagSuggestionScope="decks"
         />
       </div>
       <br />

@@ -348,6 +348,7 @@ const EditCard = () => {
                           onTagsChange={setSelectedCardTags}
                           selectedTags={selectedCardTags}
                           initialTags={card?.tags}
+                          suggestionScope="cards"
                           resultCount={selectedCardTags.length}
                           resultCountLabel="Tags"
                         />

@@ -21,6 +21,8 @@ interface TagWidgetProps {
   availableTags?: Tag[]; // Optional: restrict suggestions to a provided set of tags
   disabled?: boolean;
 
+  suggestionScope?: TagSuggestionScope; // Where suggestions come from when availableTags is not provided
+
   resultCount: number;
   resultCountLabel?: string;
 
@@ -32,6 +34,8 @@ interface TagWidgetProps {
 
 export type TagMatchMode = "AND" | "OR";
 
+export type TagSuggestionScope = "cards" | "decks" | "all";
+
 const TagWidget = ({
   onTagsChange,
   initialTags,
@@ -40,6 +44,8 @@ const TagWidget = ({
   placeholderText = "Type to add or create tags...",
   availableTags,
   disabled = false,
+
+  suggestionScope = "cards",
 
   resultCount,
   resultCountLabel = "Results",
@@ -76,7 +82,14 @@ const TagWidget = ({
     if (availableTags) return;
     const fetchTags = async () => {
       try {
-        const data = await getJson<Tag[]>(`/api/tag/all`);
+        const endpoint =
+          suggestionScope === "decks"
+            ? "/api/tag/used/decks"
+            : suggestionScope === "cards"
+              ? "/api/tag/used/cards"
+              : "/api/tag/all";
+
+        const data = await getJson<Tag[]>(endpoint);
         setFetchedTags(data);
       } catch (error) {
         console.error("Error fetching tags:", error);
@@ -84,7 +97,7 @@ const TagWidget = ({
     };
 
     void fetchTags();
-  }, [availableTags]);
+  }, [availableTags, suggestionScope]);
 
   const effectiveSuggestions = disabled ? [] : suggestions;
   const effectiveIsCreatingTag = disabled ? false : isCreatingTag;
