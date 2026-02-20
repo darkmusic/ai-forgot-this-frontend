@@ -212,12 +212,25 @@ const EditCard = () => {
       return;
     }
 
+    // Client-side safety timeout: slightly longer than the server-side AI client timeout
+    // so the server has a chance to respond with a clean HTTP error before the browser aborts.
+    // The server-side timeout is controlled by AI_CLIENT_READ_TIMEOUT (default 10 min).
+    const AI_CLIENT_TIMEOUT_MS = 12 * 60 * 1000; // 12 minutes
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(
+      () => controller.abort("AI request timed out on the client side."),
+      AI_CLIENT_TIMEOUT_MS
+    );
+
     setAiLoading(true);
-    // Send the AI question to the server (streaming supported)
+    // Send the AI question to the server. The response is Server-Sent Events (SSE):
+    // the server sends an immediate heartbeat comment so the browser's TTFB timer never
+    // fires, then a "done" event with the full answer when inference completes.
     apiFetch("/api/ai/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ question: aiQuestion, userId: user.id }),
+      signal: controller.signal,
     })
       .then(async (response) => {
         if (!response.ok) {
@@ -240,29 +253,89 @@ const EditCard = () => {
           );
           return;
         }
+
+        // Read the SSE stream. Each SSE event is a block of lines terminated by a
+        // blank line (\n\n). We look for two named events:
+        //   event: done   — carries the full AI answer in data lines
+        //   event: error  — carries an error message in data lines
+        // All other events (heartbeat comments etc.) are silently ignored.
+        if (!response.body) {
+          alert("AI response body is unavailable.");
+          return;
+        }
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let aiAnswer: string | null = null;
         try {
-          const data = await response.json();
-          setFormData({ ...formData, ai_answer: data.answer });
-        } catch {
-          // If backend streams line-delimited JSON or text, fallback to text
-          const text = await response.text();
-          setFormData({ ...formData, ai_answer: text });
+          outer: while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            // Walk through every complete SSE event in the buffer.
+            let boundary = buffer.indexOf("\n\n");
+            while (boundary !== -1) {
+              const rawEvent = buffer.slice(0, boundary);
+              buffer = buffer.slice(boundary + 2);
+
+              // Parse SSE fields from the raw event block.
+              let eventName = "message";
+              const dataLines: string[] = [];
+              for (const line of rawEvent.split("\n")) {
+                if (line.startsWith("event:")) {
+                  eventName = line.slice(6).trim();
+                } else if (line.startsWith("data:")) {
+                  // Strip the single optional leading space required by the SSE spec.
+                  dataLines.push(line.slice(5).replace(/^ /, ""));
+                }
+                // Lines starting with ':' are heartbeat comments; ignore them.
+              }
+
+              if (eventName === "done" && dataLines.length > 0) {
+                aiAnswer = dataLines.join("\n");
+                break outer;
+              } else if (eventName === "error" && dataLines.length > 0) {
+                throw new Error(dataLines.join("\n"));
+              }
+
+              boundary = buffer.indexOf("\n\n");
+            }
+          }
+        } finally {
+          reader.releaseLock();
+        }
+        if (aiAnswer !== null) {
+          setFormData((prev) => ({ ...prev, ai_answer: aiAnswer! }));
         }
       })
       .catch((err: unknown) => {
+        // Always log the raw error so dev tools show the real cause.
+        console.error("AI fetch error:", err);
         let msg = "Unknown error";
         const offline =
           typeof navigator !== "undefined" &&
           navigator &&
           "onLine" in navigator &&
           !navigator.onLine;
-        if (offline) {
+        if (controller.signal.aborted) {
+          // Check the signal first — browsers (especially Firefox) may throw a
+          // plain TypeError instead of a DOMException(AbortError) when the signal
+          // fires, so inspecting the signal directly is the only reliable approach.
+          const reason = controller.signal.reason;
+          msg = typeof reason === "string"
+            ? reason
+            : "The request was cancelled.";
+        } else if (offline) {
           msg = "You appear to be offline. Check your internet connection.";
         } else if (err instanceof DOMException && err.name === "AbortError") {
+          // Fallback: some browsers DO throw DOMException(AbortError) for aborts
+          // not triggered by our controller (e.g. navigation away from the page).
           msg = "The request was cancelled.";
         } else if (err instanceof TypeError) {
-          // Fetch typically throws TypeError on network/CORS issues
-          msg = "Network error or CORS issue prevented the request.";
+          // fetch() throws TypeError for network-level failures:
+          // connection reset, refused, DNS failure, etc. — NOT always CORS.
+          const detail = err.message ? `: ${err.message}` : "";
+          msg = `Network or connection error${detail}. Check the server/browser console for details.`;
         } else if (err && typeof err === "object" && "message" in err) {
           const maybeMessage = (err as { message?: unknown }).message;
           if (typeof maybeMessage === "string") {
@@ -272,6 +345,7 @@ const EditCard = () => {
         alert(`Failed to get AI answer: ${msg}`);
       })
       .finally(() => {
+        window.clearTimeout(timeoutId);
         setAiLoading(false);
       });
   };
