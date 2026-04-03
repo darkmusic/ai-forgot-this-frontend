@@ -163,7 +163,7 @@ const UserSettingsForm = ({ onClose }: { onClose: () => void }) => {
 
   // Early return after all hooks are called
   if (!user || !user.profile_pic_url || user.profile_pic_url.length === 0) {
-    return <div>Loading user profile...</div>;
+    return <div>Loading...</div>;
   }
 
   return (

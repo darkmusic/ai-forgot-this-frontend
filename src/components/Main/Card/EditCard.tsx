@@ -104,7 +104,7 @@ const EditCard = () => {
   }, []);
 
   if (!user) {
-    return <div>Loading user profile...</div>;
+    return <div>Loading...</div>;
   }
 
   if (!deck || deck.id == null || deck.id === 0) {

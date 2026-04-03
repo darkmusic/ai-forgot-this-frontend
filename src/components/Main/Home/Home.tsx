@@ -20,7 +20,7 @@ const Home = () => {
   };
 
   if (!user) {
-    return <div>Loading user profile...</div>;
+    return <div>Loading...</div>;
   }
   const filteredDecks = FilterDecks(user.decks || [], selectedTags, searchText, tagMatchMode);
 

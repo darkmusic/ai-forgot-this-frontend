@@ -185,7 +185,7 @@ const EditDeck = () => {
   }, [deck]);
 
   if (!user) {
-    return <div>Loading user profile...</div>;
+    return <div>Loading...</div>;
   } else {
     // This isn't loaded by default, so we need to set it here
     deck.user = user;

@@ -13,7 +13,7 @@ const ViewCard = () => {
   const user = useCurrentUser();
 
   if (!user) {
-    return <div>Loading user profile...</div>;
+    return <div>Loading...</div>;
   }
 
   return (
