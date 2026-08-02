@@ -2,7 +2,7 @@ let csrfToken: string | null = null;
 let csrfHeaderName: string | null = null;
 const BASE_URL: string | undefined = import.meta.env?.VITE_TOMCAT_SERVER_URL;
 
-function resolveUrl(input: string): string {
+export function apiUrl(input: string): string {
   // If an absolute URL is provided, use it. Otherwise, prefix with BASE_URL when set.
   try {
     // new URL throws if relative and no base provided
@@ -54,7 +54,7 @@ export async function apiFetch(input: string, init: RequestInit = {}): Promise<R
   // Always include credentials so session cookies flow in both same-origin and cross-origin dev.
   if (!init.credentials) init.credentials = 'include';
 
-  const url = resolveUrl(input);
+  const url = apiUrl(input);
   let res = await fetch(url, init);
 
   // If CSRF was invalid/rotated, refetch token and retry once
@@ -66,7 +66,7 @@ export async function apiFetch(input: string, init: RequestInit = {}): Promise<R
       ...(init.headers || {}),
       [csrfHeaderName ?? "X-XSRF-TOKEN"]: csrfToken ?? "",
     };
-    const retryUrl = resolveUrl(input);
+    const retryUrl = apiUrl(input);
     res = await fetch(retryUrl, init);
   }
   return res;

@@ -10,6 +10,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import TagWidget, { TagMatchMode } from "../Shared/TagWidget.tsx";
 import TagCloud, { TagCloudEntry } from "../Shared/TagCloud.tsx";
 import { shuffleArray } from "../../../lib/shuffle.ts";
+import TtsAudioControl from "../Shared/TtsAudioControl.tsx";
 
 const Cram = () => {
   const user = useCurrentUser();
@@ -385,6 +386,7 @@ const Cram = () => {
             ? PrepareCardMarkdown(deckInfo?.templateBack || "", card.back)
             : PrepareCardMarkdown(deckInfo?.templateFront || "", card.front)}
         </Markdown>
+        <TtsAudioControl card={card} deck={deckInfo} side={showAnswer ? "BACK" : "FRONT"} />
       </div>
       <br />
       <div className="cram-navigation-buttons">

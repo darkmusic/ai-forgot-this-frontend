@@ -94,3 +94,29 @@ button {
 .ai-thinking {
   margin-left: 0.5rem;
 }
+
+.tts-audio-control {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+
+  audio {
+    max-width: 100%;
+  }
+}
+
+.tts-error {
+  color: #b00020;
+  font-size: 0.9rem;
+}
+
+.tts-presets-table {
+  textarea {
+    max-width: 100%;
+  }
+
+  input {
+    max-width: 100%;
+  }
+}

@@ -10,6 +10,7 @@ import { useLocation } from "react-router-dom";
 import TagWidget, { TagMatchMode } from "../Shared/TagWidget.tsx";
 import TagCloud, { TagCloudEntry } from "../Shared/TagCloud.tsx";
 import { shuffleArray } from "../../../lib/shuffle.ts";
+import TtsAudioControl from "../Shared/TtsAudioControl.tsx";
 
 const Review = () => {
   const user = useCurrentUser();
@@ -385,6 +386,7 @@ const Review = () => {
             ? PrepareCardMarkdown(deck?.templateBack || "", card.back)
             : PrepareCardMarkdown(deck?.templateFront || "", card.front)}
         </Markdown>
+        <TtsAudioControl card={card} deck={deck} side={showAnswer ? "BACK" : "FRONT"} />
       </div>
       <br />
       {showAnswer && (

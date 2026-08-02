@@ -5,6 +5,7 @@ import DeckWidget from "../Shared/DeckWidget.tsx";
 import { useCurrentUser } from "../../Shared/Authentication.ts";
 import Markdown from "../../Shared/Markdown.tsx";
 import { PrepareCardMarkdown } from "../../Shared/CardUtility.ts";
+import TtsAudioControl from "../Shared/TtsAudioControl.tsx";
 
 const ViewCard = () => {
   const { state } = useLocation();
@@ -25,12 +26,14 @@ const ViewCard = () => {
         <Markdown>
           {PrepareCardMarkdown(deck.templateFront, card.front)}
         </Markdown>
+        <TtsAudioControl card={card} deck={deck} side="FRONT" />
       </div>
       <br />
       <div className={"quiz-card"}>
         <Markdown>
           {PrepareCardMarkdown(deck.templateBack, card.back)}
         </Markdown>
+        <TtsAudioControl card={card} deck={deck} side="BACK" />
       </div>
     </div>
   );

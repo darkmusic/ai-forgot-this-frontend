@@ -19,6 +19,9 @@ export interface Deck {
   user?: User;
   templateFront: string;
   templateBack: string;
+  ttsEnabled?: boolean;
+  ttsModelId?: string | null;
+  ttsDefaultPresetId?: number | null;
 }
 
 export interface Card {
@@ -27,6 +30,40 @@ export interface Card {
   back: string;
   tags?: Tag[];
   deck?: Deck;
+  ttsText?: string | null;
+  ttsPresetId?: number | null;
+  ttsDisplaySide?: "FRONT" | "BACK" | null;
+}
+
+export interface TtsPreset {
+  id: number | null;
+  name: string;
+  speaker?: string | null;
+  language?: string | null;
+  caption?: string | null;
+  advancedConfigJson?: string | null;
+  sortOrder: number;
+}
+
+export interface DeckTtsSettings {
+  ttsEnabled: boolean;
+  ttsModelId?: string | null;
+  ttsDefaultPresetId?: number | null;
+  presets: TtsPreset[];
+}
+
+export interface TtsAudioResponse {
+  id: number;
+  cardId: number;
+  deckId: number;
+  presetId?: number | null;
+  cacheKey: string;
+  contentType: string;
+  generatedAt: number;
+  modelId: string;
+  presetName?: string | null;
+  audioUrl: string;
+  cached: boolean;
 }
 
 export interface Tag {

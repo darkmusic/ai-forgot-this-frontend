@@ -1,6 +1,6 @@
 import UserProfileWidget from "../Shared/UserProfileWidget.tsx";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Card, Deck, Tag } from "../../../constants/data/data.ts";
+import { Card, Deck, DeckTtsSettings, Tag } from "../../../constants/data/data.ts";
 import TagWidget from "../Shared/TagWidget.tsx";
 import {
   ChangeEvent,
@@ -43,9 +43,13 @@ const EditCard = () => {
     front: "",
     back: "",
     tags: [] as Tag[],
+    ttsText: "",
+    ttsPresetId: "",
+    ttsDisplaySide: "BACK",
     ai_question: "",
     ai_answer: "",
   });
+  const [ttsSettings, setTtsSettings] = useState<DeckTtsSettings | null>(null);
   // Add copied indicator for clipboard action
   const [copied, setCopied] = useState(false);
   // Add loading indicator state for AI request
@@ -78,6 +82,9 @@ const EditCard = () => {
           front: card.front || "",
           back: card.back || "",
           tags: card.tags || ([] as Tag[]),
+          ttsText: card.ttsText || "",
+          ttsPresetId: card.ttsPresetId != null ? String(card.ttsPresetId) : "",
+          ttsDisplaySide: card.ttsDisplaySide || "BACK",
           ai_question: "",
           ai_answer: "",
         });
@@ -85,6 +92,16 @@ const EditCard = () => {
       });
     }
   }, [card]);
+
+  useEffect(() => {
+    if (!deck?.id) return;
+    getJson<DeckTtsSettings>(`/api/deck/${deck.id}/tts`)
+      .then(setTtsSettings)
+      .catch((error) => {
+        console.error("Failed to load deck TTS settings:", error);
+        setTtsSettings(null);
+      });
+  }, [deck?.id]);
 
   useEffect(() => {
     if (showCopyModal && copyTextRef.current) {
@@ -177,6 +194,9 @@ const EditCard = () => {
       back: formData.back,
       tags: selectedCardTags,
       deck: deck,
+      ttsText: formData.ttsText || null,
+      ttsPresetId: formData.ttsPresetId ? Number(formData.ttsPresetId) : null,
+      ttsDisplaySide: formData.ttsDisplaySide === "FRONT" ? "FRONT" : "BACK",
     };
 
     // Send the card object to the server
@@ -428,6 +448,57 @@ const EditCard = () => {
                         />
                       </td>
                     </tr>
+                    {ttsSettings?.ttsEnabled ? (
+                      <>
+                        <tr>
+                          <td className={"edit-td-header-top"}>TTS Text:</td>
+                          <td className={"edit-td-data"}>
+                            <textarea
+                              name={"ttsText"}
+                              onChange={handleChange}
+                              className={"card"}
+                              value={formData.ttsText}
+                              rows={6}
+                              cols={50}
+                            />
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className={"edit-td-header"}>TTS Preset:</td>
+                          <td className={"edit-td-data"}>
+                            <select
+                              name="ttsPresetId"
+                              value={formData.ttsPresetId}
+                              onChange={handleChange}
+                            >
+                              <option value="">Deck default</option>
+                              {ttsSettings.presets.map((preset) => (
+                                <option
+                                  key={preset.id ?? `${preset.name}-${preset.sortOrder}`}
+                                  value={preset.id ?? ""}
+                                  disabled={preset.id == null}
+                                >
+                                  {preset.name}
+                                </option>
+                              ))}
+                            </select>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className={"edit-td-header"}>TTS Side:</td>
+                          <td className={"edit-td-data"}>
+                            <select
+                              name="ttsDisplaySide"
+                              value={formData.ttsDisplaySide}
+                              onChange={handleChange}
+                            >
+                              <option value="BACK">Back</option>
+                              <option value="FRONT">Front</option>
+                            </select>
+                          </td>
+                        </tr>
+                      </>
+                    ) : null}
                   </tbody>
                 </table>
               </td>
