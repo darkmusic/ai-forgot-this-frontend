@@ -249,8 +249,8 @@ const BulkCardEntry = ({
     const newRow: BulkCardRow = {
       cardId: null,
       tempId: `new-${Date.now()}`,
-      front: "",
-      back: "",
+      front: deck.templateFront || "",
+      back: deck.templateBack || "",
       tagNames: "",
       isDeleted: false,
     };

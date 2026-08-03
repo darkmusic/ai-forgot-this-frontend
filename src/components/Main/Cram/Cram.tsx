@@ -4,13 +4,11 @@ import { useCurrentUser } from "../../Shared/Authentication.ts";
 import { useState, useEffect, useMemo } from "react";
 import { SrsCardResponse, Tag } from "../../../constants/data/data.ts";
 import { getJson } from "../../../lib/api.ts";
-import Markdown from "../../Shared/Markdown.tsx";
-import { PrepareCardMarkdown } from "../../Shared/CardUtility.ts";
 import { useLocation, useNavigate } from "react-router-dom";
 import TagWidget, { TagMatchMode } from "../Shared/TagWidget.tsx";
 import TagCloud, { TagCloudEntry } from "../Shared/TagCloud.tsx";
 import { shuffleArray } from "../../../lib/shuffle.ts";
-import TtsAudioControl from "../Shared/TtsAudioControl.tsx";
+import TtsAnnotatedMarkdown from "../Shared/TtsAnnotatedMarkdown.tsx";
 
 const Cram = () => {
   const user = useCurrentUser();
@@ -381,12 +379,9 @@ const Cram = () => {
       </div>
       <br />
       <div className="quiz-card" onClick={() => setShowAnswer(!showAnswer)}>
-        <Markdown>
-          {showAnswer
-            ? PrepareCardMarkdown(deckInfo?.templateBack || "", card.back)
-            : PrepareCardMarkdown(deckInfo?.templateFront || "", card.front)}
-        </Markdown>
-        <TtsAudioControl card={card} deck={deckInfo} side={showAnswer ? "BACK" : "FRONT"} />
+        <TtsAnnotatedMarkdown card={card} deck={deckInfo} side={showAnswer ? "BACK" : "FRONT"}>
+          {showAnswer ? card.back : card.front}
+        </TtsAnnotatedMarkdown>
       </div>
       <br />
       <div className="cram-navigation-buttons">

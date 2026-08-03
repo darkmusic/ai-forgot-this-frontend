@@ -43,9 +43,7 @@ const EditCard = () => {
     front: "",
     back: "",
     tags: [] as Tag[],
-    ttsText: "",
-    ttsPresetId: "",
-    ttsDisplaySide: "BACK",
+    ttsConfigJson: "",
     ai_question: "",
     ai_answer: "",
   });
@@ -66,8 +64,8 @@ const EditCard = () => {
     (): Card =>
       state?.card || {
         id: 0,
-        front: "",
-        back: "",
+        front: deck?.templateFront || "",
+        back: deck?.templateBack || "",
         tags: [] as Tag[],
         deck: deck,
       },
@@ -82,9 +80,7 @@ const EditCard = () => {
           front: card.front || "",
           back: card.back || "",
           tags: card.tags || ([] as Tag[]),
-          ttsText: card.ttsText || "",
-          ttsPresetId: card.ttsPresetId != null ? String(card.ttsPresetId) : "",
-          ttsDisplaySide: card.ttsDisplaySide || "BACK",
+          ttsConfigJson: card.ttsConfigJson || "",
           ai_question: "",
           ai_answer: "",
         });
@@ -194,9 +190,7 @@ const EditCard = () => {
       back: formData.back,
       tags: selectedCardTags,
       deck: deck,
-      ttsText: formData.ttsText || null,
-      ttsPresetId: formData.ttsPresetId ? Number(formData.ttsPresetId) : null,
-      ttsDisplaySide: formData.ttsDisplaySide === "FRONT" ? "FRONT" : "BACK",
+      ttsConfigJson: formData.ttsConfigJson || null,
     };
 
     // Send the card object to the server
@@ -451,50 +445,17 @@ const EditCard = () => {
                     {ttsSettings?.ttsEnabled ? (
                       <>
                         <tr>
-                          <td className={"edit-td-header-top"}>TTS Text:</td>
+                          <td className={"edit-td-header-top"}>TTS Override JSON:</td>
                           <td className={"edit-td-data"}>
                             <textarea
-                              name={"ttsText"}
+                              name={"ttsConfigJson"}
                               onChange={handleChange}
                               className={"card"}
-                              value={formData.ttsText}
-                              rows={6}
+                              value={formData.ttsConfigJson}
+                              rows={10}
                               cols={50}
+                              spellCheck={false}
                             />
-                          </td>
-                        </tr>
-                        <tr>
-                          <td className={"edit-td-header"}>TTS Preset:</td>
-                          <td className={"edit-td-data"}>
-                            <select
-                              name="ttsPresetId"
-                              value={formData.ttsPresetId}
-                              onChange={handleChange}
-                            >
-                              <option value="">Deck default</option>
-                              {ttsSettings.presets.map((preset) => (
-                                <option
-                                  key={preset.id ?? `${preset.name}-${preset.sortOrder}`}
-                                  value={preset.id ?? ""}
-                                  disabled={preset.id == null}
-                                >
-                                  {preset.name}
-                                </option>
-                              ))}
-                            </select>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td className={"edit-td-header"}>TTS Side:</td>
-                          <td className={"edit-td-data"}>
-                            <select
-                              name="ttsDisplaySide"
-                              value={formData.ttsDisplaySide}
-                              onChange={handleChange}
-                            >
-                              <option value="BACK">Back</option>
-                              <option value="FRONT">Front</option>
-                            </select>
                           </td>
                         </tr>
                       </>

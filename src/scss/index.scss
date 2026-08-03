@@ -96,14 +96,53 @@ button {
 }
 
 .tts-audio-control {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
+  flex-wrap: wrap;
+  gap: 0.35rem;
   margin-top: 0.75rem;
 
   audio {
     max-width: 100%;
   }
+}
+
+.tts-audio-control-inline {
+  display: inline-flex;
+  margin-top: 0;
+  margin-left: 0.4rem;
+  vertical-align: middle;
+}
+
+.tts-markdown-row {
+  margin: 0.25rem 0;
+}
+
+.tts-markdown-row > p {
+  display: inline;
+  margin: 0;
+}
+
+.tts-audio-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tts-regenerate-button {
+  align-items: center;
+  display: inline-flex;
+  font-size: 1rem;
+  height: 1.75rem;
+  justify-content: center;
+  line-height: 1;
+  padding: 0;
+  width: 1.75rem;
+}
+
+.tts-status {
+  color: #555;
+  font-size: 0.85rem;
 }
 
 .tts-error {

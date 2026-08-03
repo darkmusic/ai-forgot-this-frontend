@@ -38,5 +38,9 @@ export const FilterCards = (
 };
 
 export const PrepareCardMarkdown = (template: string, cardContent: string) => {
-  return template.concat(" ", cardContent);
+  const trimmedTemplate = (template || "").trim();
+  const content = cardContent || "";
+  if (!trimmedTemplate) return content;
+  if (content.trimStart().startsWith(trimmedTemplate)) return content;
+  return `${trimmedTemplate} ${content}`;
 };

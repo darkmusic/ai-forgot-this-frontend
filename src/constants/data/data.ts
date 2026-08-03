@@ -21,7 +21,7 @@ export interface Deck {
   templateBack: string;
   ttsEnabled?: boolean;
   ttsModelId?: string | null;
-  ttsDefaultPresetId?: number | null;
+  ttsConfigJson?: string | null;
 }
 
 export interface Card {
@@ -30,38 +30,44 @@ export interface Card {
   back: string;
   tags?: Tag[];
   deck?: Deck;
-  ttsText?: string | null;
-  ttsPresetId?: number | null;
-  ttsDisplaySide?: "FRONT" | "BACK" | null;
-}
-
-export interface TtsPreset {
-  id: number | null;
-  name: string;
-  speaker?: string | null;
-  language?: string | null;
-  caption?: string | null;
-  advancedConfigJson?: string | null;
-  sortOrder: number;
+  ttsConfigJson?: string | null;
 }
 
 export interface DeckTtsSettings {
   ttsEnabled: boolean;
   ttsModelId?: string | null;
-  ttsDefaultPresetId?: number | null;
-  presets: TtsPreset[];
+  ttsConfigJson?: string | null;
+}
+
+export interface TtsPlaybackItem {
+  target: string;
+  variant: string;
+  label: string;
+  language?: string | null;
+  textSource?: string | null;
+  text: string;
+  displaySide: "FRONT" | "BACK";
+  modelId?: string | null;
+  audioId?: number | null;
+  audioUrl?: string | null;
+  cached: boolean;
 }
 
 export interface TtsAudioResponse {
   id: number;
   cardId: number;
   deckId: number;
-  presetId?: number | null;
   cacheKey: string;
   contentType: string;
   generatedAt: number;
   modelId: string;
-  presetName?: string | null;
+  target?: string | null;
+  variant?: string | null;
+  language?: string | null;
+  textSource?: string | null;
+  resolvedText?: string | null;
+  voice?: string | null;
+  speed?: number | null;
   audioUrl: string;
   cached: boolean;
 }

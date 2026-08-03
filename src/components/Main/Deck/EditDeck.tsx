@@ -1,6 +1,6 @@
 import UserProfileWidget from "../Shared/UserProfileWidget.tsx";
 import SearchAndFilterWidget from "../Shared/SearchAndFilterWidget.tsx";
-import { Card, Deck, DeckTtsSettings, Tag, TtsPreset } from "../../../constants/data/data.ts";
+import { Card, Deck, DeckTtsSettings, Tag } from "../../../constants/data/data.ts";
 import { ChangeEvent, FormEvent, useMemo, useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import HomeWidget from "../Shared/HomeWidget.tsx";
@@ -9,7 +9,32 @@ import TagWidget, { TagMatchMode } from "../Shared/TagWidget.tsx";
 import { useCurrentUser } from "../../Shared/Authentication.ts";
 import { deleteOk, getJson, postJson, putJson } from "../../../lib/api";
 import Markdown from "../../Shared/Markdown.tsx";
-import { PrepareCardMarkdown } from "../../Shared/CardUtility.ts";
+
+const DEFAULT_TTS_CONFIG = `{
+  "provider": "indic-parler-tts",
+  "targets": {
+    "word": { "enabled": true, "displaySide": "FRONT" },
+    "example": { "enabled": true, "displaySide": "BACK" }
+  },
+  "variants": {
+    "hindi": {
+      "language": "hi",
+      "textSource": "devanagari",
+      "caption": "",
+      "speaker": "",
+      "generationConfig": {}
+    },
+    "urdu": {
+      "language": "ur",
+      "textSource": "urduScript",
+      "caption": "",
+      "speaker": "",
+      "generationConfig": {}
+    }
+  },
+  "defaultVariant": "hindi",
+  "showVariantControls": "both"
+}`;
 
 const CardTable = (p: { cards: Card[]; deck: Deck }) => {
   const { cards, deck } = p;
@@ -71,16 +96,12 @@ const CardTable = (p: { cards: Card[]; deck: Deck }) => {
           <tr key={c.id ?? `${c.front}-${c.back}-${idx}`}>
             <td className={"edit-td-data"}>
               <div className="deck-card-markdown">
-                <Markdown>
-                  {PrepareCardMarkdown(deck.templateFront, c.front)}
-                </Markdown>
+                <Markdown>{c.front}</Markdown>
               </div>
             </td>
             <td className={"edit-td-data"}>
               <div className="deck-card-markdown">
-                <Markdown>
-                  {PrepareCardMarkdown(deck.templateBack, c.back)}
-                </Markdown>
+                <Markdown>{c.back}</Markdown>
               </div>
             </td>
             <td className={"edit-td-data"}>
@@ -158,8 +179,7 @@ const EditDeck = () => {
   const [ttsSettings, setTtsSettings] = useState<DeckTtsSettings>({
     ttsEnabled: false,
     ttsModelId: "",
-    ttsDefaultPresetId: null,
-    presets: [],
+    ttsConfigJson: DEFAULT_TTS_CONFIG,
   });
 
   // Get deck from state or create a new one if null
@@ -195,8 +215,7 @@ const EditDeck = () => {
       setTtsSettings({
         ttsEnabled: deck?.ttsEnabled || false,
         ttsModelId: deck?.ttsModelId || "",
-        ttsDefaultPresetId: deck?.ttsDefaultPresetId || null,
-        presets: [],
+        ttsConfigJson: deck?.ttsConfigJson || DEFAULT_TTS_CONFIG,
       });
       return;
     }
@@ -227,68 +246,15 @@ const EditDeck = () => {
   };
 
   const handleTtsSettingChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     const checked = e.target instanceof HTMLInputElement ? e.target.checked : false;
-    const nextValue =
-      name === "ttsEnabled"
-        ? checked
-        : name === "ttsDefaultPresetId"
-          ? value ? Number(value) : null
-          : value || null;
+    const nextValue = name === "ttsEnabled" ? checked : value || null;
     setTtsSettings((prev) => ({
       ...prev,
       [name]: nextValue,
     }));
-  };
-
-  const updatePreset = (
-    index: number,
-    field: keyof TtsPreset,
-    value: string
-  ) => {
-    setTtsSettings((prev) => ({
-      ...prev,
-      presets: prev.presets.map((preset, i) =>
-        i === index ? { ...preset, [field]: value } : preset
-      ),
-    }));
-  };
-
-  const addPreset = () => {
-    setTtsSettings((prev) => ({
-      ...prev,
-      presets: [
-        ...prev.presets,
-        {
-          id: null,
-          name: `Preset ${prev.presets.length + 1}`,
-          speaker: "",
-          language: "",
-          caption: "",
-          advancedConfigJson: "",
-          sortOrder: prev.presets.length,
-        },
-      ],
-    }));
-  };
-
-  const removePreset = (index: number) => {
-    setTtsSettings((prev) => {
-      const removed = prev.presets[index];
-      const presets = prev.presets
-        .filter((_, i) => i !== index)
-        .map((preset, sortOrder) => ({ ...preset, sortOrder }));
-      return {
-        ...prev,
-        presets,
-        ttsDefaultPresetId:
-          removed?.id != null && removed.id === prev.ttsDefaultPresetId
-            ? presets[0]?.id ?? null
-            : prev.ttsDefaultPresetId,
-      };
-    });
   };
 
   const handleDelete = () => {
@@ -342,7 +308,7 @@ const EditDeck = () => {
       templateBack: formData.templateBack || "",
       ttsEnabled: ttsSettings.ttsEnabled,
       ttsModelId: ttsSettings.ttsModelId || null,
-      ttsDefaultPresetId: ttsSettings.ttsDefaultPresetId || null,
+      ttsConfigJson: ttsSettings.ttsConfigJson || null,
     };
 
     // Send the deck object to the server
@@ -464,90 +430,16 @@ const EditDeck = () => {
                   </td>
                 </tr>
                 <tr>
-                  <td className={"edit-td-header"}>Default Preset:</td>
+                  <td className={"edit-td-header-top"}>TTS Config JSON:</td>
                   <td className={"edit-td-data"}>
-                    <select
-                      name="ttsDefaultPresetId"
-                      value={ttsSettings.ttsDefaultPresetId ?? ""}
+                    <textarea
+                      name="ttsConfigJson"
                       onChange={handleTtsSettingChange}
-                    >
-                      <option value="">First preset</option>
-                      {ttsSettings.presets
-                        .filter((preset) => preset.id != null)
-                        .map((preset) => (
-                          <option key={preset.id} value={preset.id ?? ""}>
-                            {preset.name}
-                          </option>
-                        ))}
-                    </select>
-                  </td>
-                </tr>
-                <tr>
-                  <td className={"edit-td-header-top"}>TTS Presets:</td>
-                  <td className={"edit-td-data"}>
-                    <table className="table tts-presets-table">
-                      <thead>
-                        <tr>
-                          <td className="table-column-header">Name</td>
-                          <td className="table-column-header">Speaker</td>
-                          <td className="table-column-header">Language</td>
-                          <td className="table-column-header">Caption</td>
-                          <td className="table-column-header">Advanced JSON</td>
-                          <td className="table-column-header">Actions</td>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {ttsSettings.presets.map((preset, index) => (
-                          <tr key={preset.id ?? index}>
-                            <td>
-                              <input
-                                value={preset.name}
-                                onChange={(e) => updatePreset(index, "name", e.target.value)}
-                                size={14}
-                              />
-                            </td>
-                            <td>
-                              <input
-                                value={preset.speaker || ""}
-                                onChange={(e) => updatePreset(index, "speaker", e.target.value)}
-                                size={12}
-                              />
-                            </td>
-                            <td>
-                              <input
-                                value={preset.language || ""}
-                                onChange={(e) => updatePreset(index, "language", e.target.value)}
-                                size={10}
-                              />
-                            </td>
-                            <td>
-                              <textarea
-                                value={preset.caption || ""}
-                                onChange={(e) => updatePreset(index, "caption", e.target.value)}
-                                rows={3}
-                                cols={28}
-                              />
-                            </td>
-                            <td>
-                              <textarea
-                                value={preset.advancedConfigJson || ""}
-                                onChange={(e) => updatePreset(index, "advancedConfigJson", e.target.value)}
-                                rows={3}
-                                cols={24}
-                              />
-                            </td>
-                            <td>
-                              <button type="button" onClick={() => removePreset(index)}>
-                                Remove
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                    <button type="button" onClick={addPreset}>
-                      Add Preset
-                    </button>
+                      value={ttsSettings.ttsConfigJson || DEFAULT_TTS_CONFIG}
+                      rows={24}
+                      cols={80}
+                      spellCheck={false}
+                    />
                   </td>
                 </tr>
               </>
