@@ -521,7 +521,7 @@ const EditCard = () => {
                         </div>
                         {/* Render AI answer with Markdown formatting */}
                         <div className="ai-answer-markdown">
-                          <Markdown>
+                          <Markdown deck={deck}>
                             {formData.ai_answer || ""}
                           </Markdown>
                         </div>

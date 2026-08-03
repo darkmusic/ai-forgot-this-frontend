@@ -36,6 +36,22 @@ const DEFAULT_TTS_CONFIG = `{
   "showVariantControls": "both"
 }`;
 
+const PRESENTATION_CONFIG_PLACEHOLDER = `{
+  "scriptStyles": {
+    "Arab": {
+      "fontFamily": "'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', 'Noto Naskh Arabic', serif",
+      "lineHeight": "2",
+      "direction": "rtl"
+    },
+    "Deva": {
+      "fontFamily": "'Noto Sans Devanagari', 'Nirmala UI', sans-serif"
+    },
+    "Jpan": {
+      "fontFamily": "'Noto Sans JP', 'Yu Gothic', 'Hiragino Sans', sans-serif"
+    }
+  }
+}`;
+
 const CardTable = (p: { cards: Card[]; deck: Deck }) => {
   const { cards, deck } = p;
   const navigate = useNavigate();
@@ -96,12 +112,12 @@ const CardTable = (p: { cards: Card[]; deck: Deck }) => {
           <tr key={c.id ?? `${c.front}-${c.back}-${idx}`}>
             <td className={"edit-td-data"}>
               <div className="deck-card-markdown">
-                <Markdown>{c.front}</Markdown>
+                <Markdown deck={deck} side="FRONT">{c.front}</Markdown>
               </div>
             </td>
             <td className={"edit-td-data"}>
               <div className="deck-card-markdown">
-                <Markdown>{c.back}</Markdown>
+                <Markdown deck={deck} side="BACK">{c.back}</Markdown>
               </div>
             </td>
             <td className={"edit-td-data"}>
@@ -175,6 +191,9 @@ const EditDeck = () => {
     deckTags: [] as Tag[],
     templateFront: "",
     templateBack: "",
+    alwaysAppliedTemplateFront: "",
+    alwaysAppliedTemplateBack: "",
+    presentationConfigJson: "",
   });
   const [ttsSettings, setTtsSettings] = useState<DeckTtsSettings>({
     ttsEnabled: false,
@@ -192,6 +211,10 @@ const EditDeck = () => {
         cards: [],
         tags: [],
         user: user,
+        templateFront: "",
+        templateBack: "",
+        alwaysAppliedTemplateFront: "",
+        alwaysAppliedTemplateBack: "",
       },
     [state, user]
   );
@@ -205,6 +228,9 @@ const EditDeck = () => {
         deckTags: deck.tags || [],
         templateFront: deck.templateFront || "",
         templateBack: deck.templateBack || "",
+        alwaysAppliedTemplateFront: deck.alwaysAppliedTemplateFront || "",
+        alwaysAppliedTemplateBack: deck.alwaysAppliedTemplateBack || "",
+        presentationConfigJson: deck.presentationConfigJson || "",
       });
       setSelectedDeckTags(deck.tags || []);
     }
@@ -257,6 +283,29 @@ const EditDeck = () => {
     }));
   };
 
+  const presentationConfigError = (() => {
+    const value = formData.presentationConfigJson.trim();
+    if (!value) return null;
+    try {
+      const parsed = JSON.parse(value);
+      if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
+        return "Presentation config must be a JSON object.";
+      }
+      const scriptStyles = (parsed as { scriptStyles?: unknown }).scriptStyles;
+      if (
+        scriptStyles !== undefined &&
+        (scriptStyles === null ||
+          typeof scriptStyles !== "object" ||
+          Array.isArray(scriptStyles))
+      ) {
+        return "scriptStyles must be a JSON object.";
+      }
+      return null;
+    } catch (error) {
+      return error instanceof Error ? error.message : "Invalid JSON.";
+    }
+  })();
+
   const handleDelete = () => {
     setDeleting(true);
     if (deck === null) {
@@ -306,6 +355,9 @@ const EditDeck = () => {
       user: user,
       templateFront: formData.templateFront || "",
       templateBack: formData.templateBack || "",
+      alwaysAppliedTemplateFront: formData.alwaysAppliedTemplateFront || "",
+      alwaysAppliedTemplateBack: formData.alwaysAppliedTemplateBack || "",
+      presentationConfigJson: formData.presentationConfigJson || null,
       ttsEnabled: ttsSettings.ttsEnabled,
       ttsModelId: ttsSettings.ttsModelId || null,
       ttsConfigJson: ttsSettings.ttsConfigJson || null,
@@ -367,7 +419,7 @@ const EditDeck = () => {
               </td>
             </tr>
             <tr>
-              <td className={"edit-td-header"}>Template Front:</td>
+              <td className={"edit-td-header"}>Template Front Default:</td>
               <td className={"edit-td-data"}>
                 <textarea
                   name="templateFront"
@@ -379,12 +431,36 @@ const EditDeck = () => {
               </td>
             </tr>
             <tr>
-              <td className={"edit-td-header"}>Template Back:</td>
+              <td className={"edit-td-header"}>Template Back Default:</td>
               <td className={"edit-td-data"}>
                 <textarea
                   name="templateBack"
                   onChange={handleChange}
                   value={formData.templateBack || ""}
+                  rows={3}
+                  cols={50}
+                />
+              </td>
+            </tr>
+            <tr>
+              <td className={"edit-td-header"}>Always Applied Template Front:</td>
+              <td className={"edit-td-data"}>
+                <textarea
+                  name="alwaysAppliedTemplateFront"
+                  onChange={handleChange}
+                  value={formData.alwaysAppliedTemplateFront || ""}
+                  rows={3}
+                  cols={50}
+                />
+              </td>
+            </tr>
+            <tr>
+              <td className={"edit-td-header"}>Always Applied Template Back:</td>
+              <td className={"edit-td-data"}>
+                <textarea
+                  name="alwaysAppliedTemplateBack"
+                  onChange={handleChange}
+                  value={formData.alwaysAppliedTemplateBack || ""}
                   rows={3}
                   cols={50}
                 />
@@ -402,6 +478,25 @@ const EditDeck = () => {
                   resultCount={selectedDeckTags.length}
                   resultCountLabel="Tags"
                 />
+              </td>
+            </tr>
+            <tr>
+              <td className={"edit-td-header-top"}>Presentation Config JSON:</td>
+              <td className={"edit-td-data"}>
+                <textarea
+                  name="presentationConfigJson"
+                  onChange={handleChange}
+                  value={formData.presentationConfigJson}
+                  rows={14}
+                  cols={80}
+                  spellCheck={false}
+                  placeholder={PRESENTATION_CONFIG_PLACEHOLDER}
+                />
+                {presentationConfigError ? (
+                  <div className="config-warning">
+                    Invalid presentation config: {presentationConfigError}
+                  </div>
+                ) : null}
               </td>
             </tr>
             <tr>

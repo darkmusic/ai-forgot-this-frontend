@@ -9,6 +9,7 @@
     "build:dev": "tsc -b --pretty --sourceMap && vite build --mode development --minify false",
     "build:prod": "tsc -b && vite build --mode production",
     "scss": "make compile-scss",
+    "test:script-styles": "NODE_PATH=./node_modules tsc --target ES2022 --module commonjs --moduleResolution node --jsx react-jsx --esModuleInterop --skipLibCheck --types node,react --outDir ../../target/frontend-script-style-tests test/ScriptStyleUtility.test.ts && NODE_PATH=./node_modules node --test ../../target/frontend-script-style-tests/test/ScriptStyleUtility.test.js",
     "deploy": "make deploy",
     "lint": "eslint .",
     "preview": "vite preview"

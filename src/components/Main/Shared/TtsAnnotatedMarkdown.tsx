@@ -92,7 +92,9 @@ const TtsAnnotatedMarkdown = (p: { card: Card; deck: Deck; side: TtsSide; childr
 
   useEffect(() => {
     let cancelled = false;
-    setItems([]);
+    void Promise.resolve().then(() => {
+      if (!cancelled) setItems([]);
+    });
     if (!deck?.ttsEnabled || card?.id == null) return;
     getJson<TtsPlaybackItem[]>(`/api/tts/card/${card.id}/items`)
       .then((resolvedItems) => {
@@ -161,8 +163,11 @@ const TtsAnnotatedMarkdown = (p: { card: Card; deck: Deck; side: TtsSide; childr
   return (
     <Markdown
       className="tts-annotated-markdown"
+      deck={deck}
+      side={side}
       components={{
-        li({ children: liChildren, className, node: _node, ...rest }) {
+        li({ children: liChildren, className, node: ignoredNode, ...rest }) {
+          void ignoredNode;
           const text = textFromNode(Children.toArray(liChildren));
           const controls = controlsForText(text);
           return (

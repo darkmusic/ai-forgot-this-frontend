@@ -19,6 +19,9 @@ export interface Deck {
   user?: User;
   templateFront: string;
   templateBack: string;
+  alwaysAppliedTemplateFront?: string | null;
+  alwaysAppliedTemplateBack?: string | null;
+  presentationConfigJson?: string | null;
   ttsEnabled?: boolean;
   ttsModelId?: string | null;
   ttsConfigJson?: string | null;
