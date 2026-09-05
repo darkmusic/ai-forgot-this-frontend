@@ -889,6 +889,70 @@ input, textarea, select, option, button {
 }
 
 // Bulk Card Entry Modal Styles
+.bulk-ai-tools {
+  color: $table-column-header-text;
+  min-width: 0;
+  flex-shrink: 0;
+  border: 1px solid $tag-border-color;
+  border-radius: 6px;
+  padding: 0.4rem 0.65rem;
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  legend { padding: 0 0.35rem; color: $heading-color; font-weight: bold; }
+  .bulk-entry-btn { padding: 0.3rem 0.55rem; font-size: 0.82rem; color: $table-column-header-text; }
+  input, select, textarea {
+    font: inherit;
+    color: $table-column-header-text;
+    background: $nav-button-bg;
+    border: 1px solid $tag-border-color;
+    border-radius: 4px;
+    padding: 0.25rem;
+  }
+  input[type="number"] { width: 4rem; }
+  input[type="checkbox"] { width: auto; }
+  summary { cursor: pointer; padding: 0.25rem 0; }
+  p { margin: 0.35rem 0; }
+}
+.bulk-ai-controls, .bulk-ai-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.6rem;
+  align-items: center;
+}
+.bulk-ai-status { margin-top: 0.3rem; min-height: 1.6rem; }
+.bulk-ai-error { border-left: 3px solid #dc3545; padding-left: 0.5rem; font-weight: bold; }
+.bulk-ai-options { margin-top: 0.3rem; }
+.bulk-ai-instructions { display: block; margin-top: 0.4rem; }
+.bulk-ai-instructions > .bulk-ai-help { display: block; }
+.bulk-ai-instructions textarea { width: 100%; box-sizing: border-box; resize: vertical; }
+.bulk-ai-help { display: inline-block; position: relative; }
+.bulk-ai-tooltip {
+  display: none;
+  pointer-events: none;
+  position: absolute;
+  z-index: 20;
+  top: 100%;
+  left: 0;
+  width: 19rem;
+  max-width: 70vw;
+  padding: 0.5rem;
+  border: 1px solid $tag-border-color;
+  border-radius: 4px;
+  background: $nav-button-bg;
+  color: $table-column-header-text;
+  font-size: 0.8rem;
+  font-weight: normal;
+  box-shadow: 0 3px 8px #0003;
+  white-space: normal;
+}
+.bulk-ai-help:hover > .bulk-ai-tooltip, .bulk-ai-help:focus-within > .bulk-ai-tooltip { display: block; }
+.bulk-ai-review { max-height: 22rem; overflow: auto; margin-top: 0.5rem; border-top: 1px solid $tag-border-color; }
+.bulk-ai-proposal { display: block; padding: 0.4rem 0; }
+.bulk-ai-comparison { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
+.bulk-ai-card-text { border: 1px solid $tag-border-color; padding: 0.4rem; margin-bottom: 0.4rem; }
+.bulk-ai-card-text pre { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; margin: 0.2rem 0 0.5rem; }
+@media (max-width: 640px) { .bulk-ai-comparison { grid-template-columns: 1fr; } }
+
 .bulk-entry-modal {
   max-width: 95vw;
   width: 95vw;

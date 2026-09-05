@@ -1,18 +1,13 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import * as React from "react";
 import { Deck, Tag } from "../../../constants/data/data.ts";
 import { postJson } from "../../../lib/api.ts";
 import SearchAndFilterWidget from "../Shared/SearchAndFilterWidget.tsx";
 import { TagMatchMode } from "../Shared/TagWidget.tsx";
 
-interface BulkCardRow {
-  cardId: number | null; // null for new cards, number for existing cards
-  tempId: string;
-  front: string;
-  back: string;
-  tagNames: string;
-  isDeleted: boolean;
-}
+import BulkAiTools from "./BulkAiTools";
+import type { BulkCardRow } from "../../../lib/deckAssist";
+import { newDraftRowId } from "../../../lib/deckAssist";
 
 const canonicalizeTagName = (name: string) =>
   name.trim().replace(/^#+/, "").replace(/\s+/g, " ");
@@ -69,6 +64,8 @@ const BulkCardEntry = ({
 }) => {
   const [rows, setRows] = useState<BulkCardRow[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [isAiBusy, setIsAiBusy] = useState(false);
+  const initializedDeck = useRef<number | null | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
 
   const [searchText, setSearchText] = useState("");
@@ -119,7 +116,9 @@ const BulkCardEntry = ({
 
   // Load existing cards when modal opens
   useEffect(() => {
-    if (isOpen && rows.length === 0) {
+    if (!isOpen) { initializedDeck.current = undefined; return; }
+    if (initializedDeck.current !== deck.id) {
+      initializedDeck.current = deck.id;
       // Convert existing cards to rows
       const existingCardRows: BulkCardRow[] = (deck.cards || []).map((card) => ({
         cardId: card.id,
@@ -136,24 +135,22 @@ const BulkCardEntry = ({
 
       setRows(existingCardRows);
     }
-  }, [isOpen, deck.cards, rows.length]);
+  }, [isOpen, deck.id, deck.cards]);
 
   const availableTags = useMemo<Tag[]>(() => {
     const byKey = new Map<string, Tag>();
-    for (const card of deck.cards || []) {
-      for (const tag of card.tags || []) {
-        const name = tag?.name?.trim();
-        if (!name) continue;
-        const key = `${tag.id ?? "name"}:${name.toLowerCase()}`;
-        if (!byKey.has(key)) {
-          byKey.set(key, { id: tag.id ?? null, name });
+    for (const row of rows.filter(r => !r.isDeleted)) {
+      for (const raw of row.tagNames.split(",")) {
+        const name = canonicalizeTagName(raw);
+        if (name && !byKey.has(normalizeTagName(name))) {
+          byKey.set(normalizeTagName(name), { id: null, name });
         }
       }
     }
     return Array.from(byKey.values()).sort((a, b) => a.name.localeCompare(b.name));
-  }, [deck.cards]);
+  }, [rows]);
 
-  const availableTagsForFilter = availableTags.length > 0 ? availableTags : undefined;
+  const availableTagsForFilter = availableTags;
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -236,19 +233,20 @@ const BulkCardEntry = ({
   }, [rows, searchText, selectedTags, tagMatchMode, sortKey, sortDirection, disableSorting]);
 
 
-  const handleCellChange = (tempId: string, field: keyof BulkCardRow, value: string) => {
-    setRows((prev) =>
-      prev.map((row) => (row.tempId === tempId ? { ...row, [field]: value } : row))
-    );
+  const handleCellChange = (tempId: string, field: "front" | "back" | "tagNames", value: string) => {
+    if (isAiBusy || isSaving) return;
+    setRows((prev) => prev.some(row => row.tempId === tempId && row[field] !== value)
+      ? prev.map(row => row.tempId === tempId ? { ...row, [field]: value } : row) : prev);
   };
 
   const addRow = () => {
+    if (isAiBusy || isSaving) return;
     // Adding a new row while sorting is enabled causes it to jump around as the
     // user types in the sorted field. Auto-disable sorting to keep the new row stable.
     setDisableSorting(true);
     const newRow: BulkCardRow = {
       cardId: null,
-      tempId: `new-${Date.now()}`,
+      tempId: newDraftRowId(),
       front: deck.templateFront || "",
       back: deck.templateBack || "",
       tagNames: "",
@@ -258,6 +256,7 @@ const BulkCardEntry = ({
   };
 
   const removeRow = (tempId: string) => {
+    if (isAiBusy || isSaving) return;
     setRows((prev) =>
       prev.map((row) =>
         row.tempId === tempId ? { ...row, isDeleted: true } : row
@@ -266,6 +265,7 @@ const BulkCardEntry = ({
   };
 
   const handleSave = async () => {
+    if (isAiBusy || isSaving) return;
     setError(null);
 
     // Separate rows into different categories
@@ -328,6 +328,7 @@ const BulkCardEntry = ({
   };
 
   const handleCancel = () => {
+    if (isSaving) return;
     setRows([]);
     setError(null);
     setDisableSorting(false);
@@ -360,9 +361,12 @@ const BulkCardEntry = ({
 
         {error && <div className="error-message">{error}</div>}
 
+        {isOpen && <BulkAiTools key={deck.id} deckName={deck.name} rows={rows} isSaving={isSaving}
+          onRows={setRows} onBusy={setIsAiBusy} onGenerated={() => setDisableSorting(true)} /> }
+
         <div className="bulk-entry-top-actions">
           <div className="bulk-entry-top-actions-left">
-            <button type="button" className="bulk-entry-btn" onClick={addRow}>
+            <button type="button" className="bulk-entry-btn" disabled={isAiBusy || isSaving} onClick={addRow}>
               + Add New Card
             </button>
             <label className="bulk-entry-disable-sorting">
@@ -401,7 +405,7 @@ const BulkCardEntry = ({
                 type="button"
                 className="bulk-entry-btn bulk-entry-btn-primary"
                 onClick={handleSave}
-                disabled={isSaving}
+                disabled={isSaving || isAiBusy}
               >
                 {isSaving ? "Saving..." : "Save All Changes"}
               </button>
@@ -465,6 +469,7 @@ const BulkCardEntry = ({
                     <td>
                       <textarea
                         className="bulk-entry-textarea"
+                        disabled={isAiBusy || isSaving}
                         value={row.front}
                         onChange={(e) => handleCellChange(row.tempId, "front", e.target.value)}
                         placeholder="Front text"
@@ -474,6 +479,7 @@ const BulkCardEntry = ({
                     <td>
                       <textarea
                         className="bulk-entry-textarea"
+                        disabled={isAiBusy || isSaving}
                         value={row.back}
                         onChange={(e) => handleCellChange(row.tempId, "back", e.target.value)}
                         placeholder="Back text"
@@ -484,6 +490,7 @@ const BulkCardEntry = ({
                       <input
                         type="text"
                         className="bulk-entry-input"
+                        disabled={isAiBusy || isSaving}
                         value={row.tagNames}
                         onChange={(e) => handleCellChange(row.tempId, "tagNames", e.target.value)}
                         onBlur={(e) => handleCellChange(row.tempId, "tagNames", formatTagNamesForDisplay(e.target.value))}
@@ -494,6 +501,7 @@ const BulkCardEntry = ({
                       <button
                         type="button"
                         className="bulk-entry-remove-btn"
+                        disabled={isAiBusy || isSaving}
                         onClick={() => removeRow(row.tempId)}
                         title={row.cardId === null ? "Remove row" : "Delete card"}
                       >
