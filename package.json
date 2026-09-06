@@ -12,7 +12,9 @@
     "test:script-styles": "NODE_PATH=./node_modules tsc --target ES2022 --module commonjs --moduleResolution node --jsx react-jsx --esModuleInterop --skipLibCheck --types node,react --outDir ../../target/frontend-script-style-tests test/ScriptStyleUtility.test.ts && NODE_PATH=./node_modules node --test ../../target/frontend-script-style-tests/test/ScriptStyleUtility.test.js",
     "deploy": "make deploy",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:deck-assist": "NODE_PATH=./node_modules tsc --target ES2022 --module commonjs --moduleResolution node --esModuleInterop --skipLibCheck --types node --outDir ../../target/frontend-deck-assist-tests test/DeckAssist.test.ts && NODE_PATH=./node_modules node --test ../../target/frontend-deck-assist-tests/test/DeckAssist.test.js",
+    "test:browser": "npm run scss && playwright test"
   },
   "dependencies": {
     "ai-forgot-this-frontend": "file:",
@@ -31,12 +33,14 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.38.0",
+    "@playwright/test": "^1.63.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^24.9.1",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
     "@types/react-syntax-highlighter": "^15.5.13",
     "@vitejs/plugin-react": "^5.1.0",
+    "esbuild": "0.28.1",
     "eslint": "^9.38.0",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
@@ -44,8 +48,7 @@
     "sass": "^1.93.2",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.2",
-    "vite": "7.3.5",
-    "esbuild": "0.28.1"
+    "vite": "7.3.5"
   },
   "allowScripts": {
     "@parcel/watcher@2.5.1": true,
