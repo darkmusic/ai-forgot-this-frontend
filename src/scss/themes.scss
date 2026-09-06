@@ -927,7 +927,7 @@ input, textarea, select, option, button {
 .bulk-ai-instructions textarea { width: 100%; box-sizing: border-box; resize: vertical; }
 .bulk-ai-help { display: inline-block; position: relative; }
 .bulk-ai-tooltip {
-  display: none;
+  opacity: 0;
   pointer-events: none;
   position: absolute;
   z-index: 20;
@@ -945,7 +945,7 @@ input, textarea, select, option, button {
   box-shadow: 0 3px 8px #0003;
   white-space: normal;
 }
-.bulk-ai-help:hover > .bulk-ai-tooltip, .bulk-ai-help:focus-within > .bulk-ai-tooltip { display: block; }
+.bulk-ai-help:hover > .bulk-ai-tooltip, .bulk-ai-help:focus-within > .bulk-ai-tooltip { opacity: 1; }
 .bulk-ai-review { max-height: 22rem; overflow: auto; margin-top: 0.5rem; border-top: 1px solid $tag-border-color; }
 .bulk-ai-proposal { display: block; padding: 0.4rem 0; }
 .bulk-ai-comparison { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
